@@ -1,0 +1,62 @@
+.register {
+  padding: 16px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+  }
+
+  .ant-table {
+    border: 1px solid #e8e8e8;
+  }
+
+  .ant-table-thead > tr > th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+
+  .ant-input {
+    width: 200px;
+  }
+
+  .ant-btn-link {
+    color: #1890ff;
+  }
+}
+
+
+
+
+.tabs-container {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.tab-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .tabs-actions-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tab-actions {
+    justify-content: flex-start; /* Align buttons to the left when stacked */
+    margin-top: 12px; /* Add space above the actions when they stack */
+  }
+}

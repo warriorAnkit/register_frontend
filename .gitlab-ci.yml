@@ -1,0 +1,81 @@
+variables:
+  BITBUCKET_REPO_URL: https://$BITBUCKET_CLOUD_USERNAME:$BITBUCKET_CLOUD_PASSWORD@bitbucket.org/dev-work-space/react-graphql-web-boilerplate.git
+
+stages:
+  - dev
+  - prod
+
+sync_gitlab_to_bitbucket:
+  stage: dev
+  script:
+    - git checkout "$CI_COMMIT_BRANCH"
+    - git pull
+    - git remote set-url origin $BITBUCKET_REPO_URL
+    - git push origin "$CI_COMMIT_BRANCH"
+  except:
+    - master
+    - main
+
+sync_gitlab_to_bitbucket_prod:
+  stage: prod
+  when: manual
+  script:
+    - git checkout "$CI_COMMIT_BRANCH"
+    - git pull
+    - git remote set-url origin $BITBUCKET_REPO_URL
+    - git push origin "$CI_COMMIT_BRANCH"
+  only:
+    - master
+    - main
+
+sonar_dev:
+  stage: dev
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - sonar-scanner -X -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+  only:
+    - dev
+
+verify_dev_env:
+  stage: dev
+  script:
+    - git clone https://$GITLAB_CI_CD_SCRIPT_USERNAME:$GITLAB_CI_CD_SCRIPT_PASSWORD@gitlab.com/infra-group/logicwind/general/gitlab-ci-cd-scripts.git
+    - cp -r ./gitlab-ci-cd-scripts/frontend/* ./
+    - chmod u+x verify-env-ci-cd-script.sh
+    - echo $DEV_ENV_FILE | tr -s "###" "\n" >> $GENERATED_ENV_FILE_NAME
+    - bash verify-env-ci-cd-script.sh $GENERATED_ENV_FILE_NAME $ENV_SAMPLE_FILE_NAME
+    - rm $GENERATED_ENV_FILE_NAME
+  needs:
+    - sonar_dev
+  only:
+    - dev
+
+build_dev:
+  stage: dev
+  image: node:19.9.0
+  before_script:
+    - npm i -g firebase-tools
+  script:
+    - export CI=false
+    - echo $DEV_ENV_FILE | tr -s "###" "\n" | awk '{print "export " $1}' >> $GENERATED_ENV_FILE_NAME
+    - source $GENERATED_ENV_FILE_NAME
+    - npm install
+    - npm run build
+    - echo "$FIREBASE_SERVICE_ACCOUNT_KEY_DEV" > firebase-service-account.json
+    - export GOOGLE_APPLICATION_CREDENTIALS="$CI_PROJECT_DIR/firebase-service-account.json"
+    - npm install -g firebase-tools@11.30.0
+    - firebase deploy --only hosting:react-graphql-boilerplate --project "dev"
+    - rm -rf build/
+  needs:
+    - verify_dev_env
+  only:
+    - dev

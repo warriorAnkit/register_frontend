@@ -1,0 +1,18 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "endOfLine": "auto",
+  "prettier.semi": true,
+  "prettier.disableLanguages": ["js"],
+  "prettier.stylelintIntegration": true,
+  "stylelint": {
+    "extends": [
+      "stylelint-config-idiomatic-order",
+      "./node_modules/prettier-stylelint/config.js"
+    ],
+    "rules": {
+      "indentation": 4,
+      "string-quotes": "single"
+    }
+  }
+}
