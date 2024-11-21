@@ -1,0 +1,617 @@
+@import 'variable';
+
+#root {
+  height: 100vh;
+}
+
+//=========================================
+/********** margin padding function start here **************/
+//=========================================
+.for(@i, @n) {
+  .-each(@i);
+}
+
+.for(@n) when (isnumber(@n)) {
+  .for(1, @n);
+}
+
+.for(@i, @n) when not (@i =@n) {
+  .for((@i + (@n - @i) / abs(@n - @i)), @n);
+}
+
+//--------  End of for loop  ---------//
+//=========================================
+//              FOR EACH LOOP             =
+//=========================================
+.for(@array) when (default()) {
+  .for-impl_(length(@array));
+}
+
+.for-impl_(@i) when (@i > 1) {
+  .for-impl_((@i - 1));
+}
+
+.for-impl_(@i) when (@i > 0) {
+  .-each(extract(@array, @i));
+}
+
+//--------  End of for each loop  ---------//
+
+@values-array: 0, 8, 16, 24, 32, 40, 48;
+
+// init functions
+.make-space() {
+  .for(@values-array);
+
+  .-each(@value) {
+    .p-@{value} {
+      padding: ~'@{value}px';
+    }
+
+    .pt-@{value} {
+      padding-top: ~'@{value}px';
+    }
+
+    .pl-@{value} {
+      padding-left: ~'@{value}px';
+    }
+
+    .pr-@{value} {
+      padding-right: ~'@{value}px';
+    }
+
+    .pb-@{value} {
+      padding-bottom: ~'@{value}px';
+    }
+
+    .m-@{value} {
+      margin: ~'@{value}px';
+    }
+
+    .mt-@{value} {
+      margin-top: ~'@{value}px';
+    }
+
+    .ml-@{value} {
+      margin-left: ~'@{value}px';
+    }
+
+    .mr-@{value} {
+      margin-right: ~'@{value}px';
+    }
+
+    .mb-@{value} {
+      margin-bottom: ~'@{value}px';
+    }
+  }
+}
+
+.make-space();
+
+//=========================================
+/********** margin padding function end here **************/
+//=========================================
+.m-hide {
+  display: block;
+
+  @media @screen767 {
+    display: none;
+  }
+}
+
+.d-hide {
+  display: none;
+
+  @media @screen767 {
+    display: block;
+  }
+}
+
+.wrapper {
+  padding: 32px;
+  padding-bottom: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  @media @screen991 {
+    font-size: 14px;
+    padding: 24px;
+  }
+
+  @media @screen767 {
+    padding: 16px;
+    padding-bottom: 0;
+  }
+}
+
+.responsive-table {
+  width: 100%;
+  overflow: auto;
+}
+
+.ant-table {
+  & .ant-table-tbody {
+    & .anticon {
+      font-size: 20px;
+      padding: 0 4px;
+    }
+  }
+}
+
+.ant-table {
+  & .ant-table-tbody {
+    & .ant-btn {
+      margin: 0;
+      padding: 0;
+      height: auto;
+    }
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.grab {
+  cursor: grab;
+}
+
+//=========================================
+/********** text alignment start here **************/
+//=========================================
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-end {
+  text-align: end;
+}
+
+//=========================================
+/********** text alignment end here **************/
+//=========================================
+
+//=========================================
+/********** flex box class start here **************/
+//=========================================
+
+.d-flex {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.flex-horizontal {
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+
+.flex-vertical {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.justify-center {
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.justify-start {
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+}
+
+.justify-end {
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+}
+
+.justify-between {
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.justify-around {
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
+}
+
+.align-center {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.align-start {
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+}
+
+.align-end {
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+}
+
+.flex-grow-1 {
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+}
+
+.flex-grow-2 {
+  -webkit-box-flex: 2;
+  -ms-flex-positive: 2;
+  flex-grow: 2;
+}
+
+.flex-shrink-0 {
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.flex-shrink-1 {
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
+}
+
+.flex-shrink-2 {
+  -ms-flex-negative: 2;
+  flex-shrink: 2;
+}
+
+.flex-wrap {
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.align-self-end {
+  -ms-flex-item-align: end;
+  align-self: flex-end;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+//=========================================
+/********** flex box class end here **************/
+//=========================================
+
+//width classes
+.width-percent-20 {
+  width: 20%;
+}
+
+.width-percent-50 {
+  width: 50%;
+}
+
+.width-percent-60 {
+  width: 60%;
+}
+
+.width-percent-80 {
+  width: 80%;
+}
+
+.width-percent-40 {
+  width: 40%;
+}
+
+.width-percent-5 {
+  width: 5%;
+}
+
+.width-percent-25 {
+  width: 25%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-height {
+  height: 100%;
+}
+
+//width classes
+
+.site-result-demo-error-icon {
+  color: @colorError;
+}
+
+//border style
+.b-0 {
+  border: none;
+}
+
+//border style
+
+/*position class start here*/
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.sticky {
+  position: sticky;
+}
+
+/*position class end here*/
+
+//CUSTOM STYLE CLASSES END
+
+.header-wrapper {
+  .d-flex;
+  .justify-between;
+  .align-center;
+}
+
+.sticky-action-form {
+  .ant-card-head-title {
+    @media @screen767 {
+      padding: 0;
+    }
+  }
+
+  .ant-page-header-heading {
+    @media @screen767 {
+      padding: 0;
+      min-height: 48px;
+    }
+  }
+}
+
+#logo {
+  height: 64px;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 18px;
+  font-family: PuHuiTi, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Helvetica Neue, Arial, Noto Sans, sans-serif, apple color emoji,
+    segoe ui emoji, Segoe UI Symbol, noto color emoji, sans-serif;
+  line-height: 64px;
+  letter-spacing: -0.18px;
+  white-space: nowrap;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  .d-flex;
+  .align-center;
+  .justify-center;
+  color: #121d45;
+
+  img {
+    height: 32px;
+  }
+}
+
+.delete-icon {
+  color: rgb(233, 36, 36);
+  cursor: pointer;
+}
+
+/*table draggable css start here*/
+.row-dragging {
+  background: #fafafa;
+  border: 1px solid #ccc;
+}
+
+.row-dragging td {
+  padding: 16px;
+}
+
+.row-dragging .drag-visible {
+  visibility: visible;
+}
+
+.react-tel-input .invalid-number-message {
+  left: 0px;
+  top: 35px;
+  background: none;
+}
+
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+/*sidebar custom less start here*/
+
+.responsive-logo img {
+  width: 44px;
+}
+
+.ant-layout-sider.close {
+  width: 0;
+  max-width: 0;
+  min-width: 0 !important;
+  left: 0;
+}
+
+.ant-layout-sider {
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+
+  @media @screen767 {
+    width: 0;
+    max-width: 0;
+    position: fixed !important;
+    height: 100%;
+    left: -240px;
+    z-index: 12;
+  }
+}
+
+.app-header,
+.app-main-sidebar .cr-user-info {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.ant-layout.ant-layout-has-sider {
+  height: 100vh;
+}
+
+.ant-layout-header {
+  @media @screen767 {
+    padding: 0 16px !important;
+  }
+}
+
+header.ant-layout-header.site-layout-sub-header-background.app-header {
+  height: 64px;
+  padding: 0 32px;
+  color: #545454;
+  line-height: 64px;
+  background: #fff;
+}
+
+.overlay-disable {
+  @media @screen767 {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .overlay-responsive.active {
+    display: block;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    background: #000;
+    opacity: 0.6;
+    z-index: 11;
+  }
+}
+
+/*sidebar custom less end here*/
+.ant-layout-footer {
+  @media @screen767 {
+    padding: 16px 50px;
+  }
+}
+
+/* width */
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb {
+  width: 8px;
+  background-clip: padding-box;
+  color: transparent;
+  border-left: 0 solid transparent;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 0 0 0 8px;
+  box-shadow: inset 0 0 0 8px;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  border-left: 8px solid rgba(0, 0, 0, 0.3);
+  background-clip: padding-box;
+  -webkit-box-shadow: inset 0 0 0 8px;
+  box-shadow: inset 0 0 0 8px;
+}
+
+/*ant card body scroll class*/
+.ant-body-scroll {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  overflow: auto;
+
+  .ant-card-head {
+    position: relative;
+    z-index: 1;
+  }
+
+  // .ant-card-head-title {
+  //   padding: 0;
+  // }
+
+  .ant-page-header-heading {
+    min-height: 48px;
+  }
+
+  > .ant-card-body {
+    flex: 1 1;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+
+    .card-body-wrapper {
+      height: 100%;
+      overflow: auto;
+      padding: 24px;
+    }
+  }
+}
+
+.ant-card-small {
+  > .ant-card-body {
+    .card-body-wrapper {
+      padding: 12px;
+    }
+  }
+}
+
+.ant-card .ant-card-actions > li {
+  margin: 12px 24px;
+}
+
+.title {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 22px;
+  margin-bottom: 5px;
+  svg {
+    margin-right: 5px;
+    font-size: 16px;
+  }
+}
+
+/*antbody scroll class end here*/
+/*fleg dropdown css start here*/
+.react-tel-input .form-control {
+  padding: 4px 14px 4px 60px;
+  width: 100%;
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/*fleg dropdown css end here*/

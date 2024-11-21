@@ -1,0 +1,41 @@
+.login-wrap {
+  width: 90%;
+  max-width: 500px;
+  padding: 0 20px;
+  height: 100%;
+  overflow: auto;
+  margin: auto;
+  position: relative;
+
+  .ant-card {
+    margin: auto;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%),
+      0 4px 6px -2px rgb(0 0 0 / 5%);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .login-copyrights {
+    position: absolute;
+    bottom: 10px;
+    width: 90%;
+    left: 0;
+    right: 0;
+    margin: auto;
+    color: rgba(0, 0, 0, 0.45);
+    box-sizing: border-box;
+    font-size: 14px;
+
+    @media (max-width: 991px) and (orientation: landscape) {
+      display: none;
+    }
+  }
+}
+
+.auth-bg {
+  background-image: url(../../assets/images/loginBg.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  height: 100vh;
+}

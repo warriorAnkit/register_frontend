@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "dev": "react-graphql-boilerplate"
+  },
+  "targets": {
+    "react-graphql-boilerplate": {
+      "hosting": {
+        "react-graphql-boilerplate": [
+          "react-graphql-boilerplate"
+        ]
+      }
+    }
+  }
+}

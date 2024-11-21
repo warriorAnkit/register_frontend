@@ -1,0 +1,171 @@
+
+/* eslint-disable no-console */
+import React, { useState } from 'react';
+import { Modal, Upload, Button, message, Input } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import Papa from 'papaparse'; // Import Papa Parse
+import { ROUTES } from '../../../common/constants';
+
+const transformData = (parsedData) => {
+
+
+  const fields = parsedData
+    .filter(item => item.Type === "Field")
+    .map(item => {
+      const field = {
+        fieldName: item.Name,
+        fieldType: item["field type"].toUpperCase().replace(/_/g, " "),
+        isRequired: item["Is Required"].toLowerCase() === "yes",
+      };
+
+      if (field.fieldType === "OPTIONS" || field.fieldType === "CHECKBOXES") {
+        field.options = item.Options ? item.Options.split(",") : [];
+      } else {
+        field.options = null;
+      }
+
+      return field;
+    });
+
+  const properties = parsedData
+    .filter(item => item.Type === "Property")
+    .map(item => {
+      const property = {
+        propertyName: item.Name,
+        propertyFieldType: item["field type"].toUpperCase().replace(/_/g, " "),
+        isRequired: item["Is Required"].toLowerCase() === "yes",
+      };
+
+      if (property.propertyFieldType === "OPTIONS" || property.propertyFieldType === "CHECKBOXES") {
+        property.options = item.Options ? item.Options.split(",") : [];
+      } else {
+        property.options = null;
+      }
+
+      return property;
+    });
+
+  return { fields, properties };
+};
+
+const FileUploadModal = ({ visible, onClose }) => {
+  const [file, setFile] = useState(null); // Store single file
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState(''); // State to hold the input name
+  const navigate = useNavigate();
+
+  // Handle file selection
+  const handleFileChange = ({ fileList }) => {
+    setFile(fileList.length ? fileList[0] : null); // Only one file can be selected
+  };
+
+  // Handle file upload
+  const handleUpload = async () => {
+    if (!file) {
+      message.error('Please select a file to upload!');
+      return;
+    }
+    if (!name) {
+      message.error('Please enter a name for the register!');
+      return;
+    }
+
+    setLoading(true);
+    console.log("Starting file upload...");
+
+    // Parse the CSV or JSON file
+    // eslint-disable-next-line no-undef
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      const fileContent = fileReader.result;
+
+      let parsedData;
+      if (file.name.endsWith('.csv')) {
+        // Parse CSV file
+        parsedData = Papa.parse(fileContent, {
+          header: true, // Treat first row as headers
+          skipEmptyLines: true,
+        }).data;
+      } else if (file.name.endsWith('.json')) {
+        // Parse JSON file
+        try {
+          parsedData = JSON.parse(fileContent);
+        } catch (error) {
+          message.error('Failed to parse JSON file!');
+          setLoading(false);
+          return;
+        }
+      } else {
+        message.error('Invalid file format! Only CSV are accepted.');
+        setLoading(false);
+        return;
+      }
+
+      // Transform the data after parsing
+      const transformedData = transformData(parsedData);
+
+      // Log transformed data for debugging
+      console.log("Transformed data:", transformedData);
+
+      // Navigate to the new page and pass the transformed data and name
+      navigate(ROUTES.PREVIEW_REGISTER, { state: { transformedData, name } });
+
+      // Reset file and close modal
+      setFile(null);
+      setName('');
+      onClose();
+      setLoading(false);
+    };
+
+    // Read the file content
+    fileReader.readAsText(file.originFileObj);
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      title="Upload CSV File for Register Import"
+      onCancel={onClose}
+      footer={[
+        <Button key="back" onClick={onClose}>
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={handleUpload}
+        >
+          Upload
+        </Button>,
+      ]}
+    >
+      <div>
+        {/* Input field for entering the name */}
+        <Input
+          placeholder="Enter the register name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{ marginBottom: 20 }}
+        />
+      </div>
+      <Upload
+        beforeUpload={() => false} // Disable automatic upload
+        fileList={file ? [file] : []} // Only display the selected file
+        onChange={handleFileChange}
+        accept=".csv" // Accepted file formats
+      >
+        <Button icon={<UploadOutlined />}>Select File</Button>
+      </Upload>
+      <div style={{ marginTop: 20 }}>
+        <p>Accepted formats: CSV</p>
+        <p>Ensure the file contains the correct structure for field data.</p>
+        {/* Added link to sample file */}
+        <p>Here is a <a href="https://drive.google.com/file/d/your_sample_file_id/view" target="_blank" rel="noopener noreferrer"><strong>sample file</strong></a> to help you format your data correctly.</p>
+      </div>
+    </Modal>
+  );
+};
+
+export default FileUploadModal;

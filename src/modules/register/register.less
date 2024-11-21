@@ -1,0 +1,85 @@
+.radio-icon {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #000;      // Outer circle
+  border-radius: 50%;          // Make it circular
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;                 // Inner dot color
+
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background-color: #000;
+    border-radius: 50%;
+  }
+}
+
+
+.custom-modal {
+  .ant-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .add-entry-button {
+    margin-bottom: 16px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+}
+
+.table-container {
+  margin-bottom: 16px; /* Adjust margin to ensure space between the table and footer */
+  overflow-y: auto;
+  flex: 1;
+  min-height: 100vh;
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between; /* Distributes buttons on either side */
+  align-items: center;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  height: 50px;
+  padding: 16px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center; /* Center pagination */
+  flex-grow: 1;
+}
+
+.pagination-footer .ant-pagination {
+  margin-top: 8px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+}

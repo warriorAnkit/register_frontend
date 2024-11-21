@@ -1,0 +1,28 @@
+version: 2.1
+
+jobs:
+  deploy_dev:
+    circleci_ip_ranges: true
+    docker: # use the Docker executor
+      - image: node:18.12.1
+    steps:
+      - checkout
+      - run: export CI=false
+      - run: export REACT_APP_SERVER_URL=$REACT_APP_SERVER_URL
+      - run: export REACT_APP_SERVER_REST_URL=$REACT_APP_SERVER_REST_URL
+      - run: export REACT_APP_SENTRY_DSN=$REACT_APP_SENTRY_DSN
+      - run: export REACT_APP_ENV=$REACT_APP_ENV
+      - run: export REACT_APP_MAINTENANCE_ENABLE=$REACT_APP_MAINTENANCE_ENABLE
+      - run: npm install
+      - run: npm run build
+      - run: npm install -g firebase-tools@7.13.0
+      - run: firebase deploy --only hosting:react-graphql-boilerplate --non-interactive --token $FIREBASE_TOKEN
+
+workflows:
+  deploy:
+    jobs:
+      - deploy_dev:
+          filters:
+            branches:
+              only:
+                - dev
