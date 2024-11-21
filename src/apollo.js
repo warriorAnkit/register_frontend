@@ -16,6 +16,9 @@ const httpLink = createHttpLink({
   uri: process.env.REACT_APP_SERVER_URL,
 });
 
+// eslint-disable-next-line no-console
+console.log(httpLink);
+
 const toast = ({ message: content, type }) => {
   messageContext?.destroy();
   switch (type) {
