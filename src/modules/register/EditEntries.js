@@ -177,8 +177,8 @@ const EditEntry = () => {
     const templateName = templateData?.getTemplateById?.name || 'Unknown Template';
     const projectId = templateData?.getTemplateById?.projectId || 'Unknown Project';
     const properties = propertiesData;
-    const headerLogo = 'https://digiqc-staging-public.s3.ap-south-1.amazonaws.com/digiqc-logos/digiqc-log0-192x64.png';
-    const footerLogo = 'https://digiqc-staging-public.s3.ap-south-1.amazonaws.com/digiqc-logos/digiqc-log0-192x64.png';
+    const headerLogo = 'https://i.imgur.com/ag6OZGW.png';
+    const footerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerText = 'Digitize.Monitor.Improve';
 
     const leftLogoWidth = 30;

@@ -274,8 +274,8 @@ const client = useApolloClient();
 
 const exportPDF = async (column, data, fileName) => {
   try {
-    const headerLogo = 'https://digiqc-staging-public.s3.ap-south-1.amazonaws.com/digiqc-logos/digiqc-log0-192x64.png';
-    const footerLogo = 'https://digiqc-staging-public.s3.ap-south-1.amazonaws.com/digiqc-logos/digiqc-log0-192x64.png';
+    const headerLogo = 'https://i.imgur.com/ag6OZGW.png';
+    const footerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerText = 'Digitize.Monitor.Improve'; // Center footer text
 
     const filteredColumns = column.filter(col => col.title !== 'Edit');
