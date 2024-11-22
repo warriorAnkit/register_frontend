@@ -8,7 +8,6 @@ const { TextArea } = Input;
 const PropertiesModal = ({ visible, onCancel, onSubmit, properties }) => {
   const [form] = Form.useForm();
 // eslint-disable-next-line no-console
-console.log(properties);
 
   // Initialize form values when the modal opens
   useEffect(() => {
@@ -59,12 +58,10 @@ console.log(properties);
         ));
       case 'NUMERIC':
         return <InputNumber min={0} />;
-      case 'DATE_PICKER':
+      case 'DATE':
         return <Input type="date" />;
-      case 'ATTACHMENT':
-        return <Input type="file" />;
       case 'CALCULATION':
-        return <Input disabled />;
+        return <Input   defaultValue="*" />;
       default:
         return null;
     }

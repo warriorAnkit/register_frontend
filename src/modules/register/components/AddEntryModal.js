@@ -219,7 +219,7 @@ const AddEntryModal = ({ visible, onCancel, onSubmit, fields, initialValues }) =
                     },
                   }]
                 : []),
-              ...(field.fieldType === 'DATE_PICKER'
+              ...(field.fieldType === 'DATE'
                 ? [{ type: 'date', message: `${field.fieldName} must be a valid date` }]
                 : []),
             ]}
@@ -241,7 +241,7 @@ const AddEntryModal = ({ visible, onCancel, onSubmit, fields, initialValues }) =
                 ))}
               </Select>
             )}
-            {field.fieldType === 'DATE_PICKER' && <DatePicker style={{ width: '100%' }} />}
+            {field.fieldType === 'DATE' && <Input type="date" /> }
             {field.fieldType === 'CHECKBOXES' && (
               <Checkbox.Group style={{ width: '100%' }}>
                 {field.options.map(option => (

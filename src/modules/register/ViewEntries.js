@@ -20,9 +20,6 @@ import FullNameById from './components/userFullName';
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
 
-
-
-
 const ViewEntries = () => {
   const [activeTab, setActiveTab] = useState('set');
   const [searchText, setSearchText] = useState('');
@@ -80,14 +77,11 @@ const ViewEntries = () => {
 console.log("res----",filteredData)
   useEffect(() => {
     if (entryResponseData && templateData) {
-
-
       const rows = entryResponseData?.getAllResponsesForTemplate?.responses?.map((set) => set.fieldResponses.map((fieldRow) => {
         const row = {
           setId: set.setId,
           createdAt: set.propertyResponses[0]?.createdAt,
         };
-
         set.propertyResponses.forEach((response) => {
           row[response.propertyId] = response.value;
         });
@@ -105,16 +99,13 @@ console.log("res----",filteredData)
 
   const handleDateChange = (dates) => {
     setDateRange(dates);
-
     if (dates) {
       const [startDate, endDate] = dates;
-
       const filteredSets = responseData.getAllPropertyResponsesForTemplate.propertyResponses.filter((row) => {
         const createdAt = moment(row.createdAt);
         return createdAt.isBetween(startDate, endDate, 'day', '[]');
       });
       setFilteredData(filteredSets);
-
       const filteredEntries = entryResponseData.getAllResponsesForTemplate.responses.filter((set) => {
         const createdAt = moment(set.propertyResponses[0]?.createdAt);
         return createdAt.isBetween(startDate, endDate, 'day', '[]');
@@ -156,9 +147,6 @@ console.log("res----",filteredData)
           : 'Invalid Date';
       },
     },
-
-
-
     {
       title: 'Created By',
       dataIndex: 'createdById',

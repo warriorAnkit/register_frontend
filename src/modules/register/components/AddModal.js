@@ -103,6 +103,7 @@ const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
       form.resetFields(); // Clear form if adding a new entry
     }
   }, [initialValues, form]);
+// eslint-disable-next-line no-console
 
   // eslint-disable-next-line no-console
   console.log("initials: ",initialValues);
@@ -196,7 +197,7 @@ const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
                   },
                 ]
               : []),
-            ...(field.fieldType === 'DATE_PICKER'
+            ...(field.fieldType === 'DATE'
               ? [{ type: 'date', message: `${field.fieldName} must be a valid date` }]
               : []),
           ];
@@ -239,7 +240,7 @@ const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
                   </Checkbox.Group>
                 </Form.Item>
               );
-            case 'DATE_PICKER':
+            case 'DATE':
               return (
                 <Form.Item {...fieldProps} rules={rules}>
                   <DatePicker format="DD/MM/YYYY" />
