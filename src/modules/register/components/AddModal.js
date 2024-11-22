@@ -77,8 +77,8 @@
 // };
 
 // export default AddModal;
+import { Checkbox, Form, Input, Modal, Select } from 'antd';
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, DatePicker, Checkbox } from 'antd';
 
 const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
   const [form] = Form.useForm();
@@ -243,7 +243,11 @@ const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
             case 'DATE':
               return (
                 <Form.Item {...fieldProps} rules={rules}>
-                  <DatePicker format="DD/MM/YYYY" />
+               <Input
+        type="date"
+        style={{ width: '100%' }}
+        placeholder={`Select ${field.fieldName}`}
+      />
                 </Form.Item>
               );
             default:
