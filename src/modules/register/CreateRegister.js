@@ -43,9 +43,8 @@ const CreateRegisterPage = () => {
     options: 'OPTIONS',
     checkboxes: 'CHECKBOXES',
     numeric: 'NUMERIC',
-    datePicker: 'DATE_PICKER',
+    datePicker: 'DATE',
     attachment: 'ATTACHMENT',
-    calculation: 'CALCULATION',
   };
   // Define all available types
   const fieldTypes = [
@@ -56,7 +55,7 @@ const CreateRegisterPage = () => {
     { label: 'Numeric', value: 'numeric' },
     { label: 'Date picker', value: 'datePicker' },
     { label: 'Attachment', value: 'attachment' },
-    { label: 'Calculation', value: 'calculation' },
+
   ];
 
   // Columns for both tables

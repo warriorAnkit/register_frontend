@@ -131,7 +131,7 @@ const PropertiesModal = ({ visible, onCancel, onSubmit, properties, fieldData })
           </Checkbox.Group>
         );
 
-      case 'DATE_PICKER':
+      case 'DATE':
         return (
           <DatePicker
             value={value ? moment(value, 'DD/MM/YYYY') : null}

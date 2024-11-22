@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-alert */
-
 import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useParams } from 'react-router-dom';
@@ -47,8 +46,6 @@ const FillTable = () => {
   const handleAddEntry = () => {
     setEditingIndex(null);
     setIsModalVisible(true);
-    // eslint-disable-next-line no-console
-    console.log(page)
   };
 
   const handleEditEntry = (index) => {

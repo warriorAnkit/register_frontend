@@ -77,6 +77,8 @@ const LogsPage = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
+  // eslint-disable-next-line no-console
+  console.log(paginatedLogs);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -148,6 +150,9 @@ const LogsPage = () => {
         pagination={false}
         bordered
         style={{ marginTop: '100px' }}
+        onRow={(record) => ({
+          onClick: () => navigate(`/register/edit-entries/${record.templateId}/${record.setId}`),
+        })}
       />
       </div>
       {filteredLogs.length === 0 && (
