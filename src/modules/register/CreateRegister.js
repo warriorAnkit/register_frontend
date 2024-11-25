@@ -1,134 +1,66 @@
-/* eslint-disable no-alert */
-/* eslint-disable no-undef */
 /* eslint-disable no-console */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-use-before-define */
-import React, { useState } from 'react';
+/* eslint-disable no-undef */
+/* eslint-disable react/no-array-index-key */
+import React, { useState, useEffect } from 'react';
 import {
-  Button,
   Table,
-  Input,
-  Layout,
   Typography,
-  Select,
+  Button,
   Space,
-  Checkbox,
-  notification,
+  Divider,
+  Modal,
+  Input,
+  Select,
+  Switch,
+  List,
+  notification ,
 } from 'antd';
-import 'antd/dist/reset.css';
-import { useMutation, useQuery } from '@apollo/client';
-import { useNavigate, useParams } from 'react-router-dom';
+import {
+  EditOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
+import { useNavigate, useParams} from 'react-router-dom';
+import './register.less';
+import { useMutation ,useQuery} from '@apollo/client';
+import FieldIcon from './components/FieldIcon';
+import { ROUTES } from '../../common/constants';
 import {
   CHANGE_TEMPLATE_STATUS,
   CREATE_GLOBAL_TEMPLATE_MUTATION,
   CREATE_TEMPLATE,
 } from './graphql/Mutation';
-import PageHeader from './components/PageHeader';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
-import { ROUTES } from '../../common/constants';
+import Header from './components/Header';
 
-const { Content } = Layout;
-const { Title } = Typography;
-const { Option } = Select;
-
+const { Title, Text } = Typography;
 const CreateRegisterPage = () => {
-  const [properties, setProperties] = useState([]);
+  const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
+  const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [fields, setFields] = useState([]);
+  const [properties, setProperties] = useState([]); // State to manage properties
+  const [currentField, setCurrentField] = useState(null);
+  const [currentProperty, setCurrentProperty] = useState(null);
   const [createTemplate] = useMutation(CREATE_TEMPLATE);
   const [createGlobalTemplate] = useMutation(CREATE_GLOBAL_TEMPLATE_MUTATION);
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
-  const typeMapping = {
-    text: 'TEXT',
-    multiLineText: 'MULTI_LINE_TEXT',
-    options: 'OPTIONS',
-    checkboxes: 'CHECKBOXES',
-    numeric: 'NUMERIC',
-    datePicker: 'DATE',
-    attachment: 'ATTACHMENT',
-  };
-  // Define all available types
-  const fieldTypes = [
-    { label: 'Text', value: 'text' },
-    { label: 'Multi-line text', value: 'multiLineText' },
-    { label: 'Options', value: 'options' },
-    { label: 'Checkboxes', value: 'checkboxes' },
-    { label: 'Numeric', value: 'numeric' },
-    { label: 'Date picker', value: 'datePicker' },
-    { label: 'Attachment', value: 'attachment' },
+  const navigate=useNavigate();
 
-  ];
+  const [fieldData, setFieldData] = useState({
+    name: '',
+    type: 'TEXT',
+    required: true,
+    options: [],
+  });
+  const [propertyData, setPropertyData] = useState({
+    name: '',
+    type: 'TEXT',
+    required: true,
+    options: [],
+  });
 
-  // Columns for both tables
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text, record, index, section) => (
-        <Input
-          placeholder="Enter name"
-          value={text}
-          onChange={(e) =>
-            handleInputChange(e.target.value, index, 'name', section)
-          }
-        />
-      ),
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      render: (text, record, index, section) => (
-        <Select
-          placeholder="Select type"
-          value={text}
-          onChange={(value) => handleInputChange(value, index, 'type', section)}
-          style={{ width: '100%' }}
-          dropdownStyle={{ minWidth: '150px' }}
-        >
-          {fieldTypes.map((type) => (
-            <Option key={type.value} value={type.value}>
-              {type.label}
-            </Option>
-          ))}
-        </Select>
-      ),
-    },
-    {
-      title: 'Input',
-      key: 'input',
-      render: (_, record, index, section) =>
-        renderInputField(record, index, section),
-    },
-    {
-      title: 'Is Required',
-      dataIndex: 'isRequired',
-      key: 'isRequired',
-      render: (isRequired, record, index, section) => (
-        <Checkbox
-          checked={isRequired}
-          onChange={(e) =>
-            handleIsRequiredChange(e.target.checked, index, section)
-          }
-        >
-          Required
-        </Checkbox>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record, index, section) => (
-        <Button
-          onClick={() => handleDeleteRow(index, section)}
-          type="link"
-          danger
-        >
-          Delete
-        </Button>
-      ),
-    },
-  ];
+  const {registerName}=useParams();
+
   const {
     loading: loadingProject,
     error: errorProject,
@@ -136,127 +68,87 @@ const CreateRegisterPage = () => {
   } = useQuery(GET_PROJECT_ID_FOR_USER);
 
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
-  console.log('id: is,', typeof projectId);
-  const handleInputChange = (value, index, key, section) => {
-    const data = section === 'properties' ? [...properties] : [...fields];
-    data[index][key] = value;
-    if (key === 'type' && (value === 'options' || value === 'checkboxes')) {
-      data[index].options = [''];
-    } else if (key === 'type') {
-      delete data[index].options;
-    }
-    section === 'properties' ? setProperties(data) : setFields(data);
-  };
-
-  const handleIsRequiredChange = (checked, index, section) => {
-    const data = section === 'properties' ? [...properties] : [...fields];
-    data[index].isRequired = checked;
-    section === 'properties' ? setProperties(data) : setFields(data);
-  };
-
-  const renderInputField = (record, index, section) => {
-    if (record.type === 'options' || record.type === 'checkboxes') {
-      return (
-        <div>
-          {record.options?.map((option, optionIndex) => (
-            <Input
-              // eslint-disable-next-line react/no-array-index-key
-              key={optionIndex}
-              placeholder={`Option ${optionIndex + 1}`}
-              value={option}
-              onChange={(e) =>
-                handleOptionChange(e.target.value, index, optionIndex, section)
-              }
-              style={{ marginBottom: 8 }}
-            />
-          ))}
-          <Button
-            type="dashed"
-            onClick={() => addOption(index, section)}
-            style={{ width: '100%' }}
-          >
-            + Add Option
-          </Button>
-        </div>
-      );
-    }
-    return null; // No input field for other types
-  };
-
-  const handleOptionChange = (value, fieldIndex, optionIndex, section) => {
-    const data = section === 'properties' ? [...properties] : [...fields];
-    data[fieldIndex].options[optionIndex] = value;
-    section === 'properties' ? setProperties(data) : setFields(data);
-  };
-
-  const addOption = (fieldIndex, section) => {
-    const data = section === 'properties' ? [...properties] : [...fields];
-    data[fieldIndex].options.push('');
-    section === 'properties' ? setProperties(data) : setFields(data);
-  };
-
-  const addPropertyRow = () => {
-    if (properties.some((property) => !property.name || !property.type)) {
-      notification.error({
-        message: 'Missing Information',
-        description: 'Please fill out all fields before adding a new row.',
-        duration: 3,
-      });
-      return;
-    }
-    setProperties([
-      ...properties,
-      { key: properties.length, name: '', type: '', isRequired: true },
-    ]);
-  };
-
-  const addFieldRow = () => {
-    if (fields.some((field) => !field.name || !field.type)) {
-      notification.error({
-        message: 'Missing Information',
-        description: 'Please fill out all fields before adding a new row.',
-        duration: 3,
-      });
-      return;
-    }
-    setFields([
-      ...fields,
-      { key: fields.length, name: '', type: '', isRequired: true },
-    ]);
-  };
-
-  const handleDeleteRow = (index, section) => {
-    const data = section === 'properties' ? [...properties] : [...fields];
-    data.splice(index, 1);
-    section === 'properties' ? setProperties(data) : setFields(data);
-  };
-  const { registerName } = useParams();
-  console.log('id:,', projectId);
-  const navigate = useNavigate();
-  const handleSave = async () => {
-    const hasBlankField = fields.some((field) => !field.name || !field.type);
-    const hasBlankProperty = properties.some(
-      (property) => !property.name || !property.type,
+  const showFieldEditModal = (field = null) => {
+    setCurrentField(field);
+    setFieldData(
+      field
+        ? {
+            name: field.fieldName,
+            type: field.fieldType,
+            required: field.isRequired,
+            options: field.options || [],
+          }
+        : { name: '', type: 'TEXT', required: true, options: [] },
     );
+    setIsFieldModalVisible(true);
+  };
 
-    if (hasBlankField || hasBlankProperty) {
-      notification.error({
-        message: 'Missing Information',
-        description: 'Please fill out all required fields before submitting.',
-        duration: 3,
-      });
-      return; // Prevent publishing if any fields are blank
+  const handleFieldSave = () => {
+    if (currentField) {
+      setFields((prevFields) =>
+        prevFields.map((f) =>
+          f.id === currentField.id
+            ? {
+                ...f,
+                fieldName: fieldData.name,
+                fieldType: fieldData.type,
+                isRequired: fieldData.required,
+                options: fieldData.options,
+              }
+            : f,
+        ),
+      );
+    } else {
+      const newField = {
+        fieldName: fieldData.name,
+        fieldType: fieldData.type,
+        isRequired: fieldData.required,
+        options: fieldData.options,
+      };
+      setFields((prevFields) => [...prevFields, newField]);
     }
+
+    setIsFieldModalVisible(false);
+    setFieldData({ name: '', type: 'TEXT', required: false, options: [] });
+  };
+
+  const handleFieldCancel = () => {
+    setIsFieldModalVisible(false);
+  };
+
+  const handleFieldTypeChange = (type) => {
+    setFieldData({
+      ...fieldData,
+      type,
+      options:
+        type === 'OPTIONS' || type === 'CHECKBOXES' ? [] : fieldData.options,
+    });
+  };
+
+  const handleAddFieldOption = () => {
+    setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
+  };
+  const handleAddPropertyOption = () => {
+    setPropertyData({
+      ...propertyData,
+      options: [...propertyData.options, ''],
+    });
+  };
+  console.log(fields);
+  console.log(properties);
+
+  const handleSave = async () => {
+
     const formattedFields = fields.map((field) => ({
-      fieldName: field.name,
-      fieldType: typeMapping[field.type] || field.type,
+      fieldName: field.fieldName,
+      fieldType:  field.fieldType,
       isRequired: field.isRequired,
       options: field.options,
     }));
-
+console.log("figf",formattedFields)
     const formattedProperties = properties.map((property) => ({
-      propertyName: property.name,
-      propertyFieldType: typeMapping[property.type] || property.type,
+      propertyName: property.propertyName,
+      propertyFieldType: property.propertyFieldType,
       isRequired: property.isRequired,
       options: property.options,
     }));
@@ -277,7 +169,7 @@ const CreateRegisterPage = () => {
         }
       } else {
         // For other projectIds, create a scratch template
-    const response=    await createTemplate({
+    const response= await createTemplate({
           variables: {
             name: registerName,
             projectId,
@@ -315,15 +207,15 @@ const CreateRegisterPage = () => {
       return; // Prevent publishing if any fields are blank
     }
     const formattedFields = fields.map((field) => ({
-      fieldName: field.name,
-      fieldType: typeMapping[field.type] || field.type,
+      fieldName: field.fieldName,
+      fieldType: field.fieldType,
       isRequired: field.isRequired,
       options: field.options,
     }));
 
     const formattedProperties = properties.map((property) => ({
-      propertyName: property.name,
-      propertyFieldType: typeMapping[property.type] || property.type,
+      propertyName: property.propertyName,
+      propertyFieldType: property.propertyFieldType,
       isRequired: property.isRequired,
       options: property.options,
     }));
@@ -377,157 +269,381 @@ const CreateRegisterPage = () => {
       console.error(error);
     }
   };
-  const handlePreview = () => {
-    const hasBlankField = fields.some((field) => !field.name || !field.type);
-    const hasBlankProperty = properties.some(
-      (property) => !property.name || !property.type,
-    );
-
-    if (hasBlankField || hasBlankProperty) {
-      notification.error({
-        message: 'Missing Information',
-        description: 'Please fill out all required fields before submitting.',
-        duration: 3,
-      });
-      return; // Prevent publishing if any fields are blank
-    }
-    const transformedData = {
-      name:registerName,
-      fields: fields.map((field) => ({
-        fieldName: field.name,
-        fieldType: typeMapping[field.type] || field.type,
-        isRequired: field.isRequired,
-        options: field.options || [],
-      })),
-      properties: properties.map((property) => ({
-        propertyName: property.name,
-        propertyFieldType: typeMapping[property.type] || property.type,
-        isRequired: property.isRequired,
-        options: property.options || [],
-      })),
-    };
-
-    navigate(ROUTES.PREVIEW_REGISTER, { state: { transformedData } });
+  const handleFieldOptionChange = (value, index) => {
+    const newOptions = [...fieldData.options];
+    newOptions[index] = value;
+    setFieldData({ ...fieldData, options: newOptions });
   };
+  const handleFieldDelete = (fieldName) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this field?',
+      content: `This will permanently delete the field "${fieldName}".`,
+      okText: 'Yes, delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: () => {
+        setFields((prevFields) =>
+          prevFields.filter((field) => field.fieldName !== fieldName),
+        );
+      },
+    });
+  };
+  const handlePropertyOptionChange = (value, index) => {
+    const newOptions = [...propertyData.options]; // Create a copy of the current options
+    newOptions[index] = value; // Update the specific option at the provided index
+    setPropertyData({ ...propertyData, options: newOptions }); // Update the state with the new options array
+  };
+
+  // Property Modal Functions
+  const showPropertyEditModal = (property = null) => {
+    setCurrentProperty(property);
+    setPropertyData(
+      property
+        ? {
+            name: property.propertyName,
+            type: property.propertyFieldType,
+            required: property.isRequired, // This will pull the current required value if editing
+            options: property.options || [],
+          }
+        : { name: '', type: 'TEXT', required: true, options: [] }, // Default required: true
+    );
+    setIsPropertyModalVisible(true);
+  };
+
+  const handlePropertySave = () => {
+    if (currentProperty) {
+      setProperties((prevProperties) =>
+        prevProperties.map((p) =>
+          p.id === currentProperty.id
+            ? {
+                ...p,
+                propertyName: propertyData.name,
+                propertyFieldType: propertyData.type,
+                isRequired: propertyData.required,
+                options: propertyData.options,
+              }
+            : p,
+        ),
+      );
+    } else {
+      const newProperty = {
+        propertyName: propertyData.name,
+        propertyFieldType: propertyData.type,
+        isRequired: propertyData.required,
+        options: propertyData.options,
+      };
+      setProperties((prevProperties) => [...prevProperties, newProperty]);
+    }
+
+    setIsPropertyModalVisible(false);
+    setPropertyData({ name: '', type: 'TEXT', options: [], isRequired: true });
+  };
+
+  const handlePropertyCancel = () => {
+    setIsPropertyModalVisible(false);
+  };
+
+  const handlePropertyTypeChange = (type) => {
+    setPropertyData({ ...propertyData, type });
+  };
+  const handlePropertyDelete = (propertyName) => {
+    Modal.confirm({
+      title: 'Are you sure you want to delete this property?',
+      content: `This will permanently delete the property "${propertyName}".`,
+      okText: 'Yes, delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: () => {
+        // eslint-disable-next-line no-console
+        console.log(propertyName);
+        setProperties((prevProperties) =>
+          prevProperties.filter((property) => property.propertyName !== propertyName),
+        );
+      },
+    });
+  };
+
+  const columns = [
+    ...fields.map((field) => ({
+      title: (
+        <span>
+              <FieldIcon fieldType={field.fieldType} />
+
+          <span style={{ marginLeft: '4px' }}>{field.fieldName} </span>
+          {field.isRequired && <span style={{ color: 'red' }}>*</span>}
+
+            <>
+              <EditOutlined
+                style={{ marginLeft: '8px', cursor: 'pointer' }}
+                onClick={() => showFieldEditModal(field)}
+              />
+              <DeleteOutlined
+                style={{ marginLeft: '8px', cursor: 'pointer' }}
+                onClick={() => handleFieldDelete(field.fieldName)}
+              />
+            </>
+
+        </span>
+      ),
+      dataIndex: field.fieldName.replace(/\s+/g, '').toLowerCase(),
+      key: field.id,
+      render: (text) => text || <Text type="secondary">No data</Text>,
+      onCell: () => ({
+        style: {
+          minWidth: 150,
+        },
+      }),
+    })),
+    ...( [
+          {
+            title: (
+              <Button
+                type="link"
+                icon={<PlusOutlined />}
+                style={{ color: 'red' }}
+                onClick={() => showFieldEditModal()}
+              >
+                Add Field
+              </Button>
+            ),
+            dataIndex: 'addField',
+            key: 'addField',
+            render: () => null,
+            onCell: () => ({
+              style: {
+                minWidth: 150, // Minimum width for the Add Field column
+              },
+            }),
+          },
+        ]
+      ),
+  ];
+
+
+
+
   return (
-    <Layout
-      style={{
-        minHeight: '100vh',
-        padding: '24px',
-        backgroundColor: '#f4f4f9',
-      }}
-    >
-      <PageHeader templateName={registerName} />
-      <Content
-        style={{ maxWidth: '800px', margin: '20px auto', width: '100%' }}
+    <div >
+       <Header name={registerName}/>
+    <div style={{ padding: '15px' }}>
+
+
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+
+
+  <Title level={4} style={{ textAlign: 'center', fontSize: '1.25rem' }}>
+    Create Your new Register : {registerName}
+  </Title>
+
+</div>
+
+      <Title level={4}>Properties</Title>
+      <div style={{ marginBottom: '24px' }}>
+        {properties.map((property) => (
+          <div key={property.id} style={{ marginBottom: '8px' }}>
+            <span>
+
+            <FieldIcon fieldType={property.propertyFieldType} />{' '}
+              {/* Add the property type icon here */}
+              <Text strong>{property.propertyName}</Text>
+              {property.isRequired && <span style={{ color: 'red' }}> *</span>}
+
+                <>
+                  <EditOutlined
+                    style={{ marginLeft: '8px', cursor: 'pointer' }}
+                    onClick={() => showPropertyEditModal(property)}
+                  />
+                  <DeleteOutlined
+                    style={{ marginLeft: '8px', cursor: 'pointer' }}
+                    onClick={() => handlePropertyDelete(property.propertyName)}
+                  />
+                </>
+
+            </span>
+          </div>
+        ))}
+
+          <Button
+            type="link"
+            icon={<PlusOutlined />}
+            onClick={() => showPropertyEditModal()}
+            style={{ color: 'red' }}
+          >
+            Add Property
+          </Button>
+
+      </div>
+
+      <Divider />
+
+      <Title level={4}>Table</Title>
+      <Table
+        columns={columns}
+        dataSource={[{}]}
+        pagination={false}
+        bordered
+        scroll={{ x: 'max-content', y: 400 }} // Vertical scroll with fixed header
+        style={{ marginTop: '16px' }}
+      />
+
+
+<Space style={{ marginTop: '16px', float: 'right' }}>
+
+
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={handlePublish}
+          >
+            Publish
+          </Button>
+
+      </Space>
+      {/* Field Modal */}
+      <Modal
+        title={currentField ? 'Edit Field' : 'Add Field'}
+        visible={isFieldModalVisible}
+        onOk={handleFieldSave}
+        onCancel={handleFieldCancel}
+        okText="Save"
       >
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
-          {/* Properties Section */}
-          <div
-            style={{
-              padding: '20px',
-              backgroundColor: 'white',
-              borderRadius: '8px',
-            }}
-          >
-            <Title level={4}>Properties</Title>
-            <Table
-              columns={columns.map((col) => ({
-                ...col,
-                render: (...args) => col.render(...args, 'properties'),
-              }))}
-              dataSource={properties}
-              pagination={false}
-              bordered
-              footer={() => (
-                <Button
-                  type="dashed"
-                  onClick={addPropertyRow}
-                  style={{ width: '100%' }}
-                >
-                  + Add Property
-                </Button>
+        <Input
+          placeholder="Field Name"
+          value={fieldData.name}
+          onChange={(e) => setFieldData({ ...fieldData, name: e.target.value })}
+          style={{ marginBottom: '16px' }}
+        />
+        <Select
+          value={fieldData.type}
+          onChange={handleFieldTypeChange}
+          style={{ width: '100%', marginBottom: '16px' }}
+        >
+          <Select.Option value="TEXT">Text</Select.Option>
+          <Select.Option value="MULTI_LINE_TEXT">Multi-Line Text</Select.Option>
+          <Select.Option value="OPTIONS">Options</Select.Option>
+          <Select.Option value="CHECKBOXES">Checkboxes</Select.Option>
+          <Select.Option value="NUMERIC">Numeric</Select.Option>
+          <Select.Option value="DATE">Date</Select.Option>
+          <Select.Option value="ATTACHMENT">Attachment</Select.Option>
+        </Select>
+        <Switch
+          checked={fieldData.required}
+          onChange={(checked) =>
+            setFieldData({ ...fieldData, required: checked })
+          }
+          checkedChildren="Required"
+          unCheckedChildren="Optional"
+        />
+        {(fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') && (
+          <div style={{ marginTop: '16px' }}>
+            <Title level={5}>Options</Title>
+            <List
+              dataSource={fieldData.options}
+              renderItem={(option, index) => (
+                <List.Item>
+                  <Input
+                    value={option}
+                    onChange={(e) =>
+                      handleFieldOptionChange(e.target.value, index)
+                    }
+                    placeholder={`Option ${index + 1}`}
+                    style={{ marginBottom: '8px' }}
+                  />
+                </List.Item>
               )}
             />
+            <Button
+              type="dashed"
+              onClick={handleAddFieldOption}
+              icon={<PlusOutlined />}
+              style={{ width: '100%' }}
+            >
+              Add Option
+            </Button>
           </div>
+        )}
+      </Modal>
 
-          {/* Fields Section */}
-          <div
-            style={{
-              padding: '20px',
-              backgroundColor: 'white',
-              borderRadius: '8px',
-            }}
-          >
-            <Title level={4}>Fields</Title>
-            <Table
-              columns={columns.map((col) => ({
-                ...col,
-                render: (...args) => col.render(...args, 'fields'),
-              }))}
-              dataSource={fields}
-              pagination={false}
-              bordered
-              footer={() => (
-                <Button
-                  type="dashed"
-                  onClick={addFieldRow}
-                  style={{ width: '100%' }}
-                >
-                  + Add Field
-                </Button>
+      <Modal
+        title={currentProperty ? 'Edit Property' : 'Add Property'}
+        visible={isPropertyModalVisible}
+        onOk={handlePropertySave}
+        onCancel={handlePropertyCancel}
+        okText="Save"
+      >
+        <Input
+          placeholder="Property Name"
+          value={propertyData.name}
+          onChange={(e) =>
+            setPropertyData({ ...propertyData, name: e.target.value })
+          }
+          style={{ marginBottom: '16px' }}
+        />
+
+        <Select
+          value={propertyData.type}
+          onChange={handlePropertyTypeChange}
+          style={{ width: '100%', marginBottom: '16px' }}
+        >
+          <Select.Option value="TEXT">Text</Select.Option>
+          <Select.Option value="MULTI_LINE_TEXT">Multi-Line Text</Select.Option>
+          <Select.Option value="OPTIONS">Options</Select.Option>
+          <Select.Option value="CHECKBOXES">Checkboxes</Select.Option>
+          <Select.Option value="NUMERIC">Numeric</Select.Option>
+          <Select.Option value="DATE">Date</Select.Option>
+          {/* <Select.Option value="ATTACHMENT">Attachment</Select.Option> */}
+        </Select>
+
+
+        <div style={{ marginBottom: '16px' }}>
+          <span>Required: </span>
+          <Switch
+            checked={propertyData.required}
+            onChange={(checked) =>
+              setPropertyData({ ...propertyData, required: checked })
+            }
+          />
+        </div>
+
+        {(propertyData.type === 'OPTIONS' ||
+          propertyData.type === 'CHECKBOXES') && (
+          <div style={{ marginTop: '16px' }}>
+            <Title level={5}>Options</Title>
+            <List
+              dataSource={propertyData.options}
+              renderItem={(option, index) => (
+                <List.Item>
+                  <Input
+                    value={option}
+                    onChange={(e) =>
+                      handlePropertyOptionChange(e.target.value, index)
+                    }
+                    placeholder={`Option ${index + 1}`}
+                    style={{ marginBottom: '8px' }}
+                  />
+                </List.Item>
               )}
             />
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '16px',
-            }}
-          >
-
             <Button
-              type="primary"
-              onClick={handlePreview}
-              style={{
-                width: '32%',
-                padding: '10px',
-                textAlign: 'center',
-                lineHeight: 'normal',
-              }}
+              type="dashed"
+              onClick={handleAddPropertyOption}
+              icon={<PlusOutlined />}
+              style={{ width: '100%' }}
             >
-              Preview
-            </Button>
-            <Button
-              type="primary"
-              onClick={handleSave}
-              style={{
-                width: '32%',
-                padding: '10px',
-                textAlign: 'center',
-                lineHeight: 'normal',
-              }}
-            >
-              Save
-            </Button>
-            <Button
-              type="primary"
-              onClick={handlePublish}
-              style={{
-                width: '32%',
-                padding: '10px',
-                textAlign: 'center',
-                lineHeight: 'normal',
-              }}
-            >
-              Publish
+              Add Option
             </Button>
           </div>
-        </Space>
-      </Content>
-      {/* <Footer style={{ textAlign: 'center' }}>Created with Ant Design ©2024</Footer> */}
-    </Layout>
+        )}
+      </Modal>
+    </div>
+    </div>
   );
 };
 

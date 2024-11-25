@@ -16,6 +16,7 @@ import 'jspdf-autotable';
 import { GET_ALL_PROPERTY_RESPONSES_FOR_TEMPLATE, GET_ALL_RESPONSES_FOR_TEMPLATE, GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import { GET_USER_BY_ID } from '../auth/graphql/Queries';
 import FullNameById from './components/userFullName';
+import Header from './components/Header';
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
@@ -385,7 +386,9 @@ const exportPDF = async (column, data, fileName) => {
   const entriesPaginatedData=entriesFilteredData.slice(startIndex,endIndex);
 
   return (
-    <div className="cement-register">
+    <div >
+       <Header name={templateName}/>
+    <div className="view-register">
     <h2>{templateName}</h2>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} className="tabs-container">
@@ -474,7 +477,7 @@ const exportPDF = async (column, data, fileName) => {
       </Tabs>
 
   </div>
-
+</div>
   );
 
 

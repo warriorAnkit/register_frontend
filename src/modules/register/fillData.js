@@ -10,6 +10,7 @@ import { SUBMIT_RESPONSE } from './graphql/Mutation';
 import './register.less';
 import AddEntryModal from './components/AddEntryModal';
 import PropertiesModal from './components/FillPropertyModal';
+import Header from './components/Header';
 
 const FillTable = () => {
   const { templateId } = useParams();
@@ -41,8 +42,7 @@ const FillTable = () => {
       setPropertiesData(initialProperties);
     }
   }, [data]);
-// eslint-disable-next-line no-console
-  console.log("table DATA: ",tableData);
+
   const handleAddEntry = () => {
     setEditingIndex(null);
     setIsModalVisible(true);
@@ -180,6 +180,7 @@ const FillTable = () => {
 
   return (
     <div>
+      <Header name={data.getTemplateById?.name}/>
       <Card title="Properties" style={{ marginBottom: 16 }}>
         {Object.keys(propertiesData).length > 0 ? (
           Object.entries(propertiesData).map(([propertyName, value]) => (
