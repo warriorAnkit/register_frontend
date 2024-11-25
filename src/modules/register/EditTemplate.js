@@ -27,6 +27,7 @@ import { UPDATE_TEMPLATE,CHANGE_TEMPLATE_STATUS } from './graphql/Mutation';
 import './register.less';
 import FieldIcon from './components/FieldIcon';
 import { ROUTES } from '../../common/constants';
+import Header from './components/Header';
 
 const { Title, Text } = Typography;
 
@@ -412,12 +413,14 @@ const TemplateView = () => {
   };
 
   return (
+    <div >
+       <Header name={templateName}/>
+
     <div style={{ padding: '24px' }}>
+
       <div className='header'>
-<Button onClick={handleViewChangeLog}>
-          View Change Log
-        </Button>
-      </div>
+
+
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
     {isEditing ? (
   <Input
@@ -438,6 +441,10 @@ const TemplateView = () => {
     {templateName}
   </Title>
 )}
+</div>
+<Button onClick={handleViewChangeLog}>
+          View Change Log
+        </Button>
 </div>
 
       <Title level={4}>Properties</Title>
@@ -652,26 +659,7 @@ const TemplateView = () => {
           </div>
         )}
       </Modal>
-{/*
-      <FieldModal
-        visible={isFieldModalVisible}
-        fieldData={fieldData}
-        onFieldDataChange={setFieldData}
-        onSave={handleFieldSave}
-        onCancel={() => setIsFieldModalVisible(false)}
-        onAddOption={handleFieldOptionChange}
-      />
-
-      <PropertyModal
-        visible={isPropertyModalVisible}
-        propertyData={propertyData}
-        onPropertyDataChange={setPropertyData}
-        onSave={handlePropertySave}
-        onCancel={() => setIsPropertyModalVisible(false)}
-        onAddOption={handlePropertyOptionChange}
-        handlePropertyOptionChange={handlePropertyOptionChange(e.target.value, index)}
-
-      /> */}
+</div>
     </div>
   );
 };

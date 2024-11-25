@@ -9,7 +9,7 @@ const FieldIcon = ({ fieldType }) => {
     OPTIONS: <CheckCircleOutlined />,
     CHECKBOXES: <CheckSquareOutlined />,
     NUMERIC: <NumberOutlined />,
-    DATE_PICKER: <CalendarOutlined />,
+    DATE: <CalendarOutlined />,
     ATTACHMENT: <PaperClipOutlined />,
     CALCULATION: <CalculatorOutlined />,
   };

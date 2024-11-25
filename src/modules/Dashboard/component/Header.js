@@ -1,6 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import { Button, Dropdown, Input, Modal, Tabs, Menu, Row, Col } from 'antd';
-import { FilterOutlined, PlusOutlined, DownOutlined, SearchOutlined } from '@ant-design/icons';
+import { FilterOutlined, PlusOutlined, DownOutlined, SearchOutlined ,CloseOutlined} from '@ant-design/icons';
 
 const { TabPane } = Tabs;
 
@@ -17,13 +17,17 @@ const HeaderComponent = ({
   setSearchText,
   handleFilterChange,
   userRole,
+  setSelectedFilter,
+  selectedFilter,
+  searchText,
 }) => {
   const [currentTab, setCurrentTab] = useState('template');
-  const [selectedFilter, setSelectedFilter] = useState(activeFilter);
+  // const [selectedFilter, setSelectedFilter] = useState(activeFilter);
 
   // eslint-disable-next-line no-console
   console.log("Current Tab:", currentTab);
-
+ // eslint-disable-next-line no-console
+ console.log("cureet:",activeFilter);
   const onFilterSelect = (filter) => {
     setSelectedFilter(filter);
     handleFilterChange(filter);
@@ -46,9 +50,9 @@ const HeaderComponent = ({
         setCurrentTab(key);
       }
 
-
-
-
+  };
+  const clearSearch = () => {
+    setSearchText('');
   };
   useEffect(() => {
 
@@ -106,16 +110,25 @@ const HeaderComponent = ({
           {userRole !== 'USER' && (
             <Dropdown overlay={filterMenu} trigger={['click']}>
               <Button icon={<FilterOutlined />}>
-                {selectedFilter ? `Filter: ${selectedFilter}` : 'Select Filter'} <DownOutlined />
+                {selectedFilter ? `Filter: ${activeFilter}` : 'Select Filter'} <DownOutlined />
               </Button>
             </Dropdown>
           )}
-            <Input
-              placeholder="Search..."
-              prefix={<SearchOutlined style={{ color: '#FF6B6B' }} />}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 200, height: 33 ,minWidth:'100px'}}
-            />
+           <Input
+      placeholder="Search..."
+      value={searchText}
+      prefix={<SearchOutlined style={{ color: '#FF6B6B' }} />}
+      suffix={
+        searchText && (
+          <CloseOutlined
+            onClick={clearSearch}
+            style={{ color: '#FF6B6B', cursor: 'pointer' }}
+          />
+        )
+      }
+      onChange={(e) => setSearchText(e.target.value)}
+      style={{ width: 200, height: 33, minWidth: '100px' }}
+    />
           </Col>
         </Row>
       </div>
