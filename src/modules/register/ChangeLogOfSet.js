@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Table, Typography,Empty,Pagination } from 'antd';
 import { useQuery } from '@apollo/client';
 import moment from 'moment';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { GET_ACTIVITY_LOGS_BY_SET_ID } from './graphql/Queries';
+import Header from './components/Header';
 
 const { Title } = Typography;
 
@@ -12,8 +13,8 @@ const { Title } = Typography;
 
 const ChangeLogOfSetPage = () => {
 const {setId}=useParams();
-// eslint-disable-next-line no-console
-console.log(setId);
+const location = useLocation();
+const { templateName, templateId } = location.state || {};
   const { loading, error, data } = useQuery(GET_ACTIVITY_LOGS_BY_SET_ID, {
     variables: { setId },
     fetchPolicy:'cache-and-network',
@@ -90,6 +91,8 @@ console.log(setId);
   const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
+    <div>
+      <Header name={templateName} templateId={templateId} setId={setId} responseLogs/>
     <div style={{ padding: '20px' }}>
       <Title level={2}>Change Log</Title>
       {error && <p>Error loading logs</p>}
@@ -138,6 +141,7 @@ console.log(setId);
           />
         </>
       )}
+    </div>
     </div>
   );
 };

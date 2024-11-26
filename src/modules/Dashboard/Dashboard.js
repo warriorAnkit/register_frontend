@@ -214,7 +214,7 @@ const Dashboard = () => {
     navigate(`/register/fill-template/${templateId}`);
   };
   const handleViewEntryButtonClick = (templateId) => {
-    navigate(`/register/view-entries/${templateId}`);
+    navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
   };
   const handleFilterChange = (newFilter) => {
     setActiveFilter(newFilter); // Update activeFilter state
