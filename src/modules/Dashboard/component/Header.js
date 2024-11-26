@@ -79,7 +79,7 @@ const HeaderComponent = ({
       </div>
 
       <Modal
-        title="Enter Register Name"
+        title="Register Name"
         visible={modalVisible}
         onOk={handleOk}
         onCancel={() => setModalVisible(false)}

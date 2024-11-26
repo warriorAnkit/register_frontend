@@ -99,7 +99,7 @@ const ChangeLogOfTemplatePage = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <Title level={2}>Change Log for Register: {templateName}</Title>
+      <Title level={2}>Change Log</Title>
       {error && <p>Error loading logs</p>}
       {logs.length === 0 ? (
         <div
