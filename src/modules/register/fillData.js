@@ -3,7 +3,7 @@
 /* eslint-disable no-alert */
 
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table } from 'antd';
+import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table ,notification} from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -98,9 +98,14 @@ const FillTable = () => {
       if (isRowBlank) return;
       data.getTemplateById?.fields.forEach((field) => {
         const value = row[field.fieldName];
-
+// eslint-disable-next-line no-console
+console.log("values:",value);
         // Check for required fields
-        if (field.isRequired && (!value || value.trim() === '')) {
+        if (field.isRequired &&
+          (!value ||
+           (typeof value === 'string' && value.trim() === '') ||
+           (Array.isArray(value) && value.length === 0))
+        ) {
           errors[`${field.fieldName}-${rowIndex}`] = 'This field is required.';
         }
 
@@ -123,7 +128,11 @@ const FillTable = () => {
     data?.getTemplateById?.properties.forEach((property) => {
       const value = propertiesData[property.propertyName];
 
-      if (property.isRequired && (!value || value.trim() === '')) {
+      if (property.isRequired &&
+        (!value ||
+         (typeof value === 'string' && value.trim() === '') ||
+         (Array.isArray(value) && value.length === 0))
+      ) {
         errors[property.propertyName] = 'This field is required.';
       }
 
@@ -192,12 +201,18 @@ const FillTable = () => {
 
 
 
-  const validateProperties = () => {
+  const validateProperties = (value) => {
     const errors = {...propertyErrors};
     data?.getTemplateById?.properties.forEach((property) => {
-      const value = propertiesData[property.propertyName];
-      if (property.isRequired && (!value || value.trim() === '')) {
-        errors[property.propertyName] = `${property.propertyName} is required`;
+      // const value = propertiesData[property.propertyName];
+      // eslint-disable-next-line no-console
+      console.log("pro",value)
+      if ( (property.isRequired &&
+        (!value ||
+         (typeof value === 'string' && value.trim() === '') ||
+         (Array.isArray(value) && value.length === 0))
+      )) {
+        // errors[property.propertyName] = `${property.propertyName} is required`;
       } else if (property.isRequired) {
         // Remove error if the required field is now filled
         delete errors[property.propertyName];
@@ -239,7 +254,7 @@ const FillTable = () => {
                 ...prev,
                 [propertyName]: value,
               }));
-              validateProperties(); // Validate on change
+              validateProperties( e.target.value); // Validate on change
             }}
 
             style={{
@@ -264,7 +279,7 @@ const FillTable = () => {
                   ...prev,
                   [propertyName]: value,
                 }));
-                validateProperties(); // Validate on change
+                validateProperties( e.target.value); // Validate on change
               }
             }}
 
@@ -288,7 +303,7 @@ const FillTable = () => {
                 [propertyName]: value,
               }))
 
-            validateProperties();
+            validateProperties(value);
             }
           }
 
@@ -322,7 +337,7 @@ const FillTable = () => {
           ...prev,
           [propertyName]: value,
         }));
-        validateProperties(); // Call validation function
+        validateProperties( e.target.value); // Call validation function
 
     }}
 
@@ -354,7 +369,7 @@ const FillTable = () => {
                         : prev[propertyName]?.filter((item) => item !== option);
                       return { ...prev, [propertyName]: newValues };
                     });
-                    validateProperties();
+                    validateProperties(checked);
                   }}
 
                   style={{ marginRight: 12 }}
@@ -374,7 +389,7 @@ const FillTable = () => {
                 ...prev,
                 [propertyName]: e.target.value,
               }))
-              validateProperties();
+              validateProperties( e.target.value);
             }
             }
 
@@ -390,51 +405,58 @@ const FillTable = () => {
       </Form.Item>
     );
   };
-  const validateFields = () => {
+  const validateFields = (fieldName, rowIndex,value) => {
     const errors = { ...fieldErrors };
+    // const row = tableData[rowIndex];
+    const field = data.getTemplateById?.fields.find(f => f.fieldName === fieldName);
+// eslint-disable-next-line no-console
+console.log("value",value);
+// eslint-disable-next-line no-param-reassign
+value=String(value);
 
-    tableData.forEach((row, rowIndex) => {
-      data.getTemplateById?.fields.forEach((field) => {
-        const value = row[field.fieldName];
-        const errorKey = `${field.fieldName}-${rowIndex}`;
+    if (field) {
+      // const value = row[fieldName];
+      const errorKey = `${fieldName}-${rowIndex}`;
 
-        // Required field validation
-        if (field.isRequired && (!value || value.trim() === '')) {
-          errors[errorKey] = `${field.fieldName} is required`;
+      // Required field validation
+      if (field.isRequired && (!value || value.trim() === '')) {
+        // errors[errorKey] = `${field.fieldName} is required`;
+        // eslint-disable-next-line no-console
+        // console.log(value +errorKey +field);
+      } else {
+        // eslint-disable-next-line no-console
+
+        delete errors[errorKey];
+      }
+
+      // TEXT field validation
+      if (field.fieldType === 'TEXT') {
+        if (value?.length > 100) {
+          errors[errorKey] = 'Text must be less than 100 characters';
         } else {
-          // Remove error if the required field is now filled
           delete errors[errorKey];
         }
+      }
 
-        // TEXT field validation
-        if (field.fieldType === 'TEXT') {
-          if (value?.length > 100) {
-            errors[errorKey] = 'Text must be less than 100 characters';
-          } else {
-            delete errors[errorKey]; // Remove error if value is valid
-          }
+      // MULTI_LINE_TEXT field validation
+      if (field.fieldType === 'MULTI_LINE_TEXT') {
+        if (value?.length > 750) {
+          errors[errorKey] = 'Text must be less than 750 characters';
+        } else {
+          delete errors[errorKey];
         }
+      }
 
-        // MULTI_LINE_TEXT field validation
-        if (field.fieldType === 'MULTI_LINE_TEXT') {
-          if (value?.length > 750) {
-            errors[errorKey] = 'Text must be less than 750 characters';
-          } else {
-            delete errors[errorKey]; // Remove error if value is valid
-          }
+      // NUMERIC field validation
+      if (field.fieldType === 'NUMERIC') {
+        // eslint-disable-next-line no-restricted-globals
+        if (isNaN(value)) {
+          errors[errorKey] = 'Value must be a valid number';
+        } else {
+          delete errors[errorKey];
         }
-
-        // NUMERIC field validation
-        if (field.fieldType === 'NUMERIC') {
-          // eslint-disable-next-line no-restricted-globals
-          if (isNaN(value)) {
-            errors[errorKey] = 'Value must be a valid number';
-          } else {
-            delete errors[errorKey]; // Remove error if value is valid
-          }
-        }
-      });
-    });
+      }
+    }
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0; // Return true if there are no errors
@@ -457,7 +479,7 @@ const FillTable = () => {
             onChange={(e) => {
               const { value } = e.target;
               handleInputChange(rowIndex, fieldName, value);
-              validateFields();
+              validateFields(fieldName, rowIndex,value);
             }}
 
             style={{
@@ -479,7 +501,7 @@ const FillTable = () => {
               const { value } = e.target;
 
                 handleInputChange(rowIndex, fieldName, value);
-                validateFields();
+                validateFields(fieldName, rowIndex,value);
 
             }}
 
@@ -499,7 +521,7 @@ const FillTable = () => {
             value={tableData[rowIndex][fieldName] || undefined}
             onChange={(value) => {
               handleInputChange(rowIndex, fieldName, value);
-              validateFields();
+              validateFields(fieldName, rowIndex,value);
             }}
             style={{
               width: '100%',
@@ -526,7 +548,7 @@ const FillTable = () => {
             onChange={(e) => {
               const { value } = e.target;
               handleInputChange(rowIndex, fieldName, value);
-              validateFields();
+              validateFields(fieldName, rowIndex,value);
             }}
             style={{
               width: '100%',
@@ -546,28 +568,49 @@ const FillTable = () => {
             {data.getTemplateById?.fields
               .find((f) => f.fieldName === fieldName)
               ?.options.map((option, index) => (
-                <Checkbox
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={index}
-                  checked={tableData[rowIndex][fieldName]?.includes(option)}
-                  onChange={(e) => {
-                    const { checked } = e.target;
-                    setTableData((prevData) => {
-                      const updatedRow = prevData[rowIndex];
-                      const newValues = checked
-                        ? [...(updatedRow[fieldName] || []), option]
-                        : updatedRow[fieldName]?.filter((item) => item !== option);
-                      const updatedTableData = [...prevData];
-                      updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
-                      return updatedTableData;
-                    });
-                    validateFields();
-                  }}
-                  style={{ marginRight: 12 }}
+                // <Checkbox
+                //   // eslint-disable-next-line react/no-array-index-key
+                //   key={index}
+                //   checked={tableData[rowIndex][fieldName]?.includes(option)}
+                //   onChange={(e) => {
+                //     const { checked } = e.target;
+                //     setTableData((prevData) => {
+                //       const updatedRow = prevData[rowIndex];
+                //       const newValues = checked
+                //         ? [...(updatedRow[fieldName] || []), option]
+                //         : updatedRow[fieldName]?.filter((item) => item !== option);
+                //       const updatedTableData = [...prevData];
+                //       updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
+                //       return updatedTableData;
+                //     });
+                //     validateFields(fieldName, rowIndex,checked);
+                //   }}
+                //   style={{ marginRight: 12 }}
 
-                >
-                  {option}
-                </Checkbox>
+                // >
+                //   {option}
+                // </Checkbox>
+                <Checkbox
+  // eslint-disable-next-line react/no-array-index-key
+  key={index}
+  checked={tableData[rowIndex][fieldName]?.includes(option)} // Checks if the value is in the array
+  onChange={(e) => {
+    const { checked } = e.target;
+    setTableData((prevData) => {
+      const updatedRow = prevData[rowIndex];
+      const newValues = checked
+        ? [...(updatedRow[fieldName] || []), option] // Add the value if checked
+        : updatedRow[fieldName]?.filter((item) => item !== option); // Remove the value if unchecked
+      const updatedTableData = [...prevData];
+      updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
+      return updatedTableData;
+    });
+    validateFields(fieldName, rowIndex, checked);
+  }}
+  style={{ marginRight: 12 }}
+>
+  {option}
+  </Checkbox>
               ))}
           </div>
         )}
@@ -578,7 +621,7 @@ const FillTable = () => {
             value={tableData[rowIndex][fieldName] || ''}
             onChange={(e) => {
               handleInputChange(rowIndex, fieldName, e.target.value);
-              validateFields();
+              validateFields(fieldName, rowIndex);
             }}
             style={{
               width: '100%',
@@ -595,6 +638,13 @@ const FillTable = () => {
     );
   };
   const handleDeleteRow = (rowIndex) => {
+    if (rowIndex === tableData.length - 1) {
+
+      notification.error({
+        message: "Cannot Delete Last Row",
+        description: "You cannot delete the last row. Please add a new row before deleting.",
+      });   return;
+    }
     const newData = [...tableData];
     newData.splice(rowIndex, 1); // Delete the row at the specified index
     setTableData(newData);
