@@ -193,19 +193,6 @@ console.log("figf",formattedFields)
     }
   };
   const handlePublish = async () => {
-    const hasBlankField = fields.some((field) => !field.name || !field.type);
-    const hasBlankProperty = properties.some(
-      (property) => !property.name || !property.type,
-    );
-
-    if (hasBlankField || hasBlankProperty) {
-      notification.error({
-        message: 'Missing Information',
-        description: 'Please fill out all required fields before submitting.',
-        duration: 3,
-      });
-      return; // Prevent publishing if any fields are blank
-    }
     const formattedFields = fields.map((field) => ({
       fieldName: field.fieldName,
       fieldType: field.fieldType,

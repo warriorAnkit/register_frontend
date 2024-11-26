@@ -14,8 +14,8 @@ const transformData = (parsedData) => {
     .filter(item => item.Type === "Field")
     .map(item => {
       const field = {
-        fieldName: item.Name,
-        fieldType: item["field type"].toUpperCase().replace(/_/g, " "),
+        fieldName: item["Field Name"],
+        fieldType: item["Field Type"].toUpperCase().replace(/_/g, " "),
         isRequired: item["Is Required"].toLowerCase() === "yes",
       };
 
@@ -32,8 +32,8 @@ const transformData = (parsedData) => {
     .filter(item => item.Type === "Property")
     .map(item => {
       const property = {
-        propertyName: item.Name,
-        propertyFieldType: item["field type"].toUpperCase().replace(/_/g, " "),
+        propertyName: item["Field Name"],
+        propertyFieldType: item["Field Type"].toUpperCase().replace(/_/g, " "),
         isRequired: item["Is Required"].toLowerCase() === "yes",
       };
 
@@ -50,14 +50,14 @@ const transformData = (parsedData) => {
 };
 
 const FileUploadModal = ({ visible, onClose }) => {
-  const [file, setFile] = useState(null); // Store single file
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(''); // State to hold the input name
+  const [name, setName] = useState('');
   const navigate = useNavigate();
 
-  // Handle file selection
+
   const handleFileChange = ({ fileList }) => {
-    setFile(fileList.length ? fileList[0] : null); // Only one file can be selected
+    setFile(fileList.length ? fileList[0] : null);
   };
 
   // Handle file upload
@@ -162,7 +162,7 @@ const FileUploadModal = ({ visible, onClose }) => {
         <p>Accepted formats: CSV</p>
         <p>Ensure the file contains the correct structure for field data.</p>
         {/* Added link to sample file */}
-        <p>Here is a <a href="https://drive.google.com/file/d/your_sample_file_id/view" target="_blank" rel="noopener noreferrer"><strong>sample file</strong></a> to help you format your data correctly.</p>
+        <p>Here is a <a href="https://drive.google.com/file/d/11w2gqSmiAxiCN-tuVxee08XJhHZ66IqM/view" target="_blank" rel="noopener noreferrer"><strong>sample file</strong></a> to help you format your data correctly.</p>
       </div>
     </Modal>
   );
