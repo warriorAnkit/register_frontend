@@ -1,306 +1,10 @@
 /* eslint-disable no-shadow */
-/* eslint-disable no-undef */
+
 /* eslint-disable no-alert */
-// /* eslint-disable no-undef */
-// /* eslint-disable no-alert */
-// import React, { useEffect, useState } from 'react';
-// import { useQuery, useMutation } from '@apollo/client';
-// import { useParams } from 'react-router-dom';
-// import { Table, Button, Card, Space, Popconfirm, Pagination } from 'antd';
-// import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-// import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
-// import { SUBMIT_RESPONSE } from './graphql/Mutation';
-// import './register.less';
-// import AddEntryModal from './components/AddEntryModal';
-// import PropertiesModal from './components/FillPropertyModal';
-// import Header from './components/Header';
-
-// const FillTable = () => {
-//   const { templateId } = useParams();
-//   const [isModalVisible, setIsModalVisible] = useState(false);
-//   const [isPropertiesModalVisible, setIsPropertiesModalVisible] = useState(
-//     false,
-//   );
-//   const [tableData, setTableData] = useState([]);
-//   const [propertiesData, setPropertiesData] = useState({});
-//   const [isPropertiesAdded, setIsPropertiesAdded] = useState(false);
-//   const [editingIndex, setEditingIndex] = useState(null);
-//   const [pageSize, setPageSize] = useState(10); // State to store page size
-//   const [currentPage, setCurrentPage] = useState(1);
-
-//   const { data, loading, error } = useQuery(GET_TEMPLATE_BY_ID, {
-//     variables: { id: templateId },
-//     fetchPolicy: 'cache-and-network',
-//   });
-
-//   const [submitResponse] = useMutation(SUBMIT_RESPONSE);
-
-//   useEffect(() => {
-//     if (data) {
-//       setTableData([]);
-//       const initialProperties = {};
-//       data.getTemplateById?.properties.forEach((property) => {
-//         initialProperties[property.propertyName] = ''; // Default value is empty
-//       });
-//       setPropertiesData(initialProperties);
-//     }
-//   }, [data]);
-
-//   const handleAddEntry = () => {
-//     setEditingIndex(null);
-//     setIsModalVisible(true);
-//   };
-
-//   const handleEditEntry = (index) => {
-//     setEditingIndex(index);
-//     setIsModalVisible(true);
-//   };
-
-//   const handleDeleteEntry = (index) => {
-//     setTableData((prevData) => prevData.filter((_, i) => i !== index));
-//   };
-
-//   const handleSaveProperties = (updatedProperties) => {
-//     updatedProperties.forEach((property) => {
-//       setPropertiesData((prevState) => ({
-//         ...prevState,
-//         [property.propertyName]: property.value,
-//       }));
-//     });
-//     setIsPropertiesAdded(true);
-//     setIsPropertiesModalVisible(false);
-//   };
-
-//   const columns = [
-//     ...(data?.getTemplateById?.fields.map((field) => ({
-//       title: field.fieldName,
-//       dataIndex: field.fieldName,
-//       key: field.id,
-//       render: (text) => <span>{text || '-'}</span>,
-//     })) || []),
-//     {
-//       title: 'Actions',
-//       key: 'actions',
-//       render: (_, record, index) => (
-//         <Space size="middle">
-//           <EditOutlined
-//             onClick={() => handleEditEntry(index)}
-//             style={{ color: 'blue', cursor: 'pointer' }}
-//           />
-//           <Popconfirm
-//             title="Are you sure to delete this entry?"
-//             onConfirm={() => handleDeleteEntry(index)}
-//             okText="Yes"
-//             cancelText="No"
-//           >
-//             <DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} />
-//           </Popconfirm>
-//         </Space>
-//       ),
-//       onCell: () => ({
-//         style: {
-//           minWidth: 150, // Minimum width for the Add Field column
-//         },
-//       }),
-//     },
-//   ];
-//   const getFieldIdByName = (fieldName) => {
-//     const field = data?.getTemplateById?.fields.find(
-//       (f) => f.fieldName === fieldName,
-//     );
-//     return field ? field.id : null;
-//   };
-//   const getFieldTypeByFieldId = (fieldId) => {
-//     const field = data?.getTemplateById?.fields.find((f) => f.id === fieldId);
-//     return field ? field.fieldType : null;
-//   };
-
-//   const getTableEntries = () =>
-//     tableData.map((row) =>
-//       Object.entries(row).map(([fieldName, value]) => {
-//         const fieldId = getFieldIdByName(fieldName);
-//         const fieldType = getFieldTypeByFieldId(fieldId);
-
-//         let finalValue = String(value);
-
-//         if (fieldType === 'OPTIONS') {
-//           if (Array.isArray(value)) {
-//             finalValue = value.join(',');
-//           }
-//         }
-
-//         if (fieldType === 'CHECKBOXES') {
-//           if (Array.isArray(value)) {
-//             finalValue = value.join(',');
-//           }
-//         }
-
-//         return {
-//           fieldId,
-//           value: finalValue,
-//         };
-//       }),
-//     );
-
-//   const getPropertyValues = () =>
-//     Object.keys(propertiesData).map((propertyName) => ({
-//       propertyId: data.getTemplateById.properties.find(
-//         (prop) => prop.propertyName === propertyName,
-//       )?.id, // Find the propertyId from the property name
-//       value: String(propertiesData[propertyName]),
-//     }));
-
-//   const handleSave = async () => {
-//     try {
-//       const tableEntries = getTableEntries();
-//       const propertyValues = getPropertyValues();
-// // eslint-disable-next-line no-console
-// // console.log(tableEntries);
-//       const response = await submitResponse({
-//         variables: {
-//           templateId,
-//           tableEntries,
-//           propertyValues,
-//         },
-//       });
-
-//       if (response.data.submitResponse.success) {
-//         alert('Response submitted successfully!');
-//       } else {
-//         alert(`Error: ${response.data.submitResponse.message}`);
-//       }
-//       // eslint-disable-next-line no-shadow
-//     } catch (error) {
-//       // eslint-disable-next-line no-console
-//       console.error('Error submitting response:', error);
-//       alert('An error occurred while submitting the response.');
-//     }
-//   };
-//   const paginatedData = tableData.slice(
-//     (currentPage - 1) * pageSize,
-//     currentPage * pageSize,
-//   );
-
-//   return (
-//     <div>
-//       <Header name={data.getTemplateById?.name}/>
-//       <Card title="Properties" style={{ marginBottom: 16 }}>
-//         {Object.keys(propertiesData).length > 0 ? (
-//           Object.entries(propertiesData).map(([propertyName, value]) => (
-//             <div key={propertyName} style={{ marginBottom: 8 }}>
-//               <strong>{propertyName}: </strong>
-//               <span>{value}</span>
-//             </div>
-//           ))
-//         ) : (
-//           <p>No properties data available.</p>
-//         )}
-//         <Button
-//           type="link"
-//           onClick={() => setIsPropertiesModalVisible(true)}
-//           style={{ marginTop: 8, float: 'right' }}
-//         >
-//           {isPropertiesAdded ? 'Edit Property' : 'Add Property'}
-//         </Button>
-//       </Card>
-
-//       <div
-//         style={{
-//           display: 'flex',
-//           justifyContent: 'flex-end',
-//           marginBottom: 16,
-//         }}
-//       >
-//         <Button type="primary" onClick={handleAddEntry}>
-//           + Add entry
-//         </Button>
-//       </div>
-// <div className='table-container'>
-//       <Table
-//         dataSource={paginatedData}
-//         columns={columns}
-//         rowKey={(record, index) => index}
-//         locale={{ emptyText: 'No data available' }}
-//         pagination={false}
-//         scroll={{ x: 'max-content' }}
-//       />
-//       <div
-//   style={{
-//     display: 'flex',
-//     justifyContent: 'space-between',
-//     marginTop: 16,
-
-//   }}
-// >
-
-//   <Button
-//     type="primary"
-//     onClick={handleAddEntry}
-//     style={{ position: 'relative', left: 1 }}
-//   >
-//     + Add Entry
-//   </Button>
-//   <Button type="primary" onClick={handleSave}>
-//     Save Response
-//   </Button>
-// </div>
-//       </div>
-
-
-//       {/* Custom footer for pagination */}
-//       <div className="pagination-footer">
-//         <div className="pagination-controls">
-//           <Pagination
-//             current={currentPage}
-//             pageSize={pageSize}
-//             total={tableData.length}
-//             showSizeChanger
-//             pageSizeOptions={['5', '10', '25', '50']}
-//             onChange={(page, size) => {
-//               setCurrentPage(page);
-//               setPageSize(size);
-//             }}
-//           />
-//         </div>
-//       </div>
-//       <AddEntryModal
-//   visible={isModalVisible}
-//   onCancel={() => setIsModalVisible(false)}
-//   onSubmit={(newEntry) => {
-//     const updatedData = editingIndex !== null
-//       ? tableData.map((entry, i) => (i === editingIndex ? newEntry : entry))
-//       : [...tableData, newEntry];
-
-//     setTableData(updatedData);
-
-//     // If it’s a new entry, calculate the last page and set it as the current page
-//     if (editingIndex === null) {
-//       const totalEntries = updatedData.length;
-//       const newPageCount = Math.ceil(totalEntries / pageSize);
-//       setCurrentPage(newPageCount);
-//     }
-
-//     setIsModalVisible(false);
-//     setEditingIndex(null); // Reset editing index after editing
-//   }}
-//   fields={data?.getTemplateById?.fields || []}
-//   initialValues={editingIndex !== null ? tableData[editingIndex] : null} // Pass initial values when editing
-// />
-
-//       <PropertiesModal
-//         visible={isPropertiesModalVisible}
-//         onCancel={() => setIsPropertiesModalVisible(false)}
-//         onSubmit={handleSaveProperties}
-//         properties={data?.getTemplateById?.properties || []}
-//       />
-//     </div>
-//   );
-// };
-
-// export default FillTable;
 
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Checkbox, Form, Input, InputNumber, Pagination, Select, Table } from 'antd';
+import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from './components/Header';
@@ -308,15 +12,18 @@ import { SUBMIT_RESPONSE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
 
+
 const { TextArea } = Input;
 
 const FillTable = () => {
+
   const { templateId } = useParams();
-  const [tableData, setTableData] = useState([]);
+  const [tableData, setTableData] = useState([{}]);
   const [propertiesData, setPropertiesData] = useState({});
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [propertyErrors, setPropertyErrors] = useState({});
   const { data, loading, error } = useQuery(GET_TEMPLATE_BY_ID, {
     variables: { id: templateId },
     fetchPolicy: 'cache-and-network',
@@ -333,32 +40,120 @@ const FillTable = () => {
       setPropertiesData(initialProperties);
     }
   }, [data]);
+  // const validateFieldsOnBlur = (fieldName, fieldValue, rowIndex) => {
+  //   // Get the current row count
+  //   const totalRows = tableData.length;
 
+  //   // Validate the field that triggered the blur
+  //   const fieldMeta = data.getTemplateById?.fields.find((f) => f.fieldName === fieldName);
+  //   const isRequired = fieldMeta?.isRequired;
+
+  //   if (isRequired && (!fieldValue || fieldValue.trim() === '')) {
+  //     setFieldErrors((prevErrors) => ({
+  //       ...prevErrors,
+  //       [`${fieldName}-${rowIndex}`]: `${fieldMeta.fieldLabel || 'Field'} is required.`,
+  //     }));
+  //   } else {
+  //     setFieldErrors((prevErrors) => {
+  //       const newErrors = { ...prevErrors };
+  //       delete newErrors[`${fieldName}-${rowIndex}`];
+  //       return newErrors;
+  //     });
+  //   }
+
+  //   // Check all rows except the last row for required fields
+  //   tableData.forEach((row, index) => {
+  //     if (index < totalRows - 1) {
+  //       Object.keys(row).forEach((key) => {
+  //         const field = data.getTemplateById?.fields.find((f) => f.fieldName === key);
+  //         if (field?.isRequired && (!row[key] || row[key].trim() === '')) {
+  //           setFieldErrors((prevErrors) => ({
+  //             ...prevErrors,
+  //             [`${key}-${index}`]: `${field.fieldLabel || 'Field'} is required.`,
+  //           }));
+  //         }
+  //       });
+  //     }
+  //   });
+  // };
   const handleInputChange = (index, fieldName, value) => {
-    setTableData((prevData) =>
-      prevData.map((row, i) =>
+    setTableData((prevData) => {
+      const updatedData = prevData.map((row, i) =>
         i === index ? { ...row, [fieldName]: value } : row,
-      ),
-    );
+      );
+      if (index === prevData.length - 1) {
+        updatedData.push({});
+      }
+
+      return updatedData;
+    });
   };
+  const finalValidateFields = () => {
+    const errors = {};
+    tableData.forEach((row, rowIndex) => {
+      const isRowBlank = data.getTemplateById?.fields.every(
+        (field) => !row[field.fieldName] || row[field.fieldName].trim() === '',
+      );
 
-  const handleAddRow = () => {
-    const requiredFieldsFilled = tableData.every(row =>
-      data?.getTemplateById?.fields.every(field =>
-        !field.isRequired || row[field.fieldName],
-      ),
-    );
+      if (isRowBlank) return;
+      data.getTemplateById?.fields.forEach((field) => {
+        const value = row[field.fieldName];
 
-    if (!requiredFieldsFilled) {
-      alert('Please fill all required fields before adding a new row.');
-      return;
-    }
+        // Check for required fields
+        if (field.isRequired && (!value || value.trim() === '')) {
+          errors[`${field.fieldName}-${rowIndex}`] = 'This field is required.';
+        }
 
-    setTableData((prevData) => [...prevData, {}]);
-    const newPageCount = Math.ceil((tableData.length + 1) / pageSize);
-    setCurrentPage(newPageCount);
+        if (field.fieldType === 'TEXT' && value?.length > 100) {
+          errors[`${field.fieldName}-${rowIndex}`] = 'Text must be less than 100 characters.';
+        }
+
+        // eslint-disable-next-line no-restricted-globals
+        if (field.fieldType === 'NUMERIC' && isNaN(value)) {
+          errors[`${field.fieldName}-${rowIndex}`] = 'Value must be a valid number.';
+        }
+      });
+    });
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0; // Return true if no errors
+  };
+  const finalValidateProperties = () => {
+    const errors = {};
+    data?.getTemplateById?.properties.forEach((property) => {
+      const value = propertiesData[property.propertyName];
+
+      if (property.isRequired && (!value || value.trim() === '')) {
+        errors[property.propertyName] = 'This field is required.';
+      }
+
+      if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
+        errors[property.propertyName] = 'Text must be less than 100 characters';
+      }
+
+      if (property.propertyFieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
+        errors[property.propertyName] = 'Text must be less than 750 characters';
+      }
+
+      // eslint-disable-next-line no-restricted-globals
+      if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
+        errors[property.propertyName] = 'Value must be a valid number';
+      }
+    });
+
+    setPropertyErrors(errors);
+    return Object.keys(errors).length === 0; // Return true if no errors
   };
   const handleSave = async () => {
+    const isPropertyValid = finalValidateProperties();
+ const isFieldValid= finalValidateFields();
+
+    // If there are errors, prevent form submission
+    if (!isPropertyValid ||!isFieldValid ) {
+      // eslint-disable-next-line no-undef
+      alert('Please fix the errors before submitting.');
+      return;
+    }
     try {
       const tableEntries = tableData.map((row) =>
         Object.entries(row).map(([fieldName, value]) => {
@@ -380,36 +175,33 @@ const FillTable = () => {
       });
 
       if (response.data.submitResponse.success) {
+        // eslint-disable-next-line no-undef
         alert('Response submitted successfully!');
       } else {
+        // eslint-disable-next-line no-undef
         alert(`Error: ${response.data.submitResponse.message}`);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error submitting response:', error);
+      // eslint-disable-next-line no-undef
       alert('An error occurred while submitting the response.');
     }
   };
-  const [propertyErrors, setPropertyErrors] = useState({});
-  const requiredValidateProperties = () => {
-    // eslint-disable-next-line no-console
-    console.log("blurr");
-    const errors = {};
-    data?.getTemplateById?.properties.forEach((property) => {
-      const value = propertiesData[property.propertyName];
 
-      // Validation for required fields
-      if (property.isRequired && !value) {
-        errors[property.propertyName] = 'This field is required';
-      }
-    })
-    setPropertyErrors(errors);
-  }
+
+
 
   const validateProperties = () => {
-    const errors = {};
+    const errors = {...propertyErrors};
     data?.getTemplateById?.properties.forEach((property) => {
       const value = propertiesData[property.propertyName];
+      if (property.isRequired && (!value || value.trim() === '')) {
+        errors[property.propertyName] = `${property.propertyName} is required`;
+      } else if (property.isRequired) {
+        // Remove error if the required field is now filled
+        delete errors[property.propertyName];
+      }
       if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
         errors[property.propertyName] = 'Text must be less than 100 characters';
       }
@@ -449,6 +241,7 @@ const FillTable = () => {
               }));
               validateProperties(); // Validate on change
             }}
+
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -474,7 +267,7 @@ const FillTable = () => {
                 validateProperties(); // Validate on change
               }
             }}
-            onBlur={requiredValidateProperties}
+
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -498,7 +291,7 @@ const FillTable = () => {
             validateProperties();
             }
           }
-          onBlur={requiredValidateProperties}
+
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -532,7 +325,7 @@ const FillTable = () => {
         validateProperties(); // Call validation function
 
     }}
-    onBlur={requiredValidateProperties}
+
     style={{
       width: '100%',
       maxWidth: '500px',
@@ -563,7 +356,7 @@ const FillTable = () => {
                     });
                     validateProperties();
                   }}
-                  onBlur={requiredValidateProperties}
+
                   style={{ marginRight: 12 }}
                 >
                   {option}
@@ -584,7 +377,7 @@ const FillTable = () => {
               validateProperties();
             }
             }
-            onBlur={requiredValidateProperties}
+
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -598,25 +391,55 @@ const FillTable = () => {
     );
   };
   const validateFields = () => {
-    const errors = {};
+    const errors = { ...fieldErrors };
+
     tableData.forEach((row, rowIndex) => {
       data.getTemplateById?.fields.forEach((field) => {
         const value = row[field.fieldName];
-        if (field.fieldType === 'TEXT' && value?.length > 100) {
-          errors[`${field.fieldName}-${rowIndex}`] = 'Text must be less than 100 characters';
+        const errorKey = `${field.fieldName}-${rowIndex}`;
+
+        // Required field validation
+        if (field.isRequired && (!value || value.trim() === '')) {
+          errors[errorKey] = `${field.fieldName} is required`;
+        } else {
+          // Remove error if the required field is now filled
+          delete errors[errorKey];
         }
-        if (field.fieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
-          errors[`${field.fieldName}-${rowIndex}`] = 'Text must be less than 100 characters';
+
+        // TEXT field validation
+        if (field.fieldType === 'TEXT') {
+          if (value?.length > 100) {
+            errors[errorKey] = 'Text must be less than 100 characters';
+          } else {
+            delete errors[errorKey]; // Remove error if value is valid
+          }
         }
-        // eslint-disable-next-line no-restricted-globals
-        if (field.fieldType === 'NUMERIC' && isNaN(value)) {
-          errors[`${field.fieldName}-${rowIndex}`] = 'Value must be a valid number';
+
+        // MULTI_LINE_TEXT field validation
+        if (field.fieldType === 'MULTI_LINE_TEXT') {
+          if (value?.length > 750) {
+            errors[errorKey] = 'Text must be less than 750 characters';
+          } else {
+            delete errors[errorKey]; // Remove error if value is valid
+          }
+        }
+
+        // NUMERIC field validation
+        if (field.fieldType === 'NUMERIC') {
+          // eslint-disable-next-line no-restricted-globals
+          if (isNaN(value)) {
+            errors[errorKey] = 'Value must be a valid number';
+          } else {
+            delete errors[errorKey]; // Remove error if value is valid
+          }
         }
       });
     });
+
     setFieldErrors(errors);
-    return Object.keys(errors).length === 0; // Return whether there are no errors
+    return Object.keys(errors).length === 0; // Return true if there are no errors
   };
+
 
   const renderField = (fieldType, fieldName, rowIndex) => {
     const errorMessage = fieldErrors[`${fieldName}-${rowIndex}`];
@@ -636,6 +459,7 @@ const FillTable = () => {
               handleInputChange(rowIndex, fieldName, value);
               validateFields();
             }}
+
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -658,6 +482,7 @@ const FillTable = () => {
                 validateFields();
 
             }}
+
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -683,6 +508,7 @@ const FillTable = () => {
               height: '30px',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
+
           >
             {data.getTemplateById?.fields
               .find((f) => f.fieldName === fieldName)
@@ -711,6 +537,7 @@ const FillTable = () => {
               border: '1px solid #d9d9d9',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
+
           />
         )}
 
@@ -737,6 +564,7 @@ const FillTable = () => {
                     validateFields();
                   }}
                   style={{ marginRight: 12 }}
+
                 >
                   {option}
                 </Checkbox>
@@ -760,18 +588,48 @@ const FillTable = () => {
               border: '1px solid #d9d9d9',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
+
           />
         )}
       </Form.Item>
     );
   };
+  const handleDeleteRow = (rowIndex) => {
+    const newData = [...tableData];
+    newData.splice(rowIndex, 1); // Delete the row at the specified index
+    setTableData(newData);
+  };
+
   const columns = data?.getTemplateById?.fields.map((field) => ({
-    title: field.fieldName,
+    title: (
+      <span>
+        {field.fieldName} {field.isRequired && <span style={{ color: 'red' }}>*</span>}
+      </span>
+    ),
     dataIndex: field.fieldName,
     key: field.id,
-    render: (_, record, index) =>
-      renderField(field.fieldType, index, field.fieldName, record[field.fieldName]),
-  })) || [];
+    render: (text, record, index) => renderField(field.fieldType, field.fieldName, index),
+    // Ensure each column has the same width
+    width: 150, // Set to a fixed width for all columns
+  })).concat([
+    {
+      title: 'Action',
+      key: 'action',
+      render: (text, record, index) => (
+        <Button
+          type="link"
+          icon={<DeleteOutlined />}
+          onClick={() => handleDeleteRow(index)} // Function to handle the delete action
+          style={{ color: 'red' }}
+        />
+      ),
+      width: 100, // Set a fixed width for the action column
+    },
+  ]);
+
+
+
+
 
   const paginatedData = tableData.slice(
     (currentPage - 1) * pageSize,
@@ -783,37 +641,37 @@ console.log(data);
     <div>
       <Header name={data?.getTemplateById?.name} />
       <Card title="Properties" style={{ marginBottom: 16 }}>
-        {Object.keys(propertiesData).length > 0 ? (
-          Object.entries(propertiesData).map(([propertyName, value]) => (
-            <div key={propertyName} style={{ marginBottom: 8 }}>
-              <strong>{propertyName}: </strong>
-              {renderPropertyField(
-                data?.getTemplateById.properties.find((p) => p.propertyName === propertyName).propertyFieldType,
-                propertyName,
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No properties data available.</p>
-        )}
-      </Card>
+  {Object.keys(propertiesData).length > 0 ? (
+    Object.entries(propertiesData).map(([propertyName, value]) => {
+      const property = data?.getTemplateById.properties.find((p) => p.propertyName === propertyName);
+      const isRequired = property?.isRequired;
+      return (
+        <div key={propertyName} style={{ marginBottom: 8 }}>
+          <strong>
+            {propertyName}
+            {isRequired && <span style={{ color: 'red' }}> *</span>}
+          </strong>
+          {renderPropertyField(property.propertyFieldType, propertyName)}
+        </div>
+      );
+    })
+  ) : (
+    <p>No properties data available.</p>
+  )}
+</Card>
       <div>
 
       <Table
         dataSource={paginatedData}
-        columns={data?.getTemplateById?.fields.map((field) => ({
-          title: field.fieldName,
-          dataIndex: field.fieldName,
-          render: (text, record, index) => renderField(field.fieldType, field.fieldName, index),
-        }))}
+        columns={columns}
         rowKey="id"
         pagination={false}
-
+        scroll={{ x: 'max-content' }}
       />
     </div>
 
       <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' ,padding:'10px'}}>
-      <Button onClick={handleAddRow}>Add Row</Button>
+
       <Button type="primary" onClick={handleSave}>
           Save Response
         </Button>

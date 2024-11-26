@@ -1,22 +1,22 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
-import React, { useEffect, useState } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Table, Button, Card, Space, Popconfirm, Pagination ,Dropdown,Menu} from 'antd';
-import { EditOutlined, DeleteOutlined,ExportOutlined,DownOutlined } from '@ant-design/icons';
-import Papa from 'papaparse';
-import { utils, writeFile } from 'xlsx';
+import { DeleteOutlined, DownOutlined, EditOutlined, ExportOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Card, Dropdown, Menu, Pagination, Popconfirm, Space, Table } from 'antd';
 import { jsPDF } from 'jspdf';
-import { GET_TEMPLATE_BY_ID, GET_ALL_RESPONSES_FOR_SET } from './graphql/Queries';
-import { EDIT_RESPONSE_MUTATION } from './graphql/Mutation';
-import './register.less';
-import './headerButton.less';
+import 'jspdf-autotable';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { utils, writeFile } from 'xlsx';
+import { ROUTES } from '../../common/constants';
 import AddModal from './components/AddModal';
 import PropertiesModal from './components/EditPropertyModal';
-import { ROUTES } from '../../common/constants';
-import 'jspdf-autotable';
+import Header from './components/Header';
+import { EDIT_RESPONSE_MUTATION } from './graphql/Mutation';
+import { GET_ALL_RESPONSES_FOR_SET, GET_TEMPLATE_BY_ID } from './graphql/Queries';
+import './headerButton.less';
+import './register.less';
 
 const EditEntry = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -251,7 +251,12 @@ const EditEntry = () => {
 
   const handleViewChangeLog = () => {
     const changeLogUrl = ROUTES.VIEW_SET_CHANGE_LOG.replace(':setId', setId);
-    navigate(changeLogUrl);
+    navigate(changeLogUrl, {
+      state: {
+       templateName: templateData?.getTemplateById?.name,
+        templateId,
+      },
+    });
 
   };
 
@@ -358,6 +363,7 @@ console.log("tablemDtata",tableData);
   console.log("propertiess sata :",propertiesData);
   return (
     <div>
+      <Header name={templateData?.getTemplateById?.name} setId={setId} templateId={templateId}/>
         <div className="header">
         <Dropdown overlay={exportMenu} trigger={['click']}>
             <Button type="primary" icon={<ExportOutlined />} style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}>

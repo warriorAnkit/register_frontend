@@ -5,6 +5,7 @@ import moment from 'moment';
 import { useParams } from 'react-router-dom';
 import { GET_TEMPLATE_ACTIVITY_LOGS_BY_TEMPLATE_ID } from './graphql/Queries';
 import '../Dashboard/dashboard.less';
+import Header from './components/Header';
 
 const { Title } = Typography;
 
@@ -19,6 +20,7 @@ const ChangeLogOfTemplatePage = () => {
   const [templateName, setTemplateName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
 
   useEffect(() => {
     if (data?.getTemplateActivityLogsBytemplateId) {
@@ -98,6 +100,8 @@ const ChangeLogOfTemplatePage = () => {
   const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
+    <div>
+      <Header name={templateName} templateId={templateId} templateLogs/>
     <div style={{ padding: '20px' }}>
       <Title level={2}>Change Log</Title>
       {error && <p>Error loading logs</p>}
@@ -148,6 +152,7 @@ const ChangeLogOfTemplatePage = () => {
           />
         </>
       )}
+    </div>
     </div>
   );
 };
