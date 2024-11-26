@@ -13,6 +13,7 @@ import {
   Select,
   Switch,
   List,
+  notification,
 } from 'antd';
 import {
   EditOutlined,
@@ -72,17 +73,17 @@ const TemplateView = () => {
       setTemplateName(data.getTemplateById.name);
       setTemplateStatus(data.getTemplateById.status);
       const cleanData = (obj) => {
-        const { __typename, deletedAt, ...rest } = obj; // Destructure to exclude __typename and deletedAt
-        return rest; // Return the object without __typename and deletedAt
+        const { __typename, deletedAt, ...rest } = obj;
+        return rest;
       };
 
       setFields(
         data.getTemplateById.fields
-          .filter((field) => !field.deletedAt) // Keep fields where deletedAt is falsy
-          .map(cleanData), // Apply cleanData to fields
+          .filter((field) => !field.deletedAt)
+          .map(cleanData),
       );
       setProperties(
-        data.getTemplateById.properties.map(cleanData), // Apply cleanData to properties
+        data.getTemplateById.properties.map(cleanData),
       );
     }
   }, [data]);
@@ -401,6 +402,12 @@ const TemplateView = () => {
           newStatus,
         },
       });
+      console.log("STSTUS");
+
+      notification.success({
+        message: 'Status Updated',
+        description: `The status is now ${newStatus}`,
+      });
     // eslint-disable-next-line no-shadow
     } catch (error) {
       console.error('Error changing status:', error.message);
@@ -549,14 +556,15 @@ const TemplateView = () => {
           <Select.Option value="DATE">Date</Select.Option>
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
         </Select>
-        <Switch
-          checked={fieldData.required}
-          onChange={(checked) =>
-            setFieldData({ ...fieldData, required: checked })
-          }
-          checkedChildren="Required"
-          unCheckedChildren="Optional"
-        />
+          <div style={{ marginBottom: '16px' }}>
+          <span>Required: </span>
+          <Switch
+            checked={fieldData.required}
+            onChange={(checked) =>
+              setFieldData({ ...fieldData, required: checked })
+            }
+          />
+        </div>
         {(fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') && (
           <div style={{ marginTop: '16px' }}>
             <Title level={5}>Options</Title>
@@ -571,6 +579,11 @@ const TemplateView = () => {
                     }
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddFieldOption(); // Trigger adding an option on Enter key press
+                      }
+                    }}
                   />
                 </List.Item>
               )}
@@ -644,6 +657,11 @@ const TemplateView = () => {
                     }
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddPropertyOption();
+                      }
+                    }}
                   />
                 </List.Item>
               )}

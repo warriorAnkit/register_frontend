@@ -533,14 +533,16 @@ console.log("figf",formattedFields)
           <Select.Option value="DATE">Date</Select.Option>
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
         </Select>
-        <Switch
-          checked={fieldData.required}
-          onChange={(checked) =>
-            setFieldData({ ...fieldData, required: checked })
-          }
-          checkedChildren="Required"
-          unCheckedChildren="Optional"
-        />
+
+          <div style={{ marginBottom: '16px' }}>
+          <span>Required: </span>
+          <Switch
+            checked={fieldData.required}
+            onChange={(checked) =>
+              setFieldData({ ...fieldData, required: checked })
+            }
+          />
+        </div>
         {(fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') && (
           <div style={{ marginTop: '16px' }}>
             <Title level={5}>Options</Title>
@@ -555,6 +557,11 @@ console.log("figf",formattedFields)
                     }
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddFieldOption(); // Trigger adding an option on Enter key press
+                      }
+                    }}
                   />
                 </List.Item>
               )}
@@ -627,6 +634,11 @@ console.log("figf",formattedFields)
                     }
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddPropertyOption(); // Trigger adding an option on Enter key press
+                      }
+                    }}
                   />
                 </List.Item>
               )}

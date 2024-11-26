@@ -389,8 +389,6 @@ const exportPDF = async (column, data, fileName) => {
     <div >
        <Header name={templateName}/>
     <div className="view-register">
-    <h2>{templateName}</h2>
-
       <Tabs activeKey={activeTab} onChange={setActiveTab} className="tabs-container">
         <TabPane tab="Sets" key="set">
           <Space direction="horizontal" className="tab-actions">

@@ -184,7 +184,7 @@ const Dashboard = () => {
         Scratch
       </Menu.Item>
       <Menu.Item key="global" onClick={handleGlobalClick}>
-        Global
+        Library
       </Menu.Item>
       <Menu.Item key="import" onClick={handleImportClick}>
         Import
