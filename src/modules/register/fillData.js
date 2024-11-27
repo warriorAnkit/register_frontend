@@ -98,8 +98,7 @@ const FillTable = () => {
       if (isRowBlank) return;
       data.getTemplateById?.fields.forEach((field) => {
         const value = row[field.fieldName];
-// eslint-disable-next-line no-console
-console.log("values:",value);
+
         // Check for required fields
         if (field.isRequired &&
           (!value ||
@@ -191,8 +190,7 @@ console.log("values:",value);
         alert(`Error: ${response.data.submitResponse.message}`);
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error submitting response:', error);
+
       // eslint-disable-next-line no-undef
       alert('An error occurred while submitting the response.');
     }
@@ -205,8 +203,7 @@ console.log("values:",value);
     const errors = {...propertyErrors};
     data?.getTemplateById?.properties.forEach((property) => {
       // const value = propertiesData[property.propertyName];
-      // eslint-disable-next-line no-console
-      console.log("pro",value)
+
       if ( (property.isRequired &&
         (!value ||
          (typeof value === 'string' && value.trim() === '') ||
@@ -409,8 +406,7 @@ console.log("values:",value);
     const errors = { ...fieldErrors };
     // const row = tableData[rowIndex];
     const field = data.getTemplateById?.fields.find(f => f.fieldName === fieldName);
-// eslint-disable-next-line no-console
-console.log("value",value);
+
 // eslint-disable-next-line no-param-reassign
 value=String(value);
 
@@ -421,8 +417,7 @@ value=String(value);
       // Required field validation
       if (field.isRequired && (!value || value.trim() === '')) {
         // errors[errorKey] = `${field.fieldName} is required`;
-        // eslint-disable-next-line no-console
-        // console.log(value +errorKey +field);
+
       } else {
         // eslint-disable-next-line no-console
 
@@ -685,8 +680,7 @@ value=String(value);
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
-// eslint-disable-next-line no-console
-console.log(data);
+
   return (
     <div>
       <Header name={data?.getTemplateById?.name} />

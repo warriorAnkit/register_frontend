@@ -29,7 +29,7 @@ const PreviewPage = () => {
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
 
   const handleMouseEnter = (field) => {
-    console.log("Mouse Entered on field: ", field.fieldName); // Log when mouse enters a field
+
     const newPopoverContent = (
       <div style={{ maxWidth: 200 }}>
         {field.options?.map((option) => (
@@ -47,7 +47,7 @@ const PreviewPage = () => {
   };
 
   const handleMouseLeave = (field) => {
-    console.log("Mouse Left on field: ", field.fieldName); // Log when mouse leaves a field
+
     setPopoverVisible((prevState) => ({
       ...prevState,
       [field.fieldName]: false, // Hide popover for the specific field
@@ -78,7 +78,7 @@ const PreviewPage = () => {
     dataIndex: field.fieldName.replace(/\s+/g, '').toLowerCase(),
     key: field.fieldName,
     render: (text, record) => {
-      console.log(`Rendering ${field.fieldName} for record: `, record); // Log rendering state
+
 
       if (field.fieldType === 'OPTIONS') {
         return (
@@ -141,7 +141,7 @@ const PreviewPage = () => {
           },
         });
       } else {
-        console.log("hoii",transformedData);
+
         await createTemplate({
           variables: {
             name: transformedData.name||name,

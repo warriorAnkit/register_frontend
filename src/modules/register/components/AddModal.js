@@ -105,8 +105,7 @@ const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
   }, [initialValues, form]);
 // eslint-disable-next-line no-console
 
-  // eslint-disable-next-line no-console
-  console.log("initials: ",initialValues);
+
   const handleOk = () => {
     form
       .validateFields()

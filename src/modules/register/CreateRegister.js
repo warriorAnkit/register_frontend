@@ -134,8 +134,7 @@ const CreateRegisterPage = () => {
       options: [...propertyData.options, ''],
     });
   };
-  console.log(fields);
-  console.log(properties);
+
 
   const handleSave = async () => {
 
@@ -145,7 +144,7 @@ const CreateRegisterPage = () => {
       isRequired: field.isRequired,
       options: field.options,
     }));
-console.log("figf",formattedFields)
+
     const formattedProperties = properties.map((property) => ({
       propertyName: property.propertyName,
       propertyFieldType: property.propertyFieldType,
@@ -341,8 +340,7 @@ console.log("figf",formattedFields)
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
-        // eslint-disable-next-line no-console
-        console.log(propertyName);
+
         setProperties((prevProperties) =>
           prevProperties.filter((property) => property.propertyName !== propertyName),
         );

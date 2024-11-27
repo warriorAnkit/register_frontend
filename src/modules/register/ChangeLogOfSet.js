@@ -27,8 +27,7 @@ const { templateName, templateId } = location.state || {};
       setLogs(data.getActivityLogsBySetId);
     }
   }, [data]);
- // eslint-disable-next-line no-console
- console.log(data);
+
 
  const [currentPage, setCurrentPage] = useState(1);
  const [pageSize, setPageSize] = useState(10);

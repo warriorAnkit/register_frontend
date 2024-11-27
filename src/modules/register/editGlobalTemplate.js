@@ -101,7 +101,7 @@ const GlobalTemplateView = () => {
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isEditing) {
-        console.log("beforeunload event triggered - Unsaved changes warning");
+
         e.preventDefault();
         e.returnValue = ''; // Required for the confirmation dialog to appear
       }
@@ -126,7 +126,7 @@ const GlobalTemplateView = () => {
 
 
     return () => {
-      console.log("Cleaning up - Removing event listeners");
+
       window.removeEventListener('beforeunload', handleBeforeUnload);
       // window.removeEventListener('popstate', handlePopState);
     };
@@ -137,7 +137,6 @@ const GlobalTemplateView = () => {
   if (error) return <p>Error: {error.message}</p>;
 
 
-console.log("PROJECT",dataProject);
 
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
 
@@ -235,8 +234,7 @@ console.log("PROJECT",dataProject);
       fields: fields.map(({ id, ...rest }) => rest),
        properties: properties.map(({ id, ...rest }) => rest),
     };
-    // eslint-disable-next-line no-console
-    console.log(allData);
+
     try {
       const response = await createTemplate({ variables: allData });
       setIsEditing(false);
@@ -334,8 +332,7 @@ console.log("PROJECT",dataProject);
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
-        // eslint-disable-next-line no-console
-        console.log(propertyName);
+
         setProperties((prevProperties) =>
           prevProperties.filter((property) => property.propertyName !== propertyName),
         );

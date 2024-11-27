@@ -63,3 +63,78 @@ padding: 20px;
     margin-top: 12px; /* Add space above the actions when they stack */
   }
 }
+
+/* TabsPage.css */
+
+body {
+  overflow: hidden;
+}
+
+/* Make sure the main container fits the viewport without scrolling */
+.tabs-page-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent scrolling inside the container */
+}
+
+/* Header should be fixed at the top */
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+/* Common styling for actions like RangePicker and Export Button */
+.tab-actions {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background-color: #fff;
+  position: sticky;
+  top: 120px; /* Space for header + tabs */
+  z-index: 800;
+  background-color: #fff;
+}
+
+/* Table container to take available space while avoiding scrolling */
+.table-container {
+
+  overflow-y: auto;
+  padding: 0 16px;
+  margin-bottom: 30px; /* Space for pagination */
+}
+
+/* Adjust tabs container to prevent overflow */
+.tabs-container {
+  margin-top: 30px; /* Space for fixed header */
+  background-color: #fff;
+  position: sticky;
+  z-index: 900;
+  overflow: visible; /* Ensure the tabs don't scroll */
+}
+
+/* Pagination container at the bottom */
+.pagination-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  padding: 10px 0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+
+}
+
+/* Prevent any overflow inside the tables and tabs */
+// .table-container,
+// .tabs-container {
+//   overflow: hidden; /* Prevent scrollbars */
+// }

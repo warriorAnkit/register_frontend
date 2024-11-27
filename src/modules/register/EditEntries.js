@@ -60,11 +60,11 @@ const EditEntry = () => {
 
     if (responseData) {
       const flattenedFieldResponses = responseData.getAllResponsesForSet.fieldResponses.flat();
-      console.log("flatr",flattenedFieldResponses);
+
       const existingData = flattenedFieldResponses.reduce((acc, response) => {
         const row = acc.find(r => r.rowNumber === response.rowNumber);
         if (row) {
-          console.log("here:",response);
+
           row[response.fieldId] = {
             value: response.value,
             responseId: response.id,
@@ -86,7 +86,7 @@ const EditEntry = () => {
 
       const existingProperties = {};
       responseData.getAllResponsesForSet.propertyResponses?.forEach((propertyResponse) => {
-        console.log("property REsponse:",propertyResponse);
+
         const propertyName=getPropertyById(propertyResponse.propertyId,templateData.getTemplateById?.properties);
         existingProperties[propertyName] = propertyResponse.value;
       });
@@ -359,8 +359,7 @@ const tableEntries = tableData.map(row =>
     </Menu>
   );
   const paginatedData = tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-console.log("tablemDtata",tableData);
-  console.log("propertiess sata :",propertiesData);
+
   return (
     <div>
       <Header name={templateData?.getTemplateById?.name} setId={setId} templateId={templateId}/>

@@ -105,8 +105,7 @@ const FileUploadModal = ({ visible, onClose }) => {
       // Transform the data after parsing
       const transformedData = transformData(parsedData);
 
-      // Log transformed data for debugging
-      console.log("Transformed data:", transformedData);
+
 
       // Navigate to the new page and pass the transformed data and name
       navigate(ROUTES.PREVIEW_REGISTER, { state: { transformedData, name } });

@@ -69,7 +69,7 @@ const Dashboard = () => {
     data: dataProject,
   } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
-  console.log('id:,', projectId);
+
   const { loading: loadingLive, error: errorLive, data: dataLive } = useQuery(
     LIST_LIVE_TEMPLATES_BY_PROJECT,
 
@@ -154,7 +154,7 @@ const Dashboard = () => {
     if (isBrowser) {
       sessionStorage.setItem('selectedFilter', activeFilter);
       sessionStorage.setItem('searchText', searchText);
-      console.log(searchText,"ghd");
+
     }
   }, [activeFilter, searchText]);
   const paginatedTemplates = filteredTemplates.slice(
@@ -165,14 +165,9 @@ const Dashboard = () => {
   // Filter dropdown menu
 
   const handleTabChange = (key) => {
-    // eslint-disable-next-line no-console
-    console.log(key, '1');
     if (key === 'template') {
-      console.log('hiii ankit');
       navigate(ROUTES.MAIN);
     } else if (key === 'log') {
-      // eslint-disable-next-line no-console
-      console.log('2 i am called');
       navigate(ROUTES.LOGS);
     }
   };
