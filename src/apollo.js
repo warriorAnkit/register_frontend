@@ -16,8 +16,6 @@ const httpLink = createHttpLink({
   uri: process.env.REACT_APP_SERVER_URL,
 });
 
-// eslint-disable-next-line no-console
-console.log(httpLink);
 
 const toast = ({ message: content, type }) => {
   messageContext?.destroy();
@@ -169,8 +167,7 @@ const errorLink = onError((options) => {
   }
 
   if (networkError) {
-    // eslint-disable-next-line no-console
-    console?.log(`[Network error]: ${networkError}`);
+
     Sentry?.captureException(new Error(`[Network error]: ${networkError}`));
   }
 });
