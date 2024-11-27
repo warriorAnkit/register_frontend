@@ -74,8 +74,7 @@ const ViewEntries = () => {
     }
   }, [responseData, templateData]);
 
-// eslint-disable-next-line no-console
-console.log("res----",filteredData)
+
   useEffect(() => {
     if (entryResponseData && templateData) {
       const rows = entryResponseData?.getAllResponsesForTemplate?.responses?.map((set) => set.fieldResponses.map((fieldRow) => {
@@ -384,100 +383,132 @@ const exportPDF = async (column, data, fileName) => {
   const endIndex = startIndex + pageSize;
   const paginatedData = filteredData.slice(startIndex, endIndex);
   const entriesPaginatedData=entriesFilteredData.slice(startIndex,endIndex);
+  const [tableHeight, setTableHeight] = useState(400); // Default height
 
-  return (
-    <div >
-       <Header name={templateName}/>
-    <div className="view-register">
-      <Tabs activeKey={activeTab} onChange={setActiveTab} className="tabs-container">
+useEffect(() => {
+  const updateTableHeight = () => {
+    const availableHeight = window.innerHeight - 360; // Adjust the subtraction based on your layout (header, padding, etc.)
+    setTableHeight(availableHeight);
+  };
+
+
+  updateTableHeight();
+
+  // Update height on screen resize
+  window.addEventListener('resize', updateTableHeight);
+
+  return () => {
+    window.removeEventListener('resize', updateTableHeight);
+  };
+}, []);
+
+
+return (
+  <div className="tabs-page-container">
+    <div className="header-container">
+        <Header name={templateName} />
+    </div>
+
+    <div className="tabs-container" style={{ padding: '20px' }}>
+      {/* Tabs Section */}
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        className="tabs-container"
+      >
         <TabPane tab="Sets" key="set">
-          <Space direction="horizontal" className="tab-actions">
-
+          <div className="table-section">
+            <Space direction="horizontal" className="tab-actions">
               <RangePicker onChange={handleDateChange} />
               <Dropdown overlay={exportMenu}>
                 <Button icon={<ExportOutlined />} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />
                 </Button>
               </Dropdown>
+            </Space>
 
-          </Space>
-          <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto' }}>
-          <Table
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => navigate(`/register/edit-entries/${templateId}/${record.setId}`),
-            })}
-          />
+            <div className="table-container" style={{ overflowX: 'auto' }}>
+              <Table
+                columns={columns.map((col) => ({
+                  ...col,
+                  onHeaderCell: (column) => ({
+                    style: {
+                      minWidth: column.minWidth || '150px', // Set the default min-width or use a dynamic value
+                    },
+                  }),
+                }))}
+                dataSource={paginatedData}
+                pagination={false}
+                onRow={(record) => ({
+                  onClick: () =>
+                    navigate(`/register/edit-entries/${templateId}/${record.setId}`),
+                })}
+                scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
+                style={{ tableLayout: 'fixed' }} // Ensure fixed table layout
+              />
+            </div>
+
+            <div className="pagination-container">
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={filteredData.length}
+                onChange={handlePageChange}
+                showSizeChanger
+                pageSizeOptions={[10, 16, 25, 50]}
+              />
+            </div>
           </div>
-            <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={filteredData.length}
-        onChange={handlePageChange}
-        showSizeChanger
-        pageSizeOptions={[10,16, 25, 50]}
-        style={{   position: 'fixed',
-          bottom: '0',
-          left: '0',
-          right: '0',
-          padding: '10px',
-          background: '#fff',
-          zIndex: 999,
-          borderTop: '1px solid #f0f0f0',
-          justifyContent: 'center',
-          display: 'flex',
-        }}
-      />
         </TabPane>
-        <TabPane tab="Entries" key="entries">
-          <Space direction="horizontal" className="tab-actions">
 
+        <TabPane tab="Entries" key="entries">
+          <div className="table-section">
+            <Space direction="horizontal" className="tab-actions">
               <RangePicker onChange={handleDateChange} />
               <Dropdown overlay={exportMenu}>
                 <Button icon={<ExportOutlined />} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />
                 </Button>
               </Dropdown>
+            </Space>
 
-          </Space>
-          <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto' }}>
-          <Table
-            columns={EntriesColumns}
-            dataSource={entriesPaginatedData}
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => navigate(`/register/edit-entries/${templateId}/${record.setId}`),
-            })}
-          />
+            <div className="table-container" style={{ overflowX: 'auto' }}>
+              <Table
+                columns={EntriesColumns.map((col) => ({
+                  ...col,
+                  onHeaderCell: (column) => ({
+                    style: {
+                      minWidth: column.minWidth || '150px', // Set the default min-width or use a dynamic value
+                    },
+                  }),
+                }))}
+                dataSource={entriesPaginatedData}
+                pagination={false}
+                onRow={(record) => ({
+                  onClick: () =>
+                    navigate(`/register/edit-entries/${templateId}/${record.setId}`),
+                })}
+                scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
+                style={{ tableLayout: 'fixed' }} // Ensure fixed table layout
+              />
+            </div>
+
+            <div className="pagination-container">
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={entriesFilteredData.length}
+                onChange={handlePageChange}
+                showSizeChanger
+                pageSizeOptions={[10, 16, 25, 50]}
+              />
+            </div>
           </div>
-            <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={entriesFilteredData.length}
-        onChange={handlePageChange}
-        showSizeChanger
-        pageSizeOptions={[10,16, 25, 50]}
-        style={{   position: 'fixed',
-          bottom: '0',
-          left: '0',
-          right: '0',
-          padding: '10px',
-          background: '#fff',
-          zIndex: 999,
-          borderTop: '1px solid #f0f0f0',
-          justifyContent: 'center',
-          display: 'flex',
-        }}
-      />
         </TabPane>
       </Tabs>
-
+    </div>
   </div>
-</div>
-  );
-
+);
 
 };
 

@@ -77,8 +77,7 @@ const LogsPage = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
-  // eslint-disable-next-line no-console
-  console.log(paginatedLogs);
+
 
   if (loading) {
     return <div>Loading...</div>;

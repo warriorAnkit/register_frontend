@@ -91,7 +91,7 @@ const TemplateView = () => {
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isEditing) {
-        console.log("beforeunload event triggered - Unsaved changes warning");
+
         e.preventDefault();
         e.returnValue = ''; // Required for the confirmation dialog to appear
       }
@@ -116,7 +116,7 @@ const TemplateView = () => {
 
 
     return () => {
-      console.log("Cleaning up - Removing event listeners");
+
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
     };
@@ -219,15 +219,16 @@ const TemplateView = () => {
       fields,
       properties,
     };
-    // eslint-disable-next-line no-console
-    console.log(allData);
+
     try {
       const response = await updateTemplate({ variables: allData });
-      // eslint-disable-next-line no-console
-      console.log(response.data.updateTemplate.message); // Show success message or handle accordingly
+
       setIsEditing(false);
       if(response.data.updateTemplate.message){
-        navigate(ROUTES.MAIN);
+        notification.success({
+          message: 'Register updated',
+          description: `The  Register is now updated and saved`,
+        });
       }
       // eslint-disable-next-line no-shadow
     } catch (error) {
@@ -320,8 +321,7 @@ const TemplateView = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
-        // eslint-disable-next-line no-console
-        console.log(propertyName);
+
         setProperties((prevProperties) =>
           prevProperties.filter((property) => property.propertyName !== propertyName),
         );
@@ -402,8 +402,6 @@ const TemplateView = () => {
           newStatus,
         },
       });
-      console.log("STSTUS");
-
       notification.success({
         message: 'Status Updated',
         description: `The status is now ${newStatus}`,
@@ -416,7 +414,7 @@ const TemplateView = () => {
   const handleViewChangeLog = () => {
     const changeLogUrl = ROUTES.VIEW_TEMPLATE_CHANGE_LOG.replace(':templateId', templateId);
     navigate(changeLogUrl);
-    console.log("hii");
+
   };
 
   return (
