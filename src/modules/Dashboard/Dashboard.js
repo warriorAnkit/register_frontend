@@ -1,4 +1,5 @@
-/* eslint-disable no-undef */
+
+
 /* eslint-disable no-console */
 /* eslint-disable no-nested-ternary */
 import { useQuery } from '@apollo/client';
@@ -17,7 +18,7 @@ import {
 } from 'antd';
 
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { ROUTES } from '../../common/constants';
 import {
   GET_PROJECT_ID_FOR_USER,
@@ -34,24 +35,16 @@ const { Title, Text } = Typography;
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location=useLocation();
-  const isBrowser = typeof window !== 'undefined';
-  const [activeFilter, setActiveFilter] = useState(
-    isBrowser ? sessionStorage.getItem('selectedFilter') || 'all' : 'all',
-  );
-  const [searchText, setSearchText] = useState(
-    isBrowser ? sessionStorage.getItem('searchText') || '' : '',
-  );
+  const [activeFilter, setActiveFilter] = useState('all');
   const [templates, setTemplates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [registerName, setRegisterName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(16);
-  const [selectedFilter, setSelectedFilter] = useState(location.state?.selectedFilter || 'all');
+  const [searchText, setSearchText] = useState('');
   const [userRole, setUserRole] = useState(null);
   const [isGlobalModalVisible, setGlobalModalVisible] = useState(false);
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
-
 
   const handleImportClick = () => {
     setUploadModalVisible(true); // Show the upload modal
@@ -69,7 +62,7 @@ const Dashboard = () => {
     data: dataProject,
   } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
-
+  console.log('id:,', projectId);
   const { loading: loadingLive, error: errorLive, data: dataLive } = useQuery(
     LIST_LIVE_TEMPLATES_BY_PROJECT,
 
@@ -150,13 +143,7 @@ const Dashboard = () => {
   .filter((template) =>
     template.name.toLowerCase().includes(searchText.toLowerCase()),
   );
-  useEffect(() => {
-    if (isBrowser) {
-      sessionStorage.setItem('selectedFilter', activeFilter);
-      sessionStorage.setItem('searchText', searchText);
 
-    }
-  }, [activeFilter, searchText]);
   const paginatedTemplates = filteredTemplates.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
@@ -165,9 +152,14 @@ const Dashboard = () => {
   // Filter dropdown menu
 
   const handleTabChange = (key) => {
+    // eslint-disable-next-line no-console
+    console.log(key, '1');
     if (key === 'template') {
+      console.log('hiii ankit');
       navigate(ROUTES.MAIN);
     } else if (key === 'log') {
+      // eslint-disable-next-line no-console
+      console.log('2 i am called');
       navigate(ROUTES.LOGS);
     }
   };
@@ -179,7 +171,7 @@ const Dashboard = () => {
         Scratch
       </Menu.Item>
       <Menu.Item key="global" onClick={handleGlobalClick}>
-        Library
+        Global
       </Menu.Item>
       <Menu.Item key="import" onClick={handleImportClick}>
         Import
@@ -199,17 +191,14 @@ const Dashboard = () => {
   };
 
   const handleCardClick = (templateId) => {
-    navigate(`/register/template-view/${templateId}`,{
-      state: { searchText, selectedFilter },
-    },
-    );
+    navigate(`/register/template-view/${templateId}`);
   };
 
   const handleFillEntryButtonClick = (templateId) => {
     navigate(`/register/fill-template/${templateId}`);
   };
   const handleViewEntryButtonClick = (templateId) => {
-    navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
+    navigate(`/register/view-entries/${templateId}`);
   };
   const handleFilterChange = (newFilter) => {
     setActiveFilter(newFilter); // Update activeFilter state
@@ -218,7 +207,7 @@ const Dashboard = () => {
 
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px',display: 'flex', flexDirection: 'column', height: '100vh'  }}>
       <HeaderComponent
         projectId={projectId}
         createMenu={createMenu}
@@ -233,8 +222,6 @@ const Dashboard = () => {
         searchText={searchText}
         handleFilterChange={handleFilterChange}
         userRole={userRole}
-        selectedFilter={selectedFilter}
-        setSelectedFilter={setSelectedFilter}
       />
       <div
         style={{

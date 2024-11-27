@@ -23,11 +23,6 @@ const HeaderComponent = ({
 }) => {
   const [currentTab, setCurrentTab] = useState('template');
   // const [selectedFilter, setSelectedFilter] = useState(activeFilter);
-
-  // eslint-disable-next-line no-console
-  console.log("Current Tab:", currentTab);
- // eslint-disable-next-line no-console
- console.log("cureet:",activeFilter);
   const onFilterSelect = (filter) => {
     setSelectedFilter(filter);
     handleFilterChange(filter);

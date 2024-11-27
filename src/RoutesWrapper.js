@@ -248,9 +248,6 @@ const RoutesWrapper = () => {
   const [getCurrentUser] = useLazyQuery(GET_CURRENT_USER, {
     fetchPolicy: 'network-only',
     onCompleted: (res) => {
-      // eslint-disable-next-line no-console
-      console.log("response:- ",res);
-
       initializeAuth(idToken, res?.getCurrentUser);
       setLoading(false);
     },

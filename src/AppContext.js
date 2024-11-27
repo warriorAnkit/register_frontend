@@ -155,13 +155,12 @@ import { REFRESH_TOKEN, TOKEN, USER } from './common/constants';
 
 // Utility function to log localStorage contents (for debugging)
 const logLocalStorage = () => {
-  console.log("Local Storage Contents:");
-  console.log(localStorage.length);
+
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     const value = localStorage.getItem(key);
-    console.log(`${key}: ${value}`);
+
   }
 };
 
@@ -273,7 +272,7 @@ function AppContextProvider({ children }) {
     }
 
     logLocalStorage(); // Log localStorage contents for debugging
-    console.log('Initializing Auth:', { token, user, refresh });
+    // console.log('Initializing Auth:', { token, user, refresh });
   };
 
   // Effect to initialize auth when the app first mounts (on page refresh)
