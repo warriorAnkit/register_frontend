@@ -37,22 +37,22 @@ padding: 20px;
 
 
 
-.tabs-container {
-  flex: 1;
-  margin-right: 16px;
-}
+// .tabs-container {
+//   flex: 1;
+//   margin-right: 16px;
+// }
 
-.tab-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+// .tab-actions {
+//   display: flex;
+//   justify-content: flex-end;
+//   gap: 8px;
 
 
-  margin-bottom: 10px;
-  width: 100%;
-}
+//   margin-bottom: 10px;
+//   width: 100%;
+// }
 
-@media (max-width: 768px) {
+@media (max-width: 508px) {
   .tabs-actions-container {
     flex-direction: column;
     align-items: stretch;
@@ -62,20 +62,26 @@ padding: 20px;
     justify-content: flex-start; /* Align buttons to the left when stacked */
     margin-top: 12px; /* Add space above the actions when they stack */
   }
+  .table-container {
+
+    overflow-y: auto;
+    padding: 0 16px;
+    margin-bottom: 50px; /* Space for pagination */
+  }
 }
 
 /* TabsPage.css */
 
-body {
-  overflow: hidden;
-}
+// body {
+//   overflow: hidden;
+// }
 
 /* Make sure the main container fits the viewport without scrolling */
 .tabs-page-container {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevent scrolling inside the container */
+  // overflow: hidden; /* Prevent scrolling inside the container */
 }
 
 /* Header should be fixed at the top */
@@ -103,10 +109,9 @@ body {
 
 /* Table container to take available space while avoiding scrolling */
 .table-container {
-
+  margin-bottom: 50px;
   overflow-y: auto;
   padding: 0 16px;
-  margin-bottom: 30px; /* Space for pagination */
 }
 
 /* Adjust tabs container to prevent overflow */

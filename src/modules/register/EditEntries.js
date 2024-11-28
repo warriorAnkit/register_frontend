@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
@@ -6,10 +7,12 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Button, Card, Dropdown, Menu, Pagination, Popconfirm, Space, Table } from 'antd';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { utils, writeFile } from 'xlsx';
 import { ROUTES } from '../../common/constants';
+import useFetchUserFullName from '../../hooks/useFetchUserNames';
 import AddModal from './components/AddModal';
 import PropertiesModal from './components/EditPropertyModal';
 import Header from './components/Header';
@@ -22,6 +25,7 @@ const EditEntry = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isPropertiesModalVisible, setIsPropertiesModalVisible] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [setData,setSetData]=useState({});
   const [propertiesData, setPropertiesData] = useState({});
   const [editingIndex, setEditingIndex] = useState(null);
   const [pageSize, setPageSize] = useState(10); // State to store page size
@@ -29,6 +33,7 @@ const EditEntry = () => {
   const [initialValues, setInitialValues] = useState(null);
   const navigate=useNavigate();
 
+  const fetchUserNames=useFetchUserFullName();
   const { templateId, setId } = useParams();
 
   const { data: templateData, loading: templateLoading, error: templateError } = useQuery(GET_TEMPLATE_BY_ID, {
@@ -48,23 +53,115 @@ const EditEntry = () => {
     return property ? property.propertyName : null; // Return property name if found, otherwise null
   };
 
+  // useEffect(() => {
+  //   if (templateData) {
+  //     setTableData([]);
+  //     const initialProperties = {};
+  //     templateData.getTemplateById?.properties.forEach((property) => {
+  //       initialProperties[property.propertyName] = '';
+  //     });
+  //     setPropertiesData(initialProperties);
+  //   }
+
+  //   if (responseData) {
+  //     const { setDetails } = responseData.getAllResponsesForSet;
+
+  //     // Set the set data including createdBy ID
+  //     const fetchCreatedByName = async () => {
+  //       if (setDetails?.createdBy) {
+  //         const fullName = await fetchUserNames(setDetails.createdBy); // Fetch the full name by ID
+  //         const updatedName=await fetchUserNames(setDetails.updatedBy)
+  //         // Directly set the createdBy with the fetched name
+  //         setSetData((prevState) => ({
+  //           ...prevState,
+  //           createdBy: fullName || 'Unknown User',
+  //           createdById: setDetails.createdBy, // Optionally store the ID
+  //           createdAt: setDetails?.createdAt,
+  //           updatedBy: updatedName,
+  //           updatedAt: setDetails?.updatedAt,
+  //           id: setDetails?.id,
+  //         }));
+  //       }
+  //     }
+  //     fetchCreatedByName();
+  //     const flattenedFieldResponses = responseData.getAllResponsesForSet.fieldResponses.flat();
+
+  //     const existingData = flattenedFieldResponses.reduce((acc, response) => {
+  //       const row = acc.find(r => r.rowNumber === response.rowNumber);
+  //       if (row) {
+
+  //         row[response.fieldId] = {
+  //           value: response.value,
+  //           responseId: response.id,
+  //         };
+  //       } else {
+  //         acc.push({
+  //           rowNumber: response.rowNumber,
+  //           [response.fieldId]: {
+  //             value: response.value,
+  //             responseId: response.id,
+  //           },
+  //         });
+  //       }
+  //       return acc;
+  //     }, []);
+  //     setTableData(existingData);
+
+
+
+
+
+  //     const existingProperties = {};
+  //     responseData.getAllResponsesForSet.propertyResponses?.forEach((propertyResponse) => {
+
+  //       const propertyName=getPropertyById(propertyResponse.propertyId,templateData.getTemplateById?.properties);
+  //       existingProperties[propertyName] = propertyResponse.value;
+  //     });
+  //     setPropertiesData(existingProperties);
+  //   }
+  // }, [templateData, responseData]);
+
+  // console.log("SET DETAILS",setData);
   useEffect(() => {
     if (templateData) {
       setTableData([]);
       const initialProperties = {};
+
+      // Initialize all properties with an empty string or '-' if no response is available
       templateData.getTemplateById?.properties.forEach((property) => {
-        initialProperties[property.propertyName] = '';
+        initialProperties[property.propertyName] = ''; // Default value for properties without a response
       });
+
       setPropertiesData(initialProperties);
     }
 
     if (responseData) {
+      const { setDetails } = responseData.getAllResponsesForSet;
+
+      // Set the set data including createdBy ID
+      const fetchCreatedByName = async () => {
+        if (setDetails?.createdBy) {
+          const fullName = await fetchUserNames(setDetails.createdBy); // Fetch the full name by ID
+          const updatedName = await fetchUserNames(setDetails.updatedBy);
+          // Directly set the createdBy with the fetched name
+          setSetData((prevState) => ({
+            ...prevState,
+            createdBy: fullName || 'Unknown User',
+            createdById: setDetails.createdBy, // Optionally store the ID
+            createdAt: setDetails?.createdAt,
+            updatedBy: updatedName,
+            updatedAt: setDetails?.updatedAt,
+            id: setDetails?.id,
+          }));
+        }
+      }
+      fetchCreatedByName();
+
       const flattenedFieldResponses = responseData.getAllResponsesForSet.fieldResponses.flat();
 
       const existingData = flattenedFieldResponses.reduce((acc, response) => {
         const row = acc.find(r => r.rowNumber === response.rowNumber);
         if (row) {
-
           row[response.fieldId] = {
             value: response.value,
             responseId: response.id,
@@ -82,18 +179,22 @@ const EditEntry = () => {
       }, []);
       setTableData(existingData);
 
-
-
       const existingProperties = {};
       responseData.getAllResponsesForSet.propertyResponses?.forEach((propertyResponse) => {
-
-        const propertyName=getPropertyById(propertyResponse.propertyId,templateData.getTemplateById?.properties);
+        const propertyName = getPropertyById(propertyResponse.propertyId, templateData.getTemplateById?.properties);
         existingProperties[propertyName] = propertyResponse.value;
       });
+
+      // Ensure that all properties are accounted for, even if no response is found
+      templateData.getTemplateById?.properties.forEach((property) => {
+        if (!(property.propertyName in existingProperties)) {
+          existingProperties[property.propertyName] = ''; // Assign default value if no response exists
+        }
+      });
+
       setPropertiesData(existingProperties);
     }
   }, [templateData, responseData]);
-
   const handleAddEntry = () => {
     setEditingIndex(null);
     setIsModalVisible(true);
@@ -101,7 +202,7 @@ const EditEntry = () => {
 
 
   const handleSaveEntry = (entry) => {
-    // console.log("entry: ",entry);
+
     if (editingIndex !== null) {
       setTableData((prevData) =>
         prevData.map((row, index) => (index === editingIndex ? { ...row, ...entry } : row)),
@@ -138,25 +239,40 @@ const EditEntry = () => {
     const projectId = templateData?.getTemplateById?.projectId || 'Unknown Project';
     const properties = propertiesData;
 
+    // Get additional details like created and updated information
+    const setCreatedBy = setData?.createdBy || 'Unknown User';
+    const setCreatedAt = setData?.createdAt
+      ? moment(Number(setData.createdAt)).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm')
+      : 'N/A';
+    const setUpdatedBy = setData?.updatedBy || 'N/A';
+    const setUpdatedAt = setData?.updatedAt
+      ? moment(Number(setData.updatedAt)).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm')
+      : 'N/A';
+
     // Prepare the table data with property names and values
     const exportData = tableData.map((row) => {
       const rowData = {};
 
-
       rowData['Register Name'] = templateName;
       rowData['Project ID'] = projectId;
 
+      // Add additional information
 
       // Add property names and values to the row
       Object.entries(properties).forEach(([propertyName, propertyValue]) => {
         rowData[propertyName] = propertyValue;
       });
 
-
+      // Add field names and values to the row
       templateData?.getTemplateById?.fields.forEach((field) => {
         const fieldId = field.id;
         rowData[field.fieldName] = row[fieldId]?.value || '-';
       });
+      rowData['Created By'] = setCreatedBy;
+      rowData['Created At'] = setCreatedAt;
+      rowData['Last Updated By'] = setUpdatedBy;
+      rowData['Last Updated At'] = setUpdatedAt;
+
       return rowData;
     });
 
@@ -168,7 +284,8 @@ const EditEntry = () => {
     utils.book_append_sheet(wb, ws, 'Template Data');
 
     // Export the CSV file
-    writeFile(wb, 'template_data_export.csv');
+    const filename = `${templateName}_${projectId}_${setCreatedAt}.csv`
+    writeFile(wb, filename);
   };
 
   const handlePdfExport = () => {
@@ -177,45 +294,60 @@ const EditEntry = () => {
     const templateName = templateData?.getTemplateById?.name || 'Unknown Template';
     const projectId = templateData?.getTemplateById?.projectId || 'Unknown Project';
     const properties = propertiesData;
-    const headerLogo = 'https://i.imgur.com/ag6OZGW.png';
-    const footerLogo = 'https://i.imgur.com/ag6OZGW.png';
+
+    // Set details
+    const setCreatedBy = setData?.createdBy || 'Unknown User';
+    const setCreatedAt = setData?.createdAt
+    ? moment(Number(setData.createdAt)).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm')
+    : 'N/A';
+    const setUpdatedBy = setData?.updatedBy || 'N/A';
+    const setUpdatedAt = setData?.updatedAt
+    ? moment(Number(setData.updatedAt)).tz('Asia/Kolkata').format('DD/MM/YYYY HH:mm')
+    : 'N/A';
+
+    // Header logos
+    const headerLogo = 'https://i.imgur.com/ag6OZGW.png'; // Replace with actual logo URL if necessary
+    const footerLogo = 'https://i.imgur.com/ag6OZGW.png'; // Replace with actual logo URL if necessary
     const footerText = 'Digitize.Monitor.Improve';
 
-    const leftLogoWidth = 30;
-    const leftLogoHeight = 10;
-    doc.addImage(headerLogo, 'PNG', 10, 5, leftLogoWidth, leftLogoHeight);
+    // Add header logos
+    doc.addImage(headerLogo, 'PNG', 10, 5, 30, 10); // Left logo
+    doc.addImage(headerLogo, 'PNG', doc.internal.pageSize.width - 40, 5, 30, 10); // Right logo
 
-    const rightLogoWidth = 30;
-    const rightLogoHeight = 10;
-    doc.addImage(headerLogo, 'PNG', doc.internal.pageSize.width - 40, 5, rightLogoWidth, rightLogoHeight);
-
-    const headerHeight = 20;
-    const spacingAfterHeader = 10;
-
-    // Add header content
+    // Header content
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${projectId}`, doc.internal.pageSize.width / 2, 20, { align: 'center' });
+    // doc.text(`${projectId}`, doc.internal.pageSize.width / 2, 20, { align: 'center' });
 
-    // Add additional content
+    // Add set details
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    const additionalContent = `
+    const setDetailsContent = `
+      ProjectId:${projectId}
       Template Name: ${templateName}
+      Created By: ${setCreatedBy}
+      Created At: ${setCreatedAt}
+      Updated By: ${setUpdatedBy}
+      Updated At: ${setUpdatedAt}
+    `;
+
+    const propertiesContent = `
       ${Object.entries(properties).map(([key, value]) => `${key}: ${value}`).join('\n')}
     `;
+
     const startY = 30; // Position below the header
-    const contentLines = doc.splitTextToSize(additionalContent, doc.internal.pageSize.width - 20);
+    const contentLines = doc.splitTextToSize(`${setDetailsContent}\n${propertiesContent}`, doc.internal.pageSize.width - 20);
     doc.text(contentLines, 10, startY);
 
     // Prepare table data
     const tableDatas = tableData.map((row) =>
       templateData?.getTemplateById?.fields.map((field) => {
         const fieldId = field.id;
-        return row[fieldId]?.value || '-'; // Ensure data is formatted properly
+        return row[fieldId]?.value || '-';
       }),
     );
 
+    // Table columns
     const columns = templateData?.getTemplateById?.fields.map((field) => ({
       title: field.fieldName,
       dataKey: field.fieldName,
@@ -224,28 +356,28 @@ const EditEntry = () => {
 
     // Add table
     doc.autoTable({
-      head: [headers], // This will only show the titles in the header
-      body: tableDatas, // This is the actual data for the rows
-      startY: startY + contentLines.length * 5 , // Ensure space below the content
+      head: [headers],
+      body: tableDatas,
+      startY: startY + contentLines.length * 5,
       theme: 'striped',
       margin: { bottom: 50 },
       pageBreak: 'auto',
       didDrawPage: (data) => {
         const currentPageHeight = doc.internal.pageSize.height;
         const footerY = currentPageHeight - 8;
-        const footerLogoWidth = 30;
-        const footerLogoHeight = 10;
 
-        // Footer
-        doc.addImage(footerLogo, 'PNG', 10, footerY - footerLogoHeight, footerLogoWidth, footerLogoHeight);
+        // Footer logos and text
+        doc.addImage(footerLogo, 'PNG', 10, footerY - 10, 30, 10);
         const textWidth = doc.getTextWidth(footerText);
         doc.text(footerText, (doc.internal.pageSize.width - textWidth) / 2, footerY - 5);
+
+        // Page number
         const pageCount = doc.internal.pages.length;
         doc.text(`Page ${data.pageNumber}/${pageCount - 1}`, doc.internal.pageSize.width - 10, footerY - 5, { align: 'right' });
       },
     });
-
-    doc.save('template_data_export.pdf');
+  const filename = `${templateName}_${projectId}_${setCreatedAt}.pdf`
+    doc.save(filename);
   };
 
 
@@ -259,6 +391,8 @@ const EditEntry = () => {
     });
 
   };
+
+
 
   const columns = [
     ...(templateData?.getTemplateById?.fields.map((field) => ({
@@ -358,80 +492,116 @@ const tableEntries = tableData.map(row =>
       </Menu.Item>
     </Menu>
   );
-  const paginatedData = tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  // Slice the data for the current page, starting from the correct index
+  const paginatedData = tableData.slice(startIndex, endIndex);
 
   return (
-    <div>
-      <Header name={templateData?.getTemplateById?.name} setId={setId} templateId={templateId}/>
-        <div className="header">
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header name={templateData?.getTemplateById?.name} setId={setId} templateId={templateId} />
+      <div className="header" style={{ padding: '16px' }}>
         <Dropdown overlay={exportMenu} trigger={['click']}>
-            <Button type="primary" icon={<ExportOutlined />} style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}>
-              Export <DownOutlined />
+          <Button type="primary" icon={<ExportOutlined />} style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}>
+            Export <DownOutlined />
+          </Button>
+        </Dropdown>
+        <Button onClick={handleViewChangeLog}>View Change Log</Button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        <Card>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Created By: </strong>
+            <span>{setData.createdBy || 'N/A'}</span>
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Created At: </strong>
+            <span>
+              {setData.createdAt
+                ? moment(setData.createdAt, 'x').isValid()
+                  ? moment(setData.createdAt, 'x').format('YYYY-MM-DD HH:mm:ss')
+                  : 'Invalid Date'
+                : '-'}
+            </span>
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Updated By: </strong>
+            <span>{setData.updatedBy || '-'}</span>
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Updated At: </strong>
+            {setData.createdAt
+              ? moment(setData.updatedAt, 'x').isValid()
+                ? moment(setData.updatedAt, 'x').format('YYYY-MM-DD HH:mm:ss')
+                : 'Invalid Date'
+              : '-'}
+          </div>
+        </Card>
+
+        <Card title="Properties" style={{ marginBottom: 16 }}>
+          {Object.keys(propertiesData).length > 0 ? (
+            Object.entries(propertiesData).map(([propertyName, value]) => (
+              <div key={propertyName} style={{ marginBottom: 8 }}>
+                <strong>{propertyName}: </strong>
+                <span>{value}</span>
+              </div>
+            ))
+          ) : (
+            <p>No properties data available.</p>
+          )}
+          <Button
+            type="link"
+            onClick={() => setIsPropertiesModalVisible(true)}
+            style={{ marginTop: 8, float: 'right' }}
+          >
+            Edit Property
+          </Button>
+        </Card>
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+            <Button type="primary" onClick={handleAddEntry} style={{ position: 'relative', left: 1 }}>
+              + Add Entry
             </Button>
-          </Dropdown>
-        <Button onClick={handleViewChangeLog}>
-          View Change Log
-        </Button>
-      </div>
-      <Card title="Properties" style={{ marginBottom: 16 }}>
-        {Object.keys(propertiesData).length > 0 ? (
-          Object.entries(propertiesData).map(([propertyName, value]) => (
-            <div key={propertyName} style={{ marginBottom: 8 }}>
-              <strong>{propertyName}: </strong>
-              <span>{value}</span>
-            </div>
-          ))
-        ) : (
-          <p>No properties data available.</p>
-        )}
-        <Button
-          type="link"
-          onClick={() => setIsPropertiesModalVisible(true)}
-          style={{ marginTop: 8, float: 'right' }}
-        >
-           Edit Property
-        </Button>
-      </Card>
+            <Button type="primary" onClick={handleSave}>
+              Save Response
+            </Button>
+          </div>
 
-
-
-      <div className="table-container">
-        <Table
-          dataSource={paginatedData}
-          columns={columns}
-          rowKey={(record, index) => index}
-          locale={{ emptyText: 'No data available' }}
-          pagination={false}
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
-          <Button type="primary" onClick={handleAddEntry} style={{ position: 'relative', left: 1 }}>
-            + Add Entry
-          </Button>
-          <Button type="primary" onClick={handleSave}>
-            Save Response
-          </Button>
+          <div style={{ minHeight: '300px', overflowY: 'auto' }}>
+          <Table
+            dataSource={paginatedData}
+            columns={columns}
+            rowKey={(record, index) => index}
+            locale={{ emptyText: 'No data available' }}
+            scroll={{ x: 'max-content'}}
+            pagination={false}
+          />
         </div>
+        </div>
+
+        <AddModal
+          visible={isModalVisible}
+          onSave={handleSaveEntry}
+          onCancel={() => {
+            setIsModalVisible(false);
+            setInitialValues(null);
+          }}
+          fieldData={templateData?.getTemplateById?.fields || []}
+          initialValues={initialValues}
+        />
+        <PropertiesModal
+          visible={isPropertiesModalVisible}
+          onCancel={() => setIsPropertiesModalVisible(false)}
+          onSubmit={handleSaveProperties}
+          properties={propertiesData}
+          fieldData={templateData?.getTemplateById?.properties || []}
+        />
       </div>
 
-      <AddModal
-        visible={isModalVisible}
-        onSave={handleSaveEntry}
-        // eslint-disable-next-line no-sequences
-        onCancel={() => {
-          setIsModalVisible(false);
-          setInitialValues(null);
-        }}
-        fieldData={templateData?.getTemplateById?.fields || []}
-        initialValues={initialValues}
-      />
-<PropertiesModal
-  visible={isPropertiesModalVisible}
-  onCancel={() => setIsPropertiesModalVisible(false)}
-  onSubmit={handleSaveProperties}
-  properties={propertiesData}
-  fieldData={templateData?.getTemplateById?.properties || []}
-/>
-      <div className="pagination-footer">
+      <div className="pagination-footer" style={{ padding: '16px' }}>
         <Pagination
           current={currentPage}
           pageSize={pageSize}

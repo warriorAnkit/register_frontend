@@ -56,6 +56,9 @@ const LogsPage = () => {
         setId: template.setId,
         createdAt: template.createdAt,
         userId: template.userId,
+        updatedAt:template.updatedAt,
+        templateId:template.templateId,
+        updatedBy:template.updatedBy,
       }));
       setLogs(sets);
       const userIds = sets.map((log) => log.userId);
@@ -93,6 +96,7 @@ const LogsPage = () => {
       dataIndex: 'key',
       render: (_, __, index) => <span>{index + 1}</span>,
       width: '5%',
+      fixed: 'left',
     },
     {
       title: 'Template Name',
@@ -105,14 +109,28 @@ const LogsPage = () => {
       width: '20%',
     },
     {
-      title: 'User',
+      title: 'Created By',
       dataIndex: 'userId',
+      render: (userId) => userNames[userId] || 'Loading...',
+      width: '25%',
+    },
+    {
+      title: 'updated By',
+      dataIndex: 'updatedBy',
       render: (userId) => userNames[userId] || 'Loading...',
       width: '25%',
     },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
+      render: (text) =>
+        moment(text, 'x').isValid()
+          ? moment(text, 'x').format('YYYY-MM-DD HH:mm:ss')
+          : 'Invalid Date',
+    },
+    {
+      title: 'Updated At',
+      dataIndex: 'updatedAt',
       render: (text) =>
         moment(text, 'x').isValid()
           ? moment(text, 'x').format('YYYY-MM-DD HH:mm:ss')
@@ -132,7 +150,7 @@ const LogsPage = () => {
   ];
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '15px' }}>
       <LogHeaderComponent
         projectId={projectId}
         handleTabChange={handleTabChange}
@@ -141,17 +159,19 @@ const LogsPage = () => {
         userNames={userNames}
       />
       <Title level={3}>Logs</Title>
-      <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto' }}>
+      <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto',overflowX:'auto' ,scrollbarWidth: 'thin', // This applies to both but affects X in Firefox
+    scrollbarColor: '#888 transparent' }}>
       <Table
         columns={columns}
         dataSource={paginatedLogs}
         rowKey="setId"
         pagination={false}
         bordered
-        style={{ marginTop: '100px' }}
+        style={{ marginTop: '120px' }}
         onRow={(record) => ({
           onClick: () => navigate(`/register/edit-entries/${record.templateId}/${record.setId}`),
         })}
+
       />
       </div>
       {filteredLogs.length === 0 && (

@@ -48,20 +48,20 @@ const { templateName, templateId } = location.state || {};
       dataIndex: 'entityType',
       key: 'entityType',
     },
-    {
-      title: 'Entity ID',
-      dataIndex: 'entityId',
-      key: 'entityId',
-    },
+    // {
+    //   title: 'Entity ID',
+    //   dataIndex: 'entityId',
+    //   key: 'entityId',
+    // },
     {
       title: 'Previous Value',
       key: 'previousValue',
-      render: (record) => record.changes?.previousValue || 'N/A',
+      render: (record) => record.changes?.previousValue || '-',
     },
     {
       title: 'Updated Value',
       key: 'updatedValue',
-      render: (record) => record.changes?.newValue || 'N/A',
+      render: (record) => record.changes?.newValue || '-',
     },
     {
       title:'Row Number',
@@ -113,7 +113,7 @@ const { templateName, templateId } = location.state || {};
           dataSource={paginatedLogs}
           rowKey={(record) => record.id}
           pagination
-          ={{ pageSize: 10 }}
+          ={false}
         />
         </div>
         <Pagination
