@@ -17,17 +17,18 @@ const HeaderComponent = ({
   setSearchText,
   handleFilterChange,
   userRole,
-  setSelectedFilter,
-  selectedFilter,
+  // setSelectedFilter,
+  // selectedFilter,
   searchText,
 }) => {
   const [currentTab, setCurrentTab] = useState('template');
-  // const [selectedFilter, setSelectedFilter] = useState(activeFilter);
+  const [selectedFilter, setSelectedFilter] = useState(activeFilter);
   const onFilterSelect = (filter) => {
     setSelectedFilter(filter);
     handleFilterChange(filter);
   };
-
+// eslint-disable-next-line no-console
+    console.log(selectedFilter)
   const filterMenu = (
     <Menu onClick={(e) => onFilterSelect(e.key)}>
       <Menu.Item key="all">All</Menu.Item>

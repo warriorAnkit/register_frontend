@@ -112,17 +112,23 @@ const LogsPage = () => {
       title: 'Created By',
       dataIndex: 'userId',
       render: (userId) => userNames[userId] || 'Loading...',
-      width: '25%',
+      width: '15%',
     },
     {
       title: 'updated By',
       dataIndex: 'updatedBy',
       render: (userId) => userNames[userId] || 'Loading...',
-      width: '25%',
+      width: '15%',
     },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
+      width: '10%',
+      sorter: (a, b) => {
+        const dateA = moment(a.createdAt);
+        const dateB = moment(b.createdAt);
+        return dateA.isBefore(dateB) ? -1 : 1; // Ascending order by default
+      },
       render: (text) =>
         moment(text, 'x').isValid()
           ? moment(text, 'x').format('YYYY-MM-DD HH:mm:ss')
@@ -131,6 +137,12 @@ const LogsPage = () => {
     {
       title: 'Updated At',
       dataIndex: 'updatedAt',
+      width: '10%',
+      sorter: (a, b) => {
+        const dateA = moment(a.updatedAt);
+        const dateB = moment(b.updatedAt);
+        return dateA.isBefore(dateB) ? -1 : 1; // Ascending order by default
+      },
       render: (text) =>
         moment(text, 'x').isValid()
           ? moment(text, 'x').format('YYYY-MM-DD HH:mm:ss')
@@ -145,7 +157,7 @@ const LogsPage = () => {
           style={{ cursor: 'pointer', fontSize: 16 }}
         />
       ),
-      width: '10%',
+      // width: '10%',
     },
   ];
 

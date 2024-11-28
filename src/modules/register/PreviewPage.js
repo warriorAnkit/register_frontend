@@ -17,7 +17,7 @@ const PreviewPage = () => {
   const [popoverContent, setPopoverContent] = useState(<div>Static Popover Content</div>);  // Store content for the popover
   const [createTemplate] = useMutation(CREATE_TEMPLATE);
   const [createGlobalTemplate]=useMutation(CREATE_GLOBAL_TEMPLATE_MUTATION);
-
+// console.log(transformedData)
   const {
 
     loading: loadingProject,

@@ -20,7 +20,7 @@ import {
   PlusOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useParams} from 'react-router-dom';
+import { useLocation, useNavigate, useParams} from 'react-router-dom';
 import './register.less';
 import { useMutation ,useQuery} from '@apollo/client';
 import FieldIcon from './components/FieldIcon';
@@ -45,6 +45,16 @@ const CreateRegisterPage = () => {
   const [createGlobalTemplate] = useMutation(CREATE_GLOBAL_TEMPLATE_MUTATION);
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
   const navigate=useNavigate();
+  const location=useLocation();
+
+  const transformedData = location.state?.transformedData;
+  console.log(transformedData);
+  useEffect(() => {
+    if (transformedData) {
+      setFields(transformedData.fields || []); // Ensure it's an array
+      setProperties(transformedData.properties || []); // Ensure it's an array
+    }
+  }, [transformedData]);
 
   const [fieldData, setFieldData] = useState({
     name: '',
@@ -243,14 +253,14 @@ const CreateRegisterPage = () => {
       if (response2.data.changeTemplateStatus) {
         navigate(ROUTES.MAIN);
       }
-      // console.log(response2.data.changeTemplateStatus.success);
+
       }
 
     } catch (error) {
       notification.error({
         message: 'Failed to Publish',
         description: 'An error occurred while creating the template.',
-        duration: 3, // The notification will auto-close after 3 seconds
+        duration: 3,
       });
       console.error(error);
     }

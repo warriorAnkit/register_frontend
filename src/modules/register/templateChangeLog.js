@@ -88,9 +88,14 @@ const ChangeLogOfTemplatePage = () => {
       key: 'editedBy',
     },
     {
-      title: 'Timestamp',
+      title: 'Upadted At',
       dataIndex: 'timestamp',
       key: 'timestamp',
+      sorter: (a, b) => {
+        const dateA = moment(a.timestamp);
+        const dateB = moment(b.timestamp);
+        return dateA.isBefore(dateB) ? -1 : 1;
+      },
       render: (timestamp) => moment(parseInt(timestamp, 10)).format('DD/MM/YYYY HH:mm:ss'),
     },
   ];

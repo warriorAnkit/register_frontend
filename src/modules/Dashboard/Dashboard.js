@@ -1,5 +1,4 @@
-
-
+/* eslint-disable no-undef */
 /* eslint-disable no-console */
 /* eslint-disable no-nested-ternary */
 import { useQuery } from '@apollo/client';
@@ -35,13 +34,19 @@ const { Title, Text } = Typography;
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState('all');
+  const isBrowser = typeof window !== 'undefined';
+  const [activeFilter, setActiveFilter] = useState(
+    isBrowser ? sessionStorage.getItem('selectedFilter') || 'all' : 'all',
+  );
+  const [searchText, setSearchText] = useState(
+    isBrowser ? sessionStorage.getItem('searchText') || '' : '',
+  );
   const [templates, setTemplates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [registerName, setRegisterName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(16);
-  const [searchText, setSearchText] = useState('');
+
   const [userRole, setUserRole] = useState(null);
   const [isGlobalModalVisible, setGlobalModalVisible] = useState(false);
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
@@ -150,6 +155,13 @@ const Dashboard = () => {
   );
 
   // Filter dropdown menu
+  useEffect(() => {
+    if (isBrowser) {
+      sessionStorage.setItem('selectedFilter', activeFilter);
+      sessionStorage.setItem('searchText', searchText);
+      console.log(searchText,"ghd");
+    }
+  }, [activeFilter, searchText]);
 
   const handleTabChange = (key) => {
     // eslint-disable-next-line no-console
