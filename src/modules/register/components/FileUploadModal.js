@@ -108,7 +108,7 @@ const FileUploadModal = ({ visible, onClose }) => {
 
 
       // Navigate to the new page and pass the transformed data and name
-      navigate(ROUTES.PREVIEW_REGISTER, { state: { transformedData, name } });
+      navigate(ROUTES.NEW_REGISTER.replace(':registerName',name), { state: { transformedData } });
 
       // Reset file and close modal
       setFile(null);

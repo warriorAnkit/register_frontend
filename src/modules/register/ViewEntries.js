@@ -122,40 +122,45 @@ const ViewEntries = () => {
     {
       title: '#',
       dataIndex: 'key',
-      width: '5%',
+      width:50,
       render: (_, __, index) => <span>{index + 1}</span>,
       fixed: 'left',
     },
     {
       title: 'Set ID',
       dataIndex: 'setId',
-      width: '11%',
+      width: 70,
       fixed: 'left',
     },
     ...(templateData?.getTemplateById?.properties.map((property) => ({
       title: property.propertyName,
       dataIndex: property.id,
-      width: '15%',
+      width: 120,
       render: (text) => text || '-',
     })) || []),
     {
       title: 'Created By',
       dataIndex: 'createdById',
-      width: '15%',
-       render: (createdById) => <FullNameById userId={createdById} />,
+      width: 120,
+      render: (createdById) => <FullNameById userId={createdById} />,
     },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      width: '20%',
+      width: 120,
+      sorter: (a, b) => {
+        const dateA = moment(a.createdAt);
+        const dateB = moment(b.createdAt);
+        return dateA.isBefore(dateB) ? -1 : 1;
+      },
       render: (text) => moment(text).isValid()
-          ? moment(text).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss') // Convert to IST
-          : 'Invalid Date',
+        ? moment(text).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss') // Convert to IST
+        : 'Invalid Date',
     },
-
     {
       title: 'Edit',
       dataIndex: 'edit',
+      width: 120,
       render: () => <Button type="link" icon={<ExportOutlined />} />,
     },
   ];
@@ -164,40 +169,47 @@ const ViewEntries = () => {
     {
       title: '#',
       dataIndex: 'key',
-      width: '5%',
+      width: 50,
       render: (_, __, index) => <span>{index + 1}</span>,
       fixed: 'left',
+
     },
     {
       title: 'Set ID',
       dataIndex: 'setId',
-      width: '11%',
+      width: 70,
       fixed: 'left',
+
     },
     ...(templateData?.getTemplateById?.properties.map((property) => ({
       title: property.propertyName,
       dataIndex: property.id,
-      width: '15%',
-      render: (text) => text || '-',
+      width: 120,
 
+      render: (text) => text || '-',
     })) || []),
     ...(templateData?.getTemplateById?.fields.map((field) => ({
       title: field.fieldName,
       dataIndex: field.id,
-      width: '15%',
-      render: (text) => text || '-',
+      width: 120,
 
+      render: (text) => text || '-',
     })) || []),
     {
       title: 'Created At',
       dataIndex: 'createdAt',
-      width: '20%',
+      width: 120,
+      sorter: (a, b) => {
+        const dateA = moment(Number(a));
+        const dateB = moment(Number(b));
+        return dateA.isBefore(dateB) ? -1 : 1;
+      },
       render: (text) => moment(Number(text)).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'),
     },
-
     {
       title: 'Edit',
       dataIndex: 'edit',
+      width: 120,
       render: () => <Button type="link" icon={<ExportOutlined />} />,
     },
   ];
@@ -433,36 +445,10 @@ return (
               </Dropdown>
             </Space>
 
-            {/* <div className="table-container" style={{ overflowX: 'auto' }}>
-              <Table
-                columns={columns.map((col) => ({
-                  ...col,
-                  onHeaderCell: (column) => ({
-                    style: {
-                      minWidth: column.minWidth || '150px', // Set the default min-width or use a dynamic value
-                    },
-                  }),
-                }))}
-                dataSource={paginatedData}
-                pagination={false}
-                onRow={(record) => ({
-                  onClick: () =>
-                    navigate(`/register/edit-entries/${templateId}/${record.setId}`),
-                })}
-                scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
-                style={{ tableLayout: 'fixed' }} // Ensure fixed table layout
-              />
-            </div> */}
+
   <div className="table-container" style={{ overflowX: 'auto' }}>
               <Table
-                columns={columns.map((col) => ({
-                  ...col,
-                  onHeaderCell: (column) => ({
-                    style: {
-                      minWidth: column.minWidth || '150px', // Set the default min-width or use a dynamic value
-                    },
-                  }),
-                }))}
+                columns={columns}
                 dataSource={paginatedData}
                 pagination={false}
                 onRow={(record) => ({
@@ -470,7 +456,8 @@ return (
                     navigate(`/register/edit-entries/${templateId}/${record.setId}`),
                 })}
                 scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
-                style={{ tableLayout: 'fixed' }} // Ensure fixed table layout
+                style={{ tableLayout: 'auto' }}
+               tableLayout='auto'
               />
             </div>
 
@@ -500,14 +487,7 @@ return (
 
             <div className="table-container" style={{ overflowX: 'auto' }}>
               <Table
-                columns={EntriesColumns.map((col) => ({
-                  ...col,
-                  onHeaderCell: (column) => ({
-                    style: {
-                      minWidth: column.minWidth || '150px', // Set the default min-width or use a dynamic value
-                    },
-                  }),
-                }))}
+                columns={EntriesColumns}
                 dataSource={entriesPaginatedData}
                 pagination={false}
                 onRow={(record) => ({
@@ -515,7 +495,8 @@ return (
                     navigate(`/register/edit-entries/${templateId}/${record.setId}`),
                 })}
                 scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
-                style={{ tableLayout: 'fixed' }} // Ensure fixed table layout
+                style={{ tableLayout: 'auto' }}
+                // tableLayout="fixed"
               />
             </div>
 
