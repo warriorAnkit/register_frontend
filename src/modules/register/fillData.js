@@ -2,9 +2,9 @@
 
 /* eslint-disable no-alert */
 
-import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table ,notification} from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table, notification } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from './components/Header';
@@ -40,40 +40,39 @@ const FillTable = () => {
       setPropertiesData(initialProperties);
     }
   }, [data]);
-  // const validateFieldsOnBlur = (fieldName, fieldValue, rowIndex) => {
-  //   // Get the current row count
-  //   const totalRows = tableData.length;
 
-  //   // Validate the field that triggered the blur
-  //   const fieldMeta = data.getTemplateById?.fields.find((f) => f.fieldName === fieldName);
-  //   const isRequired = fieldMeta?.isRequired;
+  // const handleInputChange = (index, fieldName, value) => {
+  //   setTableData((prevData) => {
+  //     const updatedData = prevData.map((row, i) =>
+  //       i === index ? { ...row, [fieldName]: value } : row,
+  //     );
+  //     if (index === prevData.length - 1) {
+  //       updatedData.push({});
+  //       if (updatedData.length-1 > (currentPage + 1) * pageSize) {
+  //         setCurrentPage(currentPage + 1); // Move to the next page automatically
+  //       }
 
-  //   if (isRequired && (!fieldValue || fieldValue.trim() === '')) {
-  //     setFieldErrors((prevErrors) => ({
-  //       ...prevErrors,
-  //       [`${fieldName}-${rowIndex}`]: `${fieldMeta.fieldLabel || 'Field'} is required.`,
-  //     }));
-  //   } else {
-  //     setFieldErrors((prevErrors) => {
-  //       const newErrors = { ...prevErrors };
-  //       delete newErrors[`${fieldName}-${rowIndex}`];
-  //       return newErrors;
-  //     });
-  //   }
-
-  //   // Check all rows except the last row for required fields
-  //   tableData.forEach((row, index) => {
-  //     if (index < totalRows - 1) {
-  //       Object.keys(row).forEach((key) => {
-  //         const field = data.getTemplateById?.fields.find((f) => f.fieldName === key);
-  //         if (field?.isRequired && (!row[key] || row[key].trim() === '')) {
-  //           setFieldErrors((prevErrors) => ({
-  //             ...prevErrors,
-  //             [`${key}-${index}`]: `${field.fieldLabel || 'Field'} is required.`,
-  //           }));
-  //         }
-  //       });
   //     }
+
+  //     return updatedData;
+  //   });
+  // };
+  // const handleInputChange = (index, fieldName, value) => {
+  //   setTableData((prevData) => {
+  //     const updatedData = prevData.map((row, i) =>
+  //       i === index ? { ...row, [fieldName]: value } : row
+  //     );
+
+  //     // Check if the last row is filled, if yes, add an empty row
+  //     if (index === prevData.length - 1 && !updatedData[index].includes('')) {
+  //       updatedData.push({});  // Add an empty row
+  //       // Auto move to next page if this is the last row and has data
+  //       if (updatedData.length > (currentPage + 1) * pageSize) {
+  //         setCurrentPage(currentPage + 1); // Move to the next page automatically
+  //       }
+  //     }
+
+  //     return updatedData;
   //   });
   // };
   const handleInputChange = (index, fieldName, value) => {
@@ -81,13 +80,21 @@ const FillTable = () => {
       const updatedData = prevData.map((row, i) =>
         i === index ? { ...row, [fieldName]: value } : row,
       );
-      if (index === prevData.length - 1) {
-        updatedData.push({});
+
+      // Check if the last row is filled, if yes, add an empty row
+      if (index === prevData.length - 1 && Object.values(updatedData[index]).every(val => val !== '')) {
+        updatedData.push({});  // Add an empty row
+        // Auto move to next page if this is the last row and has data
+        if (updatedData.length > (currentPage * pageSize)) {
+          setCurrentPage(currentPage + 1); // Move to the next page automatically
+        }
       }
 
       return updatedData;
     });
   };
+  // eslint-disable-next-line no-console
+  console.log(tableData)
   const finalValidateFields = () => {
     const errors = {};
     tableData.forEach((row, rowIndex) => {
@@ -644,19 +651,27 @@ value=String(value);
     newData.splice(rowIndex, 1); // Delete the row at the specified index
     setTableData(newData);
   };
-
-  const columns = data?.getTemplateById?.fields.map((field) => ({
-    title: (
-      <span>
-        {field.fieldName} {field.isRequired && <span style={{ color: 'red' }}>*</span>}
-      </span>
-    ),
-    dataIndex: field.fieldName,
-    key: field.id,
-    render: (text, record, index) => renderField(field.fieldType, field.fieldName, index),
-    // Ensure each column has the same width
-    width: 150, // Set to a fixed width for all columns
-  })).concat([
+  const columns = [
+    {
+      title: 'Index',
+      key: 'index',
+      render: (text, record, index) => {
+        const globalIndex = (currentPage - 1) * pageSize + index + 1;
+        return globalIndex;
+      },
+      width: 15, // Set a fixed width for the index column
+    },
+    ...(Array.isArray(data?.getTemplateById?.fields) ? data?.getTemplateById?.fields.map((field) => ({
+      title: (
+        <span>
+          {field.fieldName} {field.isRequired && <span style={{ color: 'red' }}>*</span>}
+        </span>
+      ),
+      dataIndex: field.fieldName,
+      key: field.id,
+      render: (text, record, index) => renderField(field.fieldType, field.fieldName, index),
+      width: 150, // Set to a fixed width for all columns
+    })) : []),
     {
       title: 'Action',
       key: 'action',
@@ -670,82 +685,79 @@ value=String(value);
       ),
       width: 100, // Set a fixed width for the action column
     },
-  ]);
-
-
-
-
-
-  const paginatedData = tableData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-
+  ];
   return (
-    <div>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        overflow: 'scroll',
+      }}
+    >
       <Header name={data?.getTemplateById?.name} />
-      <Card title="Properties" style={{ marginBottom: 16 }}>
-  {Object.keys(propertiesData).length > 0 ? (
-    Object.entries(propertiesData).map(([propertyName, value]) => {
-      const property = data?.getTemplateById.properties.find((p) => p.propertyName === propertyName);
-      const isRequired = property?.isRequired;
-      return (
-        <div key={propertyName} style={{ marginBottom: 8 }}>
-          <strong>
-            {propertyName}
-            {isRequired && <span style={{ color: 'red' }}> *</span>}
-          </strong>
-          {renderPropertyField(property.propertyFieldType, propertyName)}
-        </div>
-      );
-    })
-  ) : (
-    <p>No properties data available.</p>
-  )}
-</Card>
-      <div>
 
-      <Table
-        dataSource={paginatedData}
-        columns={columns}
-        rowKey="id"
-        pagination={false}
-        scroll={{ x: 'max-content' }}
-      />
-    </div>
+      <Card title="Properties" style={{ marginBottom: 16, flexShrink: 0 }}>
+        {Object.keys(propertiesData).length > 0 ? (
+          Object.entries(propertiesData).map(([propertyName, value]) => {
+            const property = data?.getTemplateById.properties.find(
+              (p) => p.propertyName === propertyName,
+            );
+            const isRequired = property?.isRequired;
+            return (
+              <div key={propertyName} style={{ marginBottom: 8 }}>
+                <strong>
+                  {propertyName}
+                  {isRequired && <span style={{ color: 'red' }}> *</span>}
+                </strong>
+                {renderPropertyField(property.propertyFieldType, propertyName)}
+              </div>
+            );
+          })
+        ) : (
+          <p>No properties data available.</p>
+        )}
+      </Card>
 
-      <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' ,padding:'10px'}}>
+      <div
+        style={{
 
-      <Button type="primary" onClick={handleSave}>
+
+          padding: '0 16px',
+          marginBottom: 16,
+        }}
+      >
+        <Table
+          dataSource={tableData}
+          columns={columns}
+          rowKey="id"
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+        />
+      </div>
+
+      <div
+        style={{
+          marginBottom: 5,
+          marginTop: 16,
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '10px',
+          background: '#fff',
+          borderTop: '1px solid #f0f0f0',
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 1,
+        }}
+      >
+        <Button type="primary" onClick={handleSave}>
           Save Response
         </Button>
       </div>
-        <Pagination
-          current={currentPage}
-          pageSize={pageSize}
-          total={tableData.length}
-          showSizeChanger
-          pageSizeOptions={['5', '10', '25', '50']}
-          onChange={(page, size) => {
-            setCurrentPage(page);
-            setPageSize(size);
-          }}
-          style={{
-            position: 'fixed',
-            bottom: '0',
-            left: '0',
-            right: '0',
-            padding: '10px',
-            background: '#fff',
-            zIndex: 999,
-            borderTop: '1px solid #f0f0f0',
-            justifyContent: 'center',
-            display: 'flex',
-          }}
-        />
-
     </div>
   );
+
+
 };
 
 export default FillTable;

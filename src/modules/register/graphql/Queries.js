@@ -33,6 +33,13 @@ export const GET_TEMPLATE_BY_ID = gql`
 export const GET_ALL_RESPONSES_FOR_SET = gql`
   query GetAllResponsesForSet($setId: ID!) {
     getAllResponsesForSet(setId: $setId) {
+      setDetails {
+      id
+      createdBy
+      createdAt
+      updatedBy
+      updatedAt
+    }
       fieldResponses {
         rowNumber
         id
@@ -131,6 +138,9 @@ export const GET_ALL_SETS_FOR_ALL_TEMPLATES = gql`
       templateName
       createdAt
       userId
+      updatedAt
+      updatedBy
+      templateId
     }
   }
 `;
@@ -148,6 +158,7 @@ export const GET_ACTIVITY_LOGS_BY_SET_ID = gql`
       templateName
       editedBy
       timestamp
+
     }
   }
 `;

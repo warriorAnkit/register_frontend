@@ -23,9 +23,13 @@ const LogHeaderComponent = ({
         ProjectID:projectId,
         TemplateName: log.templateName || 'N/A',
         SetID: log.setId || 'N/A',
-        User: userNames[log.userId] || 'Unknown User',
-        Timestamp: moment(log.createdAt, 'x').isValid()
+        Created_By : userNames[log.userId] || 'Unknown User',
+        updated_By : userNames[log.updatedBy],
+         Created_At: moment(log.createdAt, 'x').isValid()
         ? moment(log.createdAt, 'x').format('YYYY-MM-DD')
+        : 'Invalid Date',
+        updated_At: moment(log.updatedAt, 'x').isValid()
+        ? moment(log.updatedAt, 'x').format('YYYY-MM-DD')
         : 'Invalid Date',
       }));
       const csv = parse(mappedLogs); // Convert JSON to CSV
@@ -36,7 +40,8 @@ const LogHeaderComponent = ({
       // eslint-disable-next-line no-undef
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `abc.csv`);
+      const filename=`All_logs-${projectId}.csv`
+      link.setAttribute('download', filename);
       link.click(); // Save the file as 'logs.csv'
     } catch (error) {
       // eslint-disable-next-line no-console

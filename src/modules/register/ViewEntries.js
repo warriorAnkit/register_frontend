@@ -124,35 +124,35 @@ const ViewEntries = () => {
       dataIndex: 'key',
       width: '5%',
       render: (_, __, index) => <span>{index + 1}</span>,
+      fixed: 'left',
     },
     {
       title: 'Set ID',
       dataIndex: 'setId',
-      width: '15%',
+      width: '11%',
+      fixed: 'left',
     },
     ...(templateData?.getTemplateById?.properties.map((property) => ({
       title: property.propertyName,
       dataIndex: property.id,
       width: '15%',
+      render: (text) => text || '-',
     })) || []),
-    {
-      title: 'Created At',
-      dataIndex: 'createdAt',
-      width: '20%',
-      render: (text) => {
-        // eslint-disable-next-line no-console
-        console.log('Created At value:', text); // Log the value to verify
-        return moment(text).isValid()
-          ? moment(text).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss') // Convert to IST
-          : 'Invalid Date';
-      },
-    },
     {
       title: 'Created By',
       dataIndex: 'createdById',
       width: '15%',
        render: (createdById) => <FullNameById userId={createdById} />,
     },
+    {
+      title: 'Created At',
+      dataIndex: 'createdAt',
+      width: '20%',
+      render: (text) => moment(text).isValid()
+          ? moment(text).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss') // Convert to IST
+          : 'Invalid Date',
+    },
+
     {
       title: 'Edit',
       dataIndex: 'edit',
@@ -166,21 +166,27 @@ const ViewEntries = () => {
       dataIndex: 'key',
       width: '5%',
       render: (_, __, index) => <span>{index + 1}</span>,
+      fixed: 'left',
     },
     {
       title: 'Set ID',
       dataIndex: 'setId',
-      width: '15%',
+      width: '11%',
+      fixed: 'left',
     },
     ...(templateData?.getTemplateById?.properties.map((property) => ({
       title: property.propertyName,
       dataIndex: property.id,
       width: '15%',
+      render: (text) => text || '-',
+
     })) || []),
     ...(templateData?.getTemplateById?.fields.map((field) => ({
       title: field.fieldName,
       dataIndex: field.id,
       width: '15%',
+      render: (text) => text || '-',
+
     })) || []),
     {
       title: 'Created At',
@@ -383,7 +389,7 @@ const exportPDF = async (column, data, fileName) => {
   const endIndex = startIndex + pageSize;
   const paginatedData = filteredData.slice(startIndex, endIndex);
   const entriesPaginatedData=entriesFilteredData.slice(startIndex,endIndex);
-  const [tableHeight, setTableHeight] = useState(400); // Default height
+  const [tableHeight, setTableHeight] = useState('100vh'); // Default height
 
 useEffect(() => {
   const updateTableHeight = () => {
@@ -395,7 +401,7 @@ useEffect(() => {
   updateTableHeight();
 
   // Update height on screen resize
-  // window.addEventListener('resize', updateTableHeight);
+  window.addEventListener('resize', updateTableHeight);
 
   return () => {
     window.removeEventListener('resize', updateTableHeight);
@@ -427,7 +433,27 @@ return (
               </Dropdown>
             </Space>
 
-            <div className="table-container" style={{ overflowX: 'auto' }}>
+            {/* <div className="table-container" style={{ overflowX: 'auto' }}>
+              <Table
+                columns={columns.map((col) => ({
+                  ...col,
+                  onHeaderCell: (column) => ({
+                    style: {
+                      minWidth: column.minWidth || '150px', // Set the default min-width or use a dynamic value
+                    },
+                  }),
+                }))}
+                dataSource={paginatedData}
+                pagination={false}
+                onRow={(record) => ({
+                  onClick: () =>
+                    navigate(`/register/edit-entries/${templateId}/${record.setId}`),
+                })}
+                scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
+                style={{ tableLayout: 'fixed' }} // Ensure fixed table layout
+              />
+            </div> */}
+  <div className="table-container" style={{ overflowX: 'auto' }}>
               <Table
                 columns={columns.map((col) => ({
                   ...col,
