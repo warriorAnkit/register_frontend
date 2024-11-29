@@ -20,6 +20,7 @@ const FillTable = () => {
   const { templateId } = useParams();
   const [tableData, setTableData] = useState([{}]);
   const [propertiesData, setPropertiesData] = useState({});
+  const [openedIndex,setOpenedIndex]=useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -93,8 +94,7 @@ const FillTable = () => {
       return updatedData;
     });
   };
-  // eslint-disable-next-line no-console
-  console.log(tableData)
+
   const finalValidateFields = () => {
     const errors = {};
     tableData.forEach((row, rowIndex) => {
@@ -310,7 +310,8 @@ const FillTable = () => {
             validateProperties(value);
             }
           }
-
+          onFocus={(e) => e.target.blur()}  // Blur focus, then focus again to trigger dropdown opening
+          open // Open dropdown when focused
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -524,6 +525,7 @@ value=String(value);
             onChange={(value) => {
               handleInputChange(rowIndex, fieldName, value);
               validateFields(fieldName, rowIndex,value);
+              setOpenedIndex(null);
             }}
             style={{
               width: '100%',
@@ -532,7 +534,9 @@ value=String(value);
               height: '30px',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
-
+            onFocus={() => setOpenedIndex(rowIndex)}  // Open dropdown for this index
+            onBlur={() => setOpenedIndex(null)}    // Close dropdown when focus is lost
+            open={openedIndex === rowIndex}
           >
             {data.getTemplateById?.fields
               .find((f) => f.fieldName === fieldName)
@@ -570,28 +574,6 @@ value=String(value);
             {data.getTemplateById?.fields
               .find((f) => f.fieldName === fieldName)
               ?.options.map((option, index) => (
-                // <Checkbox
-                //   // eslint-disable-next-line react/no-array-index-key
-                //   key={index}
-                //   checked={tableData[rowIndex][fieldName]?.includes(option)}
-                //   onChange={(e) => {
-                //     const { checked } = e.target;
-                //     setTableData((prevData) => {
-                //       const updatedRow = prevData[rowIndex];
-                //       const newValues = checked
-                //         ? [...(updatedRow[fieldName] || []), option]
-                //         : updatedRow[fieldName]?.filter((item) => item !== option);
-                //       const updatedTableData = [...prevData];
-                //       updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
-                //       return updatedTableData;
-                //     });
-                //     validateFields(fieldName, rowIndex,checked);
-                //   }}
-                //   style={{ marginRight: 12 }}
-
-                // >
-                //   {option}
-                // </Checkbox>
                 <Checkbox
   // eslint-disable-next-line react/no-array-index-key
   key={index}
@@ -609,8 +591,24 @@ value=String(value);
     });
     validateFields(fieldName, rowIndex, checked);
   }}
-  style={{ marginRight: 12 }}
->
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      // Prevent the default action and toggle the checkbox on Enter press
+      e.preventDefault();
+      const checked = !tableData[rowIndex][fieldName]?.includes(option);
+      setTableData((prevData) => {
+        const updatedRow = prevData[rowIndex];
+        const newValues = checked
+          ? [...(updatedRow[fieldName] || []), option]
+          : updatedRow[fieldName]?.filter((item) => item !== option);
+        const updatedTableData = [...prevData];
+        updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
+        return updatedTableData;
+      });
+      validateFields(fieldName, rowIndex, checked);
+    }
+  }}
+  style={{ marginRight: 12 }}>
   {option}
   </Checkbox>
               ))}
