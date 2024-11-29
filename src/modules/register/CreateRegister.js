@@ -1,37 +1,38 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect } from 'react';
 import {
-  Table,
-  Typography,
-  Button,
-  Space,
-  Divider,
-  Modal,
-  Input,
-  Select,
-  Switch,
-  List,
-  notification ,
-} from 'antd';
-import {
+  DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  DeleteOutlined,
 } from '@ant-design/icons';
-import { useLocation, useNavigate, useParams} from 'react-router-dom';
-import './register.less';
-import { useMutation ,useQuery} from '@apollo/client';
-import FieldIcon from './components/FieldIcon';
+import { useMutation, useQuery } from '@apollo/client';
+import {
+  Button,
+  Divider,
+  Input,
+  List,
+  Modal,
+  notification,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Typography,
+} from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import { ROUTES } from '../../common/constants';
+import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
+import FieldIcon from './components/FieldIcon';
+import Header from './components/Header';
 import {
   CHANGE_TEMPLATE_STATUS,
   CREATE_GLOBAL_TEMPLATE_MUTATION,
   CREATE_TEMPLATE,
 } from './graphql/Mutation';
-import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
-import Header from './components/Header';
+import './register.less';
 
 const { Title, Text } = Typography;
 const CreateRegisterPage = () => {
@@ -57,12 +58,14 @@ const CreateRegisterPage = () => {
   }, [transformedData]);
 
   const [fieldData, setFieldData] = useState({
+
     name: '',
     type: 'TEXT',
     required: true,
     options: [],
   });
   const [propertyData, setPropertyData] = useState({
+
     name: '',
     type: 'TEXT',
     required: true,
@@ -79,6 +82,7 @@ const CreateRegisterPage = () => {
 
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
   const showFieldEditModal = (field = null) => {
+    console.log("f",field);
     setCurrentField(field);
     setFieldData(
       field
@@ -95,9 +99,11 @@ const CreateRegisterPage = () => {
 
   const handleFieldSave = () => {
     if (currentField) {
+      console.log("Editing existing field:", currentField);
+
       setFields((prevFields) =>
         prevFields.map((f) =>
-          f.id === currentField.id
+          f.tempId === currentField.tempId
             ? {
                 ...f,
                 fieldName: fieldData.name,
@@ -110,6 +116,7 @@ const CreateRegisterPage = () => {
       );
     } else {
       const newField = {
+        tempId: uuidv4(),
         fieldName: fieldData.name,
         fieldType: fieldData.type,
         isRequired: fieldData.required,
@@ -117,7 +124,6 @@ const CreateRegisterPage = () => {
       };
       setFields((prevFields) => [...prevFields, newField]);
     }
-
     setIsFieldModalVisible(false);
     setFieldData({ name: '', type: 'TEXT', required: false, options: [] });
   };
@@ -310,7 +316,7 @@ const CreateRegisterPage = () => {
     if (currentProperty) {
       setProperties((prevProperties) =>
         prevProperties.map((p) =>
-          p.id === currentProperty.id
+          p.tempId === currentProperty.tempId
             ? {
                 ...p,
                 propertyName: propertyData.name,
@@ -323,6 +329,7 @@ const CreateRegisterPage = () => {
       );
     } else {
       const newProperty = {
+        tempId: uuidv4(),
         propertyName: propertyData.name,
         propertyFieldType: propertyData.type,
         isRequired: propertyData.required,
@@ -357,7 +364,7 @@ const CreateRegisterPage = () => {
       },
     });
   };
-
+console.log(fields);
   const columns = [
     ...fields.map((field) => ({
       title: (

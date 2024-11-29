@@ -96,13 +96,22 @@ const ViewEntries = () => {
       setEntriesFilterData(rows.flat());
     }
   }, [entryResponseData, templateData]);
-
+console.log("girl",filteredData);
   const handleDateChange = (dates) => {
-    setDateRange(dates);
+    const istDates = dates.map(dateString => {
+      const date = new Date(dateString);
+      date.setMinutes(date.getMinutes() + 330);
+      return date.toISOString().split('T')[0];
+    });
+    console.log(istDates);
+    setDateRange(istDates);
+    console.log("ranfe",dateRange);
     if (dates) {
       const [startDate, endDate] = dates;
+      console.log(dates);
       const filteredSets = responseData.getAllPropertyResponsesForTemplate.propertyResponses.filter((row) => {
-        const createdAt = moment(row.createdAt);
+        const createdAt =moment(new Date(row.createdAt));
+        console.log(row.createdAt);
         return createdAt.isBetween(startDate, endDate, 'day', '[]');
       });
       setFilteredData(filteredSets);

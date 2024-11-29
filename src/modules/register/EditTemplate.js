@@ -22,9 +22,9 @@ import {
 } from '@ant-design/icons';
 import { useNavigate, useParams} from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
+import { v4 as uuidv4 } from 'uuid';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import { UPDATE_TEMPLATE,CHANGE_TEMPLATE_STATUS } from './graphql/Mutation';
-
 import './register.less';
 import FieldIcon from './components/FieldIcon';
 import { ROUTES } from '../../common/constants';
@@ -93,7 +93,7 @@ const TemplateView = () => {
       if (isEditing) {
 
         e.preventDefault();
-        e.returnValue = ''; // Required for the confirmation dialog to appear
+        e.returnValue = '';
       }
     };
 
@@ -163,21 +163,42 @@ const TemplateView = () => {
 
   const handleFieldSave = () => {
     if (currentField) {
-      setFields((prevFields) =>
-        prevFields.map((f) =>
-          f.id === currentField.id
-            ? {
-                ...f,
-                fieldName: fieldData.name,
-                fieldType: fieldData.type,
-                isRequired: fieldData.required,
-                options: fieldData.options,
-              }
-            : f,
-        ),
-      );
+      // If the currentField has an id, update the field based on its id
+      if (currentField.id) {
+        setFields((prevFields) =>
+          prevFields.map((f) =>
+            f.id === currentField.id
+              ? {
+                  ...f,
+                  fieldName: fieldData.name,
+                  fieldType: fieldData.type,
+                  isRequired: fieldData.required,
+                  options: fieldData.options,
+                }
+              : f,
+          ),
+        );
+      }
+      // If the currentField has a tempId, update the field based on its tempId
+      else if (currentField.tempId) {
+        setFields((prevFields) =>
+          prevFields.map((f) =>
+            f.tempId === currentField.tempId
+              ? {
+                  ...f,
+                  fieldName: fieldData.name,
+                  fieldType: fieldData.type,
+                  isRequired: fieldData.required,
+                  options: fieldData.options,
+                }
+              : f,
+          ),
+        );
+      }
     } else {
+      // If there's no currentField (new field), create a new one with a tempId
       const newField = {
+        tempId: uuidv4(),
         fieldName: fieldData.name,
         fieldType: fieldData.type,
         isRequired: fieldData.required,
@@ -213,11 +234,27 @@ const TemplateView = () => {
     });
   };
   const handleSaveAll = async () => {
+    const transformedfields = fields.map(item => {
+
+      if (item.tempId) {
+          const { tempId, ...rest } = item;
+          return rest;
+      }
+      return item; // Return the original item if no tempId
+  });
+  const transformedProperties = properties.map(item => {
+
+    if (item.tempId) {
+        const { tempId, ...rest } = item;
+        return rest;
+    }
+    return item; // Return the original item if no tempId
+});
     const allData = {
       id: templateId,
-       name:templateName, // Optionally update the name
-      fields,
-      properties,
+      name:templateName,
+      fields:transformedfields,
+      properties:transformedProperties,
     };
 
     try {
@@ -269,7 +306,7 @@ const TemplateView = () => {
         ? {
             name: property.propertyName,
             type: property.propertyFieldType,
-            required: property.isRequired, // This will pull the current required value if editing
+            required: property.isRequired,
             options: property.options || [],
           }
         : { name: '', type: 'TEXT', required: true, options: [] }, // Default required: true
@@ -278,7 +315,8 @@ const TemplateView = () => {
   };
 
   const handlePropertySave = () => {
-    if (currentProperty) {
+    if(currentProperty){
+    if (currentProperty.id) {
       setProperties((prevProperties) =>
         prevProperties.map((p) =>
           p.id === currentProperty.id
@@ -292,8 +330,26 @@ const TemplateView = () => {
             : p,
         ),
       );
-    } else {
+    }
+   else  if (currentProperty.tempId) {
+      setProperties((prevProperties) =>
+        prevProperties.map((p) =>
+          p.tempId === currentProperty.tempId
+            ? {
+                ...p,
+                propertyName: propertyData.name,
+                propertyFieldType: propertyData.type,
+                isRequired: propertyData.required,
+                options: propertyData.options,
+              }
+            : p,
+        ),
+      );
+    }
+  }
+  else {
       const newProperty = {
+        tempId:uuidv4(),
         propertyName: propertyData.name,
         propertyFieldType: propertyData.type,
         isRequired: propertyData.required,
