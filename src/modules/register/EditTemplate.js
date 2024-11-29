@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Table,
   Typography,
@@ -19,6 +19,7 @@ import {
   EditOutlined,
   PlusOutlined,
   DeleteOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams} from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
@@ -67,7 +68,7 @@ const TemplateView = () => {
     required: true,
     options: [],
   });
-
+  const inputRefs = useRef([]);
   useEffect(() => {
     if (data) {
       setTemplateName(data.getTemplateById.name);
@@ -160,7 +161,14 @@ const TemplateView = () => {
     );
     setIsFieldModalVisible(true);
   };
+  // eslint-disable-next-line react-hooks/rules-of-hooks
 
+  const focusLastInput = () => {
+    if (inputRefs.current.length > 0) {
+      const lastInput = inputRefs.current[inputRefs.current.length - 1];
+      lastInput?.focus();
+    }
+  };
   const handleFieldSave = () => {
     if (currentField) {
       // If the currentField has an id, update the field based on its id
@@ -225,14 +233,49 @@ const TemplateView = () => {
   };
 
   const handleAddFieldOption = () => {
+    if (fieldData.options.length >= 20) {
+      message.warning('You can only add up to 20 options.');
+      return;
+    }
     setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
+    setTimeout(() => focusLastInput(), 0);
+  };
+  const handleRemoveFieldOption = (indexToRemove) => {
+    if (fieldData.options.length > 1) {
+      const updatedOptions = fieldData.options.filter(
+        (_, index) => index !== indexToRemove,
+      );
+      setFieldData({ ...fieldData, options: updatedOptions });
+
+      // Update input refs to keep them in sync
+      inputRefs.current.splice(indexToRemove, 1);
+
+      // Focus on the last input after removing an option
+      setTimeout(() => focusLastInput(), 0);
+    }
   };
   const handleAddPropertyOption = () => {
+    if (propertyData.options.length >= 20) {
+      message.warning('You can only add up to 20 options.');
+      return;
+    }
     setPropertyData({
       ...propertyData,
       options: [...propertyData.options, ''],
     });
+    setTimeout(() => focusLastInput(), 0);
   };
+  const handleRemovePropertyOption = (indexToRemove) => {
+    if (propertyData.options.length > 1) {
+      const updatedOptions = propertyData.options.filter(
+        (_, index) => index !== indexToRemove,
+      );
+      setPropertyData({ ...propertyData, options: updatedOptions });
+      inputRefs.current.splice(indexToRemove, 1);
+      setTimeout(() => focusLastInput(), 0);
+    }
+  };
+
   const handleSaveAll = async () => {
     const transformedfields = fields.map(item => {
 
@@ -472,6 +515,13 @@ const TemplateView = () => {
     navigate(changeLogUrl);
 
   };
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddFieldOption();
+    }
+  };
+
 
   return (
     <div >
@@ -626,22 +676,31 @@ const TemplateView = () => {
               dataSource={fieldData.options}
               renderItem={(option, index) => (
                 <List.Item>
-                  <Input
-                    value={option}
-                    onChange={(e) =>
-                      handleFieldOptionChange(e.target.value, index)
-                    }
-                    placeholder={`Option ${index + 1}`}
-                    style={{ marginBottom: '8px' }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAddFieldOption(); // Trigger adding an option on Enter key press
-                      }
-                    }}
-                  />
-                </List.Item>
+                <Input
+                 // eslint-disable-next-line no-return-assign
+                 ref={(el) => (inputRefs.current[index] = el)}
+                  value={option}
+                  onChange={(e) =>
+                    handleFieldOptionChange(e.target.value, index)
+                  }
+                  placeholder={`Option ${index + 1}`}
+                  style={{ marginBottom: '8px' }}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                />
+                <Button
+      type="text"
+      icon={<CloseOutlined />}
+      onClick={() => handleRemoveFieldOption(index)}
+      style={{ marginLeft: '8px' }}
+    />
+              </List.Item>
               )}
             />
+            {fieldData.options.length >= 20 && (
+        <div style={{ color: 'red', marginTop: '8px' }}>
+          You can add a maximum of 20 options.
+        </div>
+      )}
             <Button
               type="dashed"
               onClick={handleAddFieldOption}
@@ -705,6 +764,8 @@ const TemplateView = () => {
               renderItem={(option, index) => (
                 <List.Item>
                   <Input
+                    // eslint-disable-next-line no-return-assign
+                    ref={(el) => (inputRefs.current[index] = el)}
                     value={option}
                     onChange={(e) =>
                       handlePropertyOptionChange(e.target.value, index)
@@ -713,13 +774,24 @@ const TemplateView = () => {
                     style={{ marginBottom: '8px' }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        handleAddPropertyOption();
+                        handleAddPropertyOption(); // Trigger adding an option on Enter key press
                       }
                     }}
                   />
+                   <Button
+        type="text"
+        icon={<CloseOutlined />}
+        onClick={() => handleRemovePropertyOption(index)}
+        style={{ marginLeft: '8px' }}
+      />
                 </List.Item>
               )}
             />
+            {propertyData.options.length >= 20 && (
+        <div style={{ color: 'red', marginTop: '8px' }}>
+          You can add a maximum of 20 options.
+        </div>
+      )}
             <Button
               type="dashed"
               onClick={handleAddPropertyOption}

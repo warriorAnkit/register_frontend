@@ -25,16 +25,23 @@ const ViewEntries = () => {
   const [activeTab, setActiveTab] = useState('set');
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState([]);
+  const [dateFilteredData, setDateFilteredData] = useState([]);
   const [entriesFilteredData, setEntriesFilterData] = useState([]);
-  const [dateRange, setDateRange] = useState(null)
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
+  const [entriesCurrentPage, setEntriesCurrentPage] = useState(1);
+  const [entriesPageSize, setEntriesPageSize] = useState(10);
+  const [entriesFilteredDatabyDate, setEntriesFilterDataByDate] = useState([]);
   // eslint-disable-next-line no-shadow
   const handlePageChange = (page,pageSize) => {
     setCurrentPage(page);
     setPageSize(pageSize);
-  };;
+  };
+  // eslint-disable-next-line no-shadow
+  const handleEntriesPageChange = (page,pageSize) => {
+    setEntriesCurrentPage(page);
+    setEntriesPageSize(pageSize);
+  };
   const { templateId } = useParams();
 
   const { data: templateData } = useQuery(GET_TEMPLATE_BY_ID, {
@@ -71,10 +78,9 @@ const ViewEntries = () => {
       });
 
       setFilteredData(rows);
+      setDateFilteredData(rows);
     }
   }, [responseData, templateData]);
-
-
   useEffect(() => {
     if (entryResponseData && templateData) {
       const rows = entryResponseData?.getAllResponsesForTemplate?.responses?.map((set) => set.fieldResponses.map((fieldRow) => {
@@ -85,47 +91,55 @@ const ViewEntries = () => {
         set.propertyResponses.forEach((response) => {
           row[response.propertyId] = response.value;
         });
-
         fieldRow.forEach((fieldResponse) => {
           row[fieldResponse.fieldId] = fieldResponse.value;
         });
-
         return row;
       }));
-
       setEntriesFilterData(rows.flat());
+      setEntriesFilterDataByDate(rows.flat());
     }
   }, [entryResponseData, templateData]);
-console.log("girl",filteredData);
   const handleDateChange = (dates) => {
-    const istDates = dates.map(dateString => {
-      const date = new Date(dateString);
-      date.setMinutes(date.getMinutes() + 330);
-      return date.toISOString().split('T')[0];
-    });
-    console.log(istDates);
-    setDateRange(istDates);
-    console.log("ranfe",dateRange);
+    setCurrentPage(1);
     if (dates) {
-      const [startDate, endDate] = dates;
-      console.log(dates);
-      const filteredSets = responseData.getAllPropertyResponsesForTemplate.propertyResponses.filter((row) => {
-        const createdAt =moment(new Date(row.createdAt));
-        console.log(row.createdAt);
+      const istDates = dates.map(dateString => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+      });
+      const startDate = istDates[0];
+      const endDate = istDates[1];
+      const filteredSets = filteredData.filter((row) => {
+        const createdAt =moment(row.createdAt);
         return createdAt.isBetween(startDate, endDate, 'day', '[]');
       });
-      setFilteredData(filteredSets);
-      const filteredEntries = entryResponseData.getAllResponsesForTemplate.responses.filter((set) => {
-        const createdAt = moment(set.propertyResponses[0]?.createdAt);
-        return createdAt.isBetween(startDate, endDate, 'day', '[]');
-      });
-      setEntriesFilterData(filteredEntries);
+      setDateFilteredData(filteredSets);
     } else {
-      setFilteredData(responseData.getAllPropertyResponsesForTemplate.propertyResponses);
-      setEntriesFilterData(entryResponseData.getAllResponsesForTemplate.responses);
+      setDateFilteredData(filteredData);
     }
   };
-
+  const handleEntriesDateChange = (dates) => {
+    setEntriesCurrentPage(1);
+    if (dates) {
+      const istDates = dates.map(dateString => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+      });
+      const startDate = istDates[0];
+      const endDate = istDates[1];
+      const filteredEntries = entriesFilteredData.filter((row) => {
+        console.log(row);
+        const createdAt =moment(parseInt(row.createdAt, 10));
+        console.log(createdAt);
+        return createdAt.isBetween(startDate, endDate, 'day', '[]');
+      });
+      setEntriesFilterDataByDate(filteredEntries);
+      // setEntriesFilterData(filteredEntries);
+    } else {
+      setEntriesFilterDataByDate(entriesFilteredData);
+      // setEntriesFilterData(entryResponseData.getAllResponsesForTemplate.responses);
+    }
+  };
 
   const columns = [
     {
@@ -408,8 +422,10 @@ const exportPDF = async (column, data, fileName) => {
   );
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedData = filteredData.slice(startIndex, endIndex);
-  const entriesPaginatedData=entriesFilteredData.slice(startIndex,endIndex);
+  const entriesStartIndex = (entriesCurrentPage - 1) * entriesPageSize;
+  const entriesEndIndex = entriesStartIndex + entriesPageSize;
+  const paginatedData = dateFilteredData.slice(startIndex, endIndex);
+  const entriesPaginatedData=entriesFilteredDatabyDate.slice(entriesStartIndex,entriesEndIndex);
   const [tableHeight, setTableHeight] = useState('100vh'); // Default height
 
 useEffect(() => {
@@ -486,7 +502,7 @@ return (
         <TabPane tab="Entries" key="entries">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
-              <RangePicker onChange={handleDateChange} />
+              <RangePicker onChange={handleEntriesDateChange} />
               <Dropdown overlay={exportMenu}>
                 <Button icon={<ExportOutlined />} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />
@@ -511,10 +527,12 @@ return (
 
             <div className="pagination-container">
               <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={entriesFilteredData.length}
-                onChange={handlePageChange}
+
+                current={entriesCurrentPage}
+                pageSize={entriesPageSize}
+                total={entriesFilteredDatabyDate.length}
+                onChange={handleEntriesPageChange}
+
                 showSizeChanger
                 pageSizeOptions={[10, 16, 25, 50]}
               />
@@ -525,7 +543,6 @@ return (
     </div>
   </div>
 );
-
 };
 
 export default ViewEntries;

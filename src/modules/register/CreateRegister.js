@@ -5,6 +5,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import {
@@ -20,7 +21,7 @@ import {
   Table,
   Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { ROUTES } from '../../common/constants';
@@ -49,7 +50,6 @@ const CreateRegisterPage = () => {
   const location=useLocation();
 
   const transformedData = location.state?.transformedData;
-  console.log(transformedData);
   useEffect(() => {
     if (transformedData) {
       setFields(transformedData.fields || []); // Ensure it's an array
@@ -82,7 +82,6 @@ const CreateRegisterPage = () => {
 
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
   const showFieldEditModal = (field = null) => {
-    console.log("f",field);
     setCurrentField(field);
     setFieldData(
       field
@@ -96,10 +95,31 @@ const CreateRegisterPage = () => {
     );
     setIsFieldModalVisible(true);
   };
+  const inputRefs = useRef([]);
+  const focusLastInput = () => {
+    if (inputRefs.current.length > 0) {
+      const lastInput = inputRefs.current[inputRefs.current.length - 1];
+      lastInput?.focus();
+    }
+  };
+  useEffect(() => {
+    focusLastInput();
+  }, [fieldData.options]);
 
   const handleFieldSave = () => {
+    if (
+      (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
+      fieldData.options.length === 0
+    ) {
+
+      notification.error({
+        message: 'Failed to add',
+        description: 'Please add at least one option.',
+        duration: 3,
+      });
+      return; // Prevent further action if no options are provided
+    }
     if (currentField) {
-      console.log("Editing existing field:", currentField);
 
       setFields((prevFields) =>
         prevFields.map((f) =>
@@ -141,16 +161,50 @@ const CreateRegisterPage = () => {
     });
   };
 
+
   const handleAddFieldOption = () => {
+    if (fieldData.options.length >= 20) {
+      message.warning('You can only add up to 20 options.');
+      return;
+    }
     setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
+    setTimeout(() => focusLastInput(), 0);
+  };
+  const handleRemoveFieldOption = (indexToRemove) => {
+    if (fieldData.options.length > 1) {
+      const updatedOptions = fieldData.options.filter(
+        (_, index) => index !== indexToRemove,
+      );
+      setFieldData({ ...fieldData, options: updatedOptions });
+
+      // Update input refs to keep them in sync
+      inputRefs.current.splice(indexToRemove, 1);
+
+      // Focus on the last input after removing an option
+      setTimeout(() => focusLastInput(), 0);
+    }
   };
   const handleAddPropertyOption = () => {
+    if (propertyData.options.length >= 20) {
+      message.warning('You can only add up to 20 options.');
+      return;
+    }
     setPropertyData({
       ...propertyData,
       options: [...propertyData.options, ''],
     });
+    setTimeout(() => focusLastInput(), 0);
   };
-
+  const handleRemovePropertyOption = (indexToRemove) => {
+    if (propertyData.options.length > 1) {
+      const updatedOptions = propertyData.options.filter(
+        (_, index) => index !== indexToRemove,
+      );
+      setPropertyData({ ...propertyData, options: updatedOptions });
+      inputRefs.current.splice(indexToRemove, 1);
+      setTimeout(() => focusLastInput(), 0);
+    }
+  };
 
   const handleSave = async () => {
 
@@ -271,6 +325,7 @@ const CreateRegisterPage = () => {
       console.error(error);
     }
   };
+
   const handleFieldOptionChange = (value, index) => {
     const newOptions = [...fieldData.options];
     newOptions[index] = value;
@@ -313,6 +368,18 @@ const CreateRegisterPage = () => {
   };
 
   const handlePropertySave = () => {
+    if (
+      (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
+      propertyData.options.length === 0
+    ) {
+      // Show a message or alert to inform the user
+      notification.error({
+        message: 'Failed to add',
+        description: 'Please add at least one option.',
+        duration: 3,
+      });
+      return; // Prevent further action if no options are provided
+    }
     if (currentProperty) {
       setProperties((prevProperties) =>
         prevProperties.map((p) =>
@@ -364,7 +431,8 @@ const CreateRegisterPage = () => {
       },
     });
   };
-console.log(fields);
+
+
   const columns = [
     ...fields.map((field) => ({
       title: (
@@ -421,6 +489,12 @@ console.log(fields);
       ),
   ];
 
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddFieldOption();
+    }
+  };
 
 
 
@@ -553,21 +627,31 @@ console.log(fields);
               renderItem={(option, index) => (
                 <List.Item>
                   <Input
+                   // eslint-disable-next-line no-return-assign
+                   ref={(el) => inputRefs.current[index] = el}
                     value={option}
                     onChange={(e) =>
                       handleFieldOptionChange(e.target.value, index)
                     }
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAddFieldOption(); // Trigger adding an option on Enter key press
-                      }
-                    }}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
                   />
+                  <Button
+        type="text"
+        icon={<CloseOutlined />}
+        onClick={() => handleRemoveFieldOption(index)}
+        style={{ marginLeft: '8px' }}
+      />
                 </List.Item>
+
               )}
             />
+              {fieldData.options.length >= 20 && (
+        <div style={{ color: 'red', marginTop: '8px' }}>
+          You can add a maximum of 20 options.
+        </div>
+      )}
             <Button
               type="dashed"
               onClick={handleAddFieldOption}
@@ -630,6 +714,8 @@ console.log(fields);
               renderItem={(option, index) => (
                 <List.Item>
                   <Input
+                    // eslint-disable-next-line no-return-assign
+                    ref={(el) => (inputRefs.current[index] = el)}
                     value={option}
                     onChange={(e) =>
                       handlePropertyOptionChange(e.target.value, index)
@@ -642,9 +728,21 @@ console.log(fields);
                       }
                     }}
                   />
+
+                   <Button
+        type="text"
+        icon={<CloseOutlined />}
+        onClick={() => handleRemovePropertyOption(index)}
+        style={{ marginLeft: '8px' }}
+      />
                 </List.Item>
               )}
             />
+                 {propertyData.options.length >= 20 && (
+        <div style={{ color: 'red', marginTop: '8px' }}>
+          You can add a maximum of 20 options.
+        </div>
+      )}
             <Button
               type="dashed"
               onClick={handleAddPropertyOption}
