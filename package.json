@@ -41,6 +41,7 @@
     "sentry": "0.1.2",
     "stream-browserify": "^3.0.0",
     "universal-cookie": "4.0.4",
+    "uuid": "^11.0.3",
     "web-vitals": "2.1.4",
     "workbox-background-sync": "6.5.3",
     "workbox-broadcast-update": "6.5.3",
