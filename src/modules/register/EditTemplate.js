@@ -741,7 +741,7 @@ const TemplateView = () => {
           <Select.Option value="NUMERIC">Numeric</Select.Option>
           <Select.Option value="DATE">Date</Select.Option>
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
-          <Select.Option value="BOOLEAN">Boolean</Select.Option>
+  
         </Select>
 
 
