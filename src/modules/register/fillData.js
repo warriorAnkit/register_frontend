@@ -534,9 +534,9 @@ value=String(value);
               height: '30px',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
-            onFocus={() => setOpenedIndex(rowIndex)}  // Open dropdown for this index
+            onFocus={() => setOpenedIndex(`${rowIndex}-${fieldName}`)}  // Open dropdown for this index
             onBlur={() => setOpenedIndex(null)}    // Close dropdown when focus is lost
-            open={openedIndex === rowIndex}
+            open={openedIndex === `${rowIndex}-${fieldName}`}
           >
             {data.getTemplateById?.fields
               .find((f) => f.fieldName === fieldName)
