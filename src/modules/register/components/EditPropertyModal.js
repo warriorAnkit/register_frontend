@@ -131,15 +131,15 @@ const PropertiesModal = ({ visible, onCancel, onSubmit, properties, fieldData })
           </Checkbox.Group>
         );
 
-      case 'DATE':
-        return (
-          <DatePicker
-            value={value ? moment(value, 'DD/MM/YYYY') : null}
-            onChange={(date, dateString) => handleChange(dateString, propertyName)}
-            format="DD/MM/YYYY"
-            style={{ width: '100%' }}
-          />
-        );
+      
+case 'DATE':
+  return (
+    <Input
+      type="date"
+      value={value || ''}
+      onChange={(e) => handleChange(e.target.value, propertyName)}
+    />
+  );
 
         case 'OPTIONS':
         return (
