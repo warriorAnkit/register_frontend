@@ -554,7 +554,7 @@ const tableEntries = tableData.map(row =>
           <Button
             type="link"
             onClick={() => setIsPropertiesModalVisible(true)}
-            style={{ marginTop: 8, float: 'right' }}
+            style={{ marginTop: 8, float: 'left' }}
           >
             Edit Property
           </Button>
