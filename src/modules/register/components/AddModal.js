@@ -208,6 +208,12 @@ const AddModal = ({ visible, onSave, onCancel, fieldData, initialValues }) => {
                   <Input maxLength={field.maxLength} />
                 </Form.Item>
               );
+           case 'MULTI_LINE_TEXT':
+              return (
+                <Form.Item {...fieldProps} rules={rules}>
+                  <Input maxLength={field.maxLength} />
+                </Form.Item>
+              );
             case 'NUMERIC':
               return (
                 <Form.Item {...fieldProps} rules={rules}>
