@@ -498,7 +498,7 @@ value=String(value);
 
         {fieldType === 'MULTI_LINE_TEXT' && (
           <Input.TextArea
-            rows={4}
+            rows={1}
             value={tableData[rowIndex][fieldName] || ''}
             onChange={(e) => {
               const { value } = e.target;
@@ -507,7 +507,7 @@ value=String(value);
                 validateFields(fieldName, rowIndex,value);
 
             }}
-
+      
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -615,7 +615,7 @@ value=String(value);
           </div>
         )}
 
-        {fieldType === 'DATE_PICKER' && (
+        {fieldType === 'DATE' && (
           <Input
             type="date"
             value={tableData[rowIndex][fieldName] || ''}
