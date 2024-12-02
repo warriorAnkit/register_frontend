@@ -42,12 +42,14 @@ const LogsPage = () => {
     }
     setUserNames((prev) => ({ ...prev, ...fetchedNames }));
   };
+  const { data: projectData } = useQuery(GET_PROJECT_ID_FOR_USER);
+  const projectId = projectData ? projectData.getProjectIdForUser : null;
 
   const { data: allTemplatesData, loading, error } = useQuery(GET_ALL_SETS_FOR_ALL_TEMPLATES, {
+    variables: { projectId },
     fetchPolicy: 'cache-and-network',
   });
-  const { data: projectData } = useQuery(GET_PROJECT_ID_FOR_USER);
-     const projectId = projectData ? projectData.getProjectIdForUser : null;
+
 
   useEffect(() => {
     if (allTemplatesData && allTemplatesData.getAllSetsForAllTemplates) {
