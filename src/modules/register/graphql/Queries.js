@@ -132,8 +132,8 @@ export const GET_ALL_RESPONSES_FOR_TEMPLATE = gql`
 
 
 export const GET_ALL_SETS_FOR_ALL_TEMPLATES = gql`
-  query getAllSetsForAllTemplates {
-    getAllSetsForAllTemplates {
+  query getAllSetsForAllTemplates($projectId: ID!) {
+    getAllSetsForAllTemplates(projectId: $projectId) {
       setId
       templateName
       createdAt
