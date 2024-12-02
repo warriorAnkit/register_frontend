@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-console */
 /* eslint-disable no-nested-ternary */
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Alert,
   Badge,
@@ -9,6 +9,8 @@ import {
   Card,
   Col,
   Menu,
+  Modal,
+  notification,
   Pagination,
   Row,
   Spin,
@@ -25,6 +27,8 @@ import {
   LIST_DRAFT_TEMPLATES_BY_PROJECT,
   LIST_LIVE_TEMPLATES_BY_PROJECT,
 } from './graphql/Queries';
+
+import {DELETE_TEMPLATE} from '../register/graphql/Mutation';
 import HeaderComponent from './component/Header';
 import { GET_CURRENT_USER } from '../auth/graphql/Queries';
 import GlobalTemplateModal from '../register/components/GlobalTemplateModal';
@@ -54,7 +58,7 @@ const Dashboard = () => {
   const handleImportClick = () => {
     setUploadModalVisible(true); // Show the upload modal
   };
-
+  const [deleteTemplate, { loading, error }] = useMutation(DELETE_TEMPLATE);
   const handleCloseUploadModal = () => {
     setUploadModalVisible(false); // Close the modal after upload or cancel
   };
@@ -212,6 +216,38 @@ const Dashboard = () => {
   const handleViewEntryButtonClick = (templateId) => {
     navigate(`/register/view-entries/${templateId}`);
   };
+  const handleDeleteButtonClick = async (templateId) => {
+    // Show confirmation dialog
+    const isConfirmed = await new Promise((resolve) => {
+      Modal.confirm({
+        title: 'Are you sure you want to delete this template?',
+        onOk: () => resolve(true),
+        onCancel: () => resolve(false),
+      });
+    });
+
+    if (isConfirmed) {
+      try {
+
+        await deleteTemplate({
+          variables: { id: templateId },
+        });
+        setTemplates((prevTemplates) =>
+          prevTemplates.filter((template) => template.id !== templateId),
+        );
+
+        notification.success({
+          message: 'Template Deleted',
+          description: 'The template has been deleted successfully.',
+          placement: 'topRight',
+        });
+
+        console.log('Template deleted successfully');
+      } catch (err) {
+        console.error('Error deleting template:', err.message);
+      }
+    }
+  };
   const handleFilterChange = (newFilter) => {
     setActiveFilter(newFilter); // Update activeFilter state
     setCurrentPage(1); // Reset page to the first one on filter change
@@ -345,7 +381,7 @@ const Dashboard = () => {
                     style={{
                       marginTop: '16px',
                       display: 'flex',
-                      justifyContent: template.status === 'Draft' ? 'center' : 'space-between',
+                      justifyContent: template.status === 'Draft' ? 'space-between' : 'space-between',
                     }}
                   >
                     {userRole !== 'USER' && (
@@ -359,6 +395,18 @@ const Dashboard = () => {
                         Edit
                       </Button>
                     )}
+                    {
+                      template.status === 'Draft' && (
+                        <Button
+                          onClick={() => {
+                            handleDeleteButtonClick(template.id);
+                          }}
+                          type="default"
+                          size="small"
+                        >
+                          Delete Template
+                        </Button>
+                   ) }
                     {template.status !== 'Draft' && (
                       <Button
                         onClick={() => {
