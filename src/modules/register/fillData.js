@@ -86,7 +86,6 @@ const FillTable = () => {
       // Check if the last row is filled, if yes, add an empty row
       if (index === prevData.length - 1 && Object.values(updatedData[index]).every(val => val !== '')) {
         updatedData.push({});  // Add an empty row
-        // Auto move to next page if this is the last row and has data
         if (updatedData.length > (currentPage * pageSize)) {
           setCurrentPage(currentPage + 1); // Move to the next page automatically
         }
@@ -207,35 +206,39 @@ const FillTable = () => {
 
 
 
-  const validateProperties = (value) => {
+  const validateProperties = (propertyName,value) => {
     const errors = {...propertyErrors};
-    data?.getTemplateById?.properties.forEach((property) => {
-      // const value = propertiesData[property.propertyName];
+    const property = data.getTemplateById?.properties.find(f => f.propertyName === propertyName);
 
+      // const value = propertiesData[property.propertyName];
+// eslint-disable-next-line no-console
+console.log(property);
       if ( (property.isRequired &&
         (!value ||
          (typeof value === 'string' && value.trim() === '') ||
          (Array.isArray(value) && value.length === 0))
       )) {
         // errors[property.propertyName] = `${property.propertyName} is required`;
-      } else if (property.isRequired) {
+      } else {
         // Remove error if the required field is now filled
         delete errors[property.propertyName];
       }
+
       if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
         errors[property.propertyName] = 'Text must be less than 100 characters';
       }
 
-      if (property.propertyFieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
+     else if (property.propertyFieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
         errors[property.propertyName] = 'Text must be less than 750 characters';
       }
 
       // eslint-disable-next-line no-restricted-globals
-      if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
+    else  if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
         errors[property.propertyName] = 'Value must be a valid number';
       }
-    });
 
+// eslint-disable-next-line no-console
+console.log(errors);
     setPropertyErrors(errors);
     return Object.keys(errors).length === 0; // Return whether there are no errors
   };
@@ -259,7 +262,7 @@ const FillTable = () => {
                 ...prev,
                 [propertyName]: value,
               }));
-              validateProperties( e.target.value); // Validate on change
+              validateProperties( propertyName,e.target.value); // Validate on change
             }}
 
             style={{
@@ -284,7 +287,7 @@ const FillTable = () => {
                   ...prev,
                   [propertyName]: value,
                 }));
-                validateProperties( e.target.value); // Validate on change
+                validateProperties( propertyName,e.target.value); // Validate on change
               }
             }}
 
@@ -302,13 +305,13 @@ const FillTable = () => {
         {propertyType === 'OPTIONS' && (
           <Select
             ref={selectRef}
-            value={propertiesData[propertyName] || undefined}
+            value={propertiesData[propertyName] || '-'}
             onChange={(value) =>{
               setPropertiesData((prev) => ({
                 ...prev,
                 [propertyName]: value,
               }))
-            validateProperties(value);
+            validateProperties(propertyName,value);
               setOpenedIndex(`0-${propertyName}`);
               setOpenedIndex(null);
               selectRef.current.blur();
@@ -347,7 +350,7 @@ const FillTable = () => {
           ...prev,
           [propertyName]: value,
         }));
-        validateProperties( e.target.value); // Call validation function
+        validateProperties( propertyName,e.target.value); // Call validation function
 
     }}
 
@@ -379,7 +382,7 @@ const FillTable = () => {
                         : prev[propertyName]?.filter((item) => item !== option);
                       return { ...prev, [propertyName]: newValues };
                     });
-                    validateProperties(checked);
+                    validateProperties(propertyName,checked);
                   }}
 
                   style={{ marginRight: 12 }}
@@ -399,7 +402,7 @@ const FillTable = () => {
                 ...prev,
                 [propertyName]: e.target.value,
               }))
-              validateProperties( e.target.value);
+              validateProperties(propertyName, e.target.value);
             }
             }
 
@@ -512,7 +515,7 @@ value=String(value);
                 validateFields(fieldName, rowIndex,value);
 
             }}
-      
+
             style={{
               width: '100%',
               maxWidth: '500px',
