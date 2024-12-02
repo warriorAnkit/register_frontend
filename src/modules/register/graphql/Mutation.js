@@ -145,6 +145,11 @@ export const EDIT_RESPONSE_MUTATION = gql`
     }
   }
 `;
+export const DELETE_TEMPLATE = gql`
+  mutation DeleteTemplate($id: ID!) {
+    deleteTemplate(id: $id)
+  }
+`;
 export const CREATE_GLOBAL_TEMPLATE_MUTATION = gql`
   mutation createGlobalTemplate(
     $name: String!
