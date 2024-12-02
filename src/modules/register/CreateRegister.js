@@ -536,7 +536,6 @@ const CreateRegisterPage = () => {
             onChange={(e) => setRegName(e.target.value)}
             style={{ width: '300px', textAlign: 'center' }}
             maxLength={50}
-            autoFocus
           />
   </Title>
 
