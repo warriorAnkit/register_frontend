@@ -13,6 +13,7 @@ import {
   Divider,
   Input,
   List,
+  message,
   Modal,
   notification,
   Select,
@@ -109,6 +110,14 @@ const CreateRegisterPage = () => {
   }, [fieldData.options]);
 
   const handleFieldSave = () => {
+  if (!fieldData.name || fieldData.name.trim() === '') {
+    message.error('Field Name is required.');
+    return;
+  }
+  if (fieldData.name.length > 50) {
+    message.error('Field Name cannot exceed 100 characters.');
+    return;
+  }
     if (
       fields.some((f) => f.fieldName === fieldData.name) )
       // properties.some((p) => p.propertyName === fieldData.name)
@@ -198,6 +207,7 @@ const CreateRegisterPage = () => {
     }
   };
   const handleAddPropertyOption = () => {
+
     if (propertyData.options.length >= 20) {
       message.warning('You can only add up to 20 options.');
       return;
@@ -381,6 +391,14 @@ const CreateRegisterPage = () => {
   };
 
   const handlePropertySave = () => {
+    if (!propertyData.name || propertyData.name.trim() === '') {
+      message.error('Field Name is required.');
+      return;
+    }
+    if (propertyData.name.length > 100) {
+      message.error('Field Name cannot exceed 100 characters.');
+      return;
+    }
     if (
       properties.some((p) => p.propertyName === propertyData.name)
     ) {
@@ -536,6 +554,7 @@ const CreateRegisterPage = () => {
             onChange={(e) => setRegName(e.target.value)}
             style={{ width: '300px', textAlign: 'center' }}
             maxLength={50}
+
           />
   </Title>
 
@@ -622,6 +641,7 @@ const CreateRegisterPage = () => {
           placeholder="Field Name"
           value={fieldData.name}
           onChange={(e) => setFieldData({ ...fieldData, name: e.target.value })}
+          maxLength={50}
           style={{ marginBottom: '16px' }}
         />
         <Select
@@ -636,6 +656,7 @@ const CreateRegisterPage = () => {
           <Select.Option value="NUMERIC">Numeric</Select.Option>
           <Select.Option value="DATE">Date</Select.Option>
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
+          <Select.Option value="CALCULATION">Calculation</Select.Option>
         </Select>
 
           <div style={{ marginBottom: '16px' }}>
@@ -690,6 +711,21 @@ const CreateRegisterPage = () => {
             </Button>
           </div>
         )}
+          {fieldData.type === 'CALCULATION' && (
+    <div style={{ marginTop: '16px' }}>
+      <Title level={5}>Formula</Title>
+      <Input
+        placeholder="Enter formula (e.g., x + y)"
+        value={fieldData.calculationFormula}
+        onChange={(e) => setFieldData({ ...fieldData, calculationFormula: e.target.value })}
+        style={{ marginBottom: '16px' }}
+      />
+      <div style={{ color: 'gray', fontSize: '12px' }}>
+        Enter a valid formula using field names (e.g., 'field1 + field2').
+      </div>
+    </div>
+  )}
+
       </Modal>
 
       <Modal
@@ -705,6 +741,7 @@ const CreateRegisterPage = () => {
           onChange={(e) =>
             setPropertyData({ ...propertyData, name: e.target.value })
           }
+          maxLength={100}
           style={{ marginBottom: '16px' }}
         />
 
