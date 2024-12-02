@@ -89,7 +89,15 @@ const LogsPage = () => {
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return <div>
+       <LogHeaderComponent
+        projectId={projectId}
+        handleTabChange={handleTabChange}
+        setSearchText={setSearchText}
+        logs={filteredLogs}
+        userNames={userNames}
+      />
+     {error.message}</div>;
   }
 
   const columns = [
