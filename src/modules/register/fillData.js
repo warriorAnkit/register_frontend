@@ -306,12 +306,13 @@ const FillTable = () => {
                 ...prev,
                 [propertyName]: value,
               }))
-
+          setOpenedIndex(null)
             validateProperties(value);
             }
           }
-          onFocus={(e) => e.target.blur()}  // Blur focus, then focus again to trigger dropdown opening
-          open // Open dropdown when focused
+          onFocus={() => setOpenedIndex(`0-${propertyName}`)}  // Open dropdown for this index
+          onBlur={() => setOpenedIndex(null)}    // Close dropdown when focus is lost
+          open={openedIndex === `0-${propertyName}`}
             style={{
               width: '100%',
               maxWidth: '500px',
