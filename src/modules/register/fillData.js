@@ -5,7 +5,7 @@
 import { DeleteOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table, notification } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from './components/Header';
 import { SUBMIT_RESPONSE } from './graphql/Mutation';
@@ -25,6 +25,7 @@ const FillTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [fieldErrors, setFieldErrors] = useState({});
   const [propertyErrors, setPropertyErrors] = useState({});
+  const selectRef = useRef(null);
   const { data, loading, error } = useQuery(GET_TEMPLATE_BY_ID, {
     variables: { id: templateId },
     fetchPolicy: 'cache-and-network',
@@ -300,14 +301,17 @@ const FillTable = () => {
 
         {propertyType === 'OPTIONS' && (
           <Select
+            ref={selectRef}
             value={propertiesData[propertyName] || undefined}
             onChange={(value) =>{
               setPropertiesData((prev) => ({
                 ...prev,
                 [propertyName]: value,
               }))
-          setOpenedIndex(null)
             validateProperties(value);
+              setOpenedIndex(`0-${propertyName}`);
+              setOpenedIndex(null);
+              selectRef.current.blur();
             }
           }
           onFocus={() => setOpenedIndex(`0-${propertyName}`)}  // Open dropdown for this index
@@ -522,11 +526,13 @@ value=String(value);
 
         {fieldType === 'OPTIONS' && (
           <Select
+         ref={selectRef}
             value={tableData[rowIndex][fieldName] || undefined}
             onChange={(value) => {
               handleInputChange(rowIndex, fieldName, value);
               validateFields(fieldName, rowIndex,value);
               setOpenedIndex(null);
+              selectRef.current.blur();
             }}
             style={{
               width: '100%',
