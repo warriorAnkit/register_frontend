@@ -37,11 +37,13 @@ import './register.less';
 
 const { Title, Text } = Typography;
 const CreateRegisterPage = () => {
+  const {registerName}=useParams();
   const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [fields, setFields] = useState([]);
   const [properties, setProperties] = useState([]); // State to manage properties
   const [currentField, setCurrentField] = useState(null);
+  const [regName,setRegName]=useState(registerName);
   const [currentProperty, setCurrentProperty] = useState(null);
   const [createTemplate] = useMutation(CREATE_TEMPLATE);
   const [createGlobalTemplate] = useMutation(CREATE_GLOBAL_TEMPLATE_MUTATION);
@@ -72,7 +74,7 @@ const CreateRegisterPage = () => {
     options: [],
   });
 
-  const {registerName}=useParams();
+
 
   const {
     loading: loadingProject,
@@ -107,6 +109,17 @@ const CreateRegisterPage = () => {
   }, [fieldData.options]);
 
   const handleFieldSave = () => {
+    if (
+      fields.some((f) => f.fieldName === fieldData.name) )
+      // properties.some((p) => p.propertyName === fieldData.name)
+     {
+      notification.error({
+        message: 'Duplicate Field Name',
+        description: `The field name "${fieldData.name}" already exists as a field or property.`,
+        duration: 3,
+      });
+      return;
+    }
     if (
       (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
       fieldData.options.length === 0
@@ -227,7 +240,7 @@ const CreateRegisterPage = () => {
       if (projectId === '60') {
        const response= await createGlobalTemplate({
           variables: {
-            name: registerName,
+            name: regName,
             templateType: 'GLOBAL',
             fields: formattedFields,
             properties: formattedProperties,
@@ -240,7 +253,7 @@ const CreateRegisterPage = () => {
         // For other projectIds, create a scratch template
     const response= await createTemplate({
           variables: {
-            name: registerName,
+            name: regName,
             projectId,
             templateType: 'SCRATCH',
             fields: formattedFields,
@@ -281,7 +294,7 @@ const CreateRegisterPage = () => {
       if (projectId === '60') {
       const response=  await createGlobalTemplate({
           variables: {
-            name: registerName,
+            name: regName ,
             templateType: 'GLOBAL',
             fields: formattedFields,
             properties: formattedProperties,
@@ -294,7 +307,7 @@ const CreateRegisterPage = () => {
         // For other projectIds, create a scratch template
         const response = await createTemplate({
           variables: {
-            name: registerName,
+            name: regName,
             projectId,
             templateType: 'SCRATCH',
             fields: formattedFields,
@@ -368,6 +381,16 @@ const CreateRegisterPage = () => {
   };
 
   const handlePropertySave = () => {
+    if (
+      properties.some((p) => p.propertyName === propertyData.name)
+    ) {
+      notification.error({
+        message: 'Duplicate Field Name',
+        description: `The field name "${propertyData.name}" already exists as a field or property.`,
+        duration: 3,
+      });
+      return;
+    }
     if (
       (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
       propertyData.options.length === 0
@@ -500,7 +523,7 @@ const CreateRegisterPage = () => {
 
   return (
     <div >
-       <Header name={registerName}/>
+       <Header name={regName}/>
     <div style={{ padding: '15px' }}>
 
 
@@ -508,7 +531,13 @@ const CreateRegisterPage = () => {
 
 
   <Title level={4} style={{ textAlign: 'center', fontSize: '1.25rem' }}>
-    Create Your new Register : {registerName}
+    Create Your new Register :  <Input
+            value={regName}
+            onChange={(e) => setRegName(e.target.value)}
+            style={{ width: '300px', textAlign: 'center' }}
+            maxLength={50}
+            autoFocus
+          />
   </Title>
 
 </div>
