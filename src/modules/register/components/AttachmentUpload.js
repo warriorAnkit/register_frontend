@@ -53,7 +53,6 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrl }) => {
       onUploadSuccess(data.Location);
     } catch (error) {
       message.error('File upload failed');
-      console.error('Error uploading file:', error);
     } finally {
       setLoading(false);
     }
