@@ -11,6 +11,7 @@ import Header from './components/Header';
 import { SUBMIT_RESPONSE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
+import ImageUpload from './components/AttachmentUpload';
 
 
 const { TextArea } = Input;
@@ -624,7 +625,12 @@ value=String(value);
               ))}
           </div>
         )}
-
+ {fieldType === 'ATTACHMENT' && (
+        <ImageUpload
+          onUploadSuccess={(url) => handleInputChange(rowIndex, fieldName, url)}
+          errorMessage={errorMessage}
+        />
+      )}
         {fieldType === 'DATE' && (
           <Input
             type="date"
