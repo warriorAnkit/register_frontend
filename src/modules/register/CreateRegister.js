@@ -2,10 +2,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/no-array-index-key */
 import {
+  CloseOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  CloseOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import {

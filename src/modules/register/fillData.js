@@ -5,15 +5,15 @@
 
 import { DeleteOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table, notification } from 'antd';
-import React, { useEffect, useState,useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { Button, Card, Checkbox, Form, Input, Select, Table, notification } from 'antd';
 import { evaluate } from 'mathjs';
+import React, { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import ImageUpload from './components/AttachmentUpload';
 import Header from './components/Header';
 import { SUBMIT_RESPONSE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
-import ImageUpload from './components/AttachmentUpload';
 
 const { TextArea } = Input;
 

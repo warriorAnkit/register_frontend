@@ -2,35 +2,35 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect, useRef } from 'react';
 import {
-  Table,
-  Typography,
-  Button,
-  Space,
-  Divider,
-  Modal,
-  Input,
-  Select,
-  Switch,
-  List,
-  notification,
-} from 'antd';
-import {
+  CloseOutlined,
+  DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  DeleteOutlined,
-  CloseOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useParams} from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import {
+  Button,
+  Divider,
+  Input,
+  List,
+  Modal,
+  notification,
+  Select,
+  Space,
+  Switch,
+  Table,
+  Typography,
+} from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
-import { UPDATE_TEMPLATE,CHANGE_TEMPLATE_STATUS } from './graphql/Mutation';
-import './register.less';
-import FieldIcon from './components/FieldIcon';
 import { ROUTES } from '../../common/constants';
+import FieldIcon from './components/FieldIcon';
 import Header from './components/Header';
+import { CHANGE_TEMPLATE_STATUS, UPDATE_TEMPLATE } from './graphql/Mutation';
+import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
+import './register.less';
 
 const { Title, Text } = Typography;
 

@@ -4,22 +4,22 @@
 /* eslint-disable no-console */
 import { DeleteOutlined, DownOutlined, ExportOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Dropdown, Menu,Form,Checkbox,Input,Select, notification, Table,Modal } from 'antd';
+import { Button, Card, Checkbox, Dropdown, Form, Input, Menu, Modal, notification, Select, Table } from 'antd';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { evaluate } from 'mathjs';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { utils, writeFile } from 'xlsx';
-import { evaluate } from 'mathjs';
 import { ROUTES } from '../../common/constants';
 import useFetchUserFullName from '../../hooks/useFetchUserNames';
+import ImageUpload from './components/AttachmentUpload';
 import Header from './components/Header';
 import { EDIT_RESPONSE_MUTATION } from './graphql/Mutation';
 import { GET_ALL_RESPONSES_FOR_SET, GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './headerButton.less';
 import './register.less';
-import ImageUpload from './components/AttachmentUpload';
 
 const { TextArea } = Input;
 
