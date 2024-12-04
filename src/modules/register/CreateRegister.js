@@ -42,6 +42,7 @@ const CreateRegisterPage = () => {
   const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [fields, setFields] = useState([]);
+  const [numericFields, setNumericFields] = useState([]);
   const [properties, setProperties] = useState([]); // State to manage properties
   const [currentField, setCurrentField] = useState(null);
   const [regName,setRegName]=useState(registerName);
@@ -59,7 +60,10 @@ const CreateRegisterPage = () => {
       setProperties(transformedData.properties || []); // Ensure it's an array
     }
   }, [transformedData]);
-
+  useEffect(() => {
+    const filteredFields = fields.filter((field) => field.fieldType === 'NUMERIC');
+    setNumericFields(filteredFields);
+  }, [fields]);
   const [fieldData, setFieldData] = useState({
 
     name: '',
@@ -118,9 +122,12 @@ const CreateRegisterPage = () => {
     message.error('Field Name cannot exceed 100 characters.');
     return;
   }
+  console.log(currentField);
     if (
-      fields.some((f) => f.fieldName === fieldData.name) )
-      // properties.some((p) => p.propertyName === fieldData.name)
+      fields.some(
+        (f) => f.fieldName === fieldData.name && f.tempId !== currentField?.tempId,
+      )
+    )
      {
       notification.error({
         message: 'Duplicate Field Name',
@@ -174,6 +181,19 @@ const CreateRegisterPage = () => {
     setIsFieldModalVisible(false);
   };
 
+  const validateFormula = (formula) => {
+    if (!formula) return "Formula can't be empty.";
+    // Allowable characters: alphanumeric, operators, parentheses, and spaces
+    const validChars = /^[0-9a-zA-Z_+\-*/().\s]+$/;
+    if (!validChars.test(formula)) return 'Invalid characters in formula.';
+    // const replacedFormula = formula.replace(/[a-zA-Z_]+/g, '1');
+    try {
+      evaluate(replacedFormula);
+    } catch (error) {
+      return 'Invalid formula syntax.';
+    }
+    return ''; // No error if formula is valid
+  };
   const handleFieldTypeChange = (type) => {
     setFieldData({
       ...fieldData,
@@ -711,20 +731,58 @@ const CreateRegisterPage = () => {
             </Button>
           </div>
         )}
-          {fieldData.type === 'CALCULATION' && (
+   {fieldData.type === 'CALCULATION' && (
+  <div style={{ marginTop: '16px' }}>
+    <Title level={5}>Formula</Title>
+
+    {/* Formula Input */}
+    <Input
+      placeholder="Enter formula (e.g., x + y)"
+      value={fieldData.options}
+      onChange={(e) => setFieldData({ ...fieldData, options: e.target.value })}
+      style={{ marginBottom: '16px' }}
+    />
+
+    <div style={{ color: 'gray', fontSize: '12px' }}>
+      Enter a valid formula using field names (e.g., 'field1 + field2').
+    </div>
+
     <div style={{ marginTop: '16px' }}>
-      <Title level={5}>Formula</Title>
-      <Input
-        placeholder="Enter formula (e.g., x + y)"
-        value={fieldData.calculationFormula}
-        onChange={(e) => setFieldData({ ...fieldData, calculationFormula: e.target.value })}
-        style={{ marginBottom: '16px' }}
-      />
-      <div style={{ color: 'gray', fontSize: '12px' }}>
-        Enter a valid formula using field names (e.g., 'field1 + field2').
+      <div>
+        {/* Display numeric fields as buttons */}
+        {numericFields.map((field) => (
+          <Button
+            key={field.id}
+            onClick={() => setFieldData({
+              ...fieldData,
+               options: `${fieldData.options ? fieldData.options : ''}"${field.fieldName}" `, // Add '|' separator here
+            })}
+            style={{ marginRight: '8px' }}
+          >
+            {field.fieldName}
+          </Button>
+        ))}
+      </div>
+
+      <div style={{ marginTop: '8px' }}>
+        {/* Operator Buttons */}
+        {['+', '-', '*', '/', '(', ')'].map((operator) => (
+          <Button
+            key={operator}
+            onClick={() => setFieldData({
+              ...fieldData,
+              options: `${fieldData.options}${operator}`,  // Add '|' separator here
+            })}
+            style={{ marginRight: '8px' }}
+          >
+            {operator}
+          </Button>
+        ))}
       </div>
     </div>
-  )}
+  </div>
+)}
+
 
       </Modal>
 

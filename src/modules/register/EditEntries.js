@@ -11,6 +11,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { utils, writeFile } from 'xlsx';
+import { evaluate } from 'mathjs';
 import { ROUTES } from '../../common/constants';
 import useFetchUserFullName from '../../hooks/useFetchUserNames';
 import Header from './components/Header';
@@ -599,6 +600,7 @@ value=String(value);
   };
 
   const handleInputChange = (index, fieldName, value) => {
+    console.log(value);
     setTableData((prevData) => {
       const updatedData = prevData.map((row, i) =>
         i === index
@@ -618,6 +620,39 @@ value=String(value);
     const errorMessage = fieldErrors[`${fieldName}-${rowIndex}`];
     const hasError = !!errorMessage;
     const fieldValue = tableData && tableData[rowIndex][fieldName] ? tableData[rowIndex][fieldName].value : '';
+    const calculateFieldValue = () => {
+      const fieldData = tableData[rowIndex];
+      const fieldOptions = templateData.getTemplateById?.fields.find(f => f.id === fieldName)?.options;
+      if (!fieldOptions || fieldOptions.length === 0) return '';
+      const formula = fieldOptions[0];
+      console.log(formula);
+      if (!formula) return '';
+      try {
+        const formulaWithValues = formula.replace(/\b\d+\b/g, (match) => {
+          const values = fieldData[match].value;
+          console.log(values);
+          return values !== undefined ? values : 0;
+        });
+
+        console.log(formulaWithValues);
+
+        const result = evaluate(formulaWithValues);
+        // tableData[rowIndex][fieldName].value=result;
+console.log(result ,rowIndex,tableData[rowIndex]);
+console.log("kl",tableData.length);
+if(rowIndex < tableData.length - 1){
+  // eslint-disable-next-line no-restricted-globals
+if (result !== undefined && !isNaN(result) && fieldValue !== result) {
+  console.log("ff")
+  handleInputChange(rowIndex, fieldName, result);  // Update value only if it's different
+}
+}
+        return result;
+      }  catch (error) {
+
+        return '';
+      }
+    };
     return (
       <Form.Item
         validateStatus={hasError ? 'error' : ''}
@@ -783,6 +818,21 @@ value=String(value);
           onUploadSuccess={(url) => handleInputChange(rowIndex, fieldName, url)}
           errorMessage={errorMessage}
           existingFileUrl={fieldValue||''}
+        />
+      )}
+      {fieldType === 'CALCULATION' && (
+        <Input
+        value={rowIndex < tableData.length - 1 ? calculateFieldValue() : ''}
+          disabled
+          style={{
+            width: '100%',
+            maxWidth: '500px',
+            padding: '8px',
+            height: '30px',
+            borderRadius: '4px',
+            border: '1px solid #d9d9d9',
+            boxSizing: 'border-box', // Ensure box-sizing is consistent
+          }}
         />
       )}
         {fieldType === 'DATE' && (

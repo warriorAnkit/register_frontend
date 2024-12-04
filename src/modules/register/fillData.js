@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-shadow */
 
 /* eslint-disable no-alert */
@@ -7,12 +8,12 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Button, Card, Checkbox, Form, Input, Pagination, Select, Table, notification } from 'antd';
 import React, { useEffect, useState,useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { evaluate } from 'mathjs';
 import Header from './components/Header';
 import { SUBMIT_RESPONSE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
 import ImageUpload from './components/AttachmentUpload';
-
 
 const { TextArea } = Input;
 
@@ -44,54 +45,18 @@ const FillTable = () => {
     }
   }, [data]);
 
-  // const handleInputChange = (index, fieldName, value) => {
-  //   setTableData((prevData) => {
-  //     const updatedData = prevData.map((row, i) =>
-  //       i === index ? { ...row, [fieldName]: value } : row,
-  //     );
-  //     if (index === prevData.length - 1) {
-  //       updatedData.push({});
-  //       if (updatedData.length-1 > (currentPage + 1) * pageSize) {
-  //         setCurrentPage(currentPage + 1); // Move to the next page automatically
-  //       }
-
-  //     }
-
-  //     return updatedData;
-  //   });
-  // };
-  // const handleInputChange = (index, fieldName, value) => {
-  //   setTableData((prevData) => {
-  //     const updatedData = prevData.map((row, i) =>
-  //       i === index ? { ...row, [fieldName]: value } : row
-  //     );
-
-  //     // Check if the last row is filled, if yes, add an empty row
-  //     if (index === prevData.length - 1 && !updatedData[index].includes('')) {
-  //       updatedData.push({});  // Add an empty row
-  //       // Auto move to next page if this is the last row and has data
-  //       if (updatedData.length > (currentPage + 1) * pageSize) {
-  //         setCurrentPage(currentPage + 1); // Move to the next page automatically
-  //       }
-  //     }
-
-  //     return updatedData;
-  //   });
-  // };
   const handleInputChange = (index, fieldName, value) => {
+    console.log(fieldName + value);
     setTableData((prevData) => {
       const updatedData = prevData.map((row, i) =>
         i === index ? { ...row, [fieldName]: value } : row,
       );
-
-      // Check if the last row is filled, if yes, add an empty row
       if (index === prevData.length - 1 && Object.values(updatedData[index]).every(val => val !== '')) {
-        updatedData.push({});  // Add an empty row
+        updatedData.push({});
         if (updatedData.length > (currentPage * pageSize)) {
-          setCurrentPage(currentPage + 1); // Move to the next page automatically
+          setCurrentPage(currentPage + 1);
         }
       }
-
       return updatedData;
     });
   };
@@ -479,6 +444,32 @@ value=String(value);
     const errorMessage = fieldErrors[`${fieldName}-${rowIndex}`];
     const hasError = !!errorMessage;
 
+    const calculateFieldValue = (fieldName, rowIndex) => {
+      const fieldData = tableData[rowIndex];
+      const fieldOptions = data.getTemplateById?.fields.find(f => f.fieldName === fieldName)?.options;
+      if (!fieldOptions || fieldOptions.length === 0) return '';
+      const formula = fieldOptions[0];
+      console.log(formula);
+      if (!formula) return '';
+      try {
+        const formulaWithValues = formula.replace(/\b\d+\b/g, (match) => {
+         const fMatch= data.getTemplateById?.fields.find(f => f.id === match)?.fieldName;
+          const value = fieldData[fMatch];
+          return value !== undefined ? value : 0;
+        });
+
+         const res=formulaWithValues;
+        const result = evaluate(formulaWithValues);
+        // eslint-disable-next-line use-isnan, no-restricted-globals
+        if (result !== undefined && !isNaN(result) && tableData[rowIndex][fieldName] !== result) {
+          handleInputChange(rowIndex, fieldName, result);  // Update value only if it's different
+        }
+        return result;
+      }  catch (error) {
+
+        return '';
+      }
+    };
     return (
       <Form.Item
         validateStatus={hasError ? 'error' : ''}
@@ -527,7 +518,22 @@ value=String(value);
             }}
           />
         )}
+{fieldType === 'CALCULATION' && (
+        <Input
+        value={rowIndex < tableData.length - 1 ? calculateFieldValue(fieldName, rowIndex) : ''}
+          disabled // Prevent manual input
 
+          style={{
+            width: '100%',
+            maxWidth: '500px',
+            padding: '8px',
+            height: '30px',
+            borderRadius: '4px',
+            border: '1px solid #d9d9d9',
+            boxSizing: 'border-box', // Ensure box-sizing is consistent
+          }}
+        />
+      )}
         {fieldType === 'OPTIONS' && (
           <Select
          ref={selectRef}

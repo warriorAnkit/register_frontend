@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-array-index-key */
@@ -50,6 +51,7 @@ const TemplateView = () => {
   const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [fields, setFields] = useState([]);
+  const [numericFields, setNumericFields] = useState([]);
   const [properties, setProperties] = useState([]); // State to manage properties
   const [currentField, setCurrentField] = useState(null);
   const [currentProperty, setCurrentProperty] = useState(null);
@@ -88,7 +90,10 @@ const TemplateView = () => {
       );
     }
   }, [data]);
-
+  useEffect(() => {
+    const filteredFields = fields.filter((field) => field.fieldType === 'NUMERIC');
+    setNumericFields(filteredFields);
+  }, [fields]);
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isEditing) {
@@ -146,7 +151,6 @@ const TemplateView = () => {
     }
   };
 
-  // Field Modal Functions
   const showFieldEditModal = (field = null) => {
     setCurrentField(field);
     setFieldData(
@@ -161,7 +165,7 @@ const TemplateView = () => {
     );
     setIsFieldModalVisible(true);
   };
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
 
   const focusLastInput = () => {
     if (inputRefs.current.length > 0) {
@@ -171,7 +175,7 @@ const TemplateView = () => {
   };
   const handleFieldSave = () => {
     if (currentField) {
-      // If the currentField has an id, update the field based on its id
+
       if (currentField.id) {
         setFields((prevFields) =>
           prevFields.map((f) =>
@@ -187,7 +191,7 @@ const TemplateView = () => {
           ),
         );
       }
-      // If the currentField has a tempId, update the field based on its tempId
+
       else if (currentField.tempId) {
         setFields((prevFields) =>
           prevFields.map((f) =>
@@ -277,7 +281,35 @@ const TemplateView = () => {
   };
 
   const handleSaveAll = async () => {
-    const transformedfields = fields.map(item => {
+    const invalidCalculationFields = fields.filter(
+      (field) =>
+        field.fieldType === 'CALCULATION' &&
+        !validateFormulaFields(field.options, fields).isValid,
+    );
+
+    if (invalidCalculationFields.length > 0) {
+      notification.error({
+        message: 'Validation Error',
+        description: `Invalid formula in the following fields: ${invalidCalculationFields
+          .map((field) => field.fieldName)
+          .join(', ')}`,
+      });
+      return;
+    }
+
+    const updatedFields = fields.map((field) => {
+      if (field.fieldType === 'CALCULATION') {
+        const { isValid, convertedFormula } = validateFormulaFields(field.options, fields);
+        if (isValid) {
+          return { ...field, options: convertedFormula };
+        }
+
+        return field; // Otherwise, return the field as it is
+      }
+      return field; // Return non-calculation fields as they are
+    });
+
+    const transformedfields = updatedFields.map(item => {
 
       if (item.tempId) {
           const { tempId, ...rest } = item;
@@ -409,6 +441,47 @@ const TemplateView = () => {
     setIsPropertyModalVisible(false);
   };
 
+  // const replaceFieldIdsWithNames = (formula, numericFields) => {
+  //   return formula.replace(/\b\d+\b/g, (fieldId) => {
+  //     const field = numericFields.find((f) => f.id === parseInt(fieldId, 10));
+  //     return field ? `"${field.fieldName}"` : fieldId;
+  //   });
+  // };
+  const validateFormulaFields = (formula) => {
+    // Convert field IDs to field names
+    const convertedFormula = replaceFieldIdsWithNames(formula);
+
+    console.log("Converted Formula:", convertedFormula);
+
+    // Extract any remaining numbers in the formula (these represent unconverted IDs)
+    // const remainingIds = convertedFormula.match(/\b\d+\b/g);
+    const unconvertedIds = convertedFormula.replace(/"([^"]*)"/g, ''); // Remove strings inside quotes
+    const remainingIds = unconvertedIds.match(/\b\d+\b/g);
+console.log(remainingIds);
+    if (remainingIds && remainingIds.length > 0) {
+      return {
+        isValid: false,
+        errorMessage: `The formula contains invalid or unconverted field IDs: ${remainingIds.join(', ')}`,
+      };
+    }
+
+    // Extract field names from the converted formula
+    const fieldNamesInFormula = convertedFormula.match(/"([^"]*)"/g)?.map((name) => name.replace(/"/g, '')) || [];
+console.log(fieldNamesInFormula);
+    // Check if the extracted field names exist in numericFields
+    const invalidFields = fieldNamesInFormula.filter(
+      (fieldName) => !numericFields.some((field) => field.fieldName === fieldName),
+    );
+
+    if (invalidFields.length > 0) {
+      return {
+        isValid: false,
+        errorMessage: `The following fields are invalid or deleted: ${invalidFields.join(', ')}`,
+      };
+    }
+
+    return { isValid: true, convertedFormula };
+  };
   const handlePropertyTypeChange = (type) => {
     setPropertyData({ ...propertyData, type });
   };
@@ -426,6 +499,17 @@ const TemplateView = () => {
         );
       },
     });
+  };
+  const replaceFieldIdsWithNames = (formula) => {
+    if (!formula) return '';
+    let updatedFormula = String(formula);
+
+    numericFields.forEach((field) => {
+      const regex = new RegExp(`\\b${field.id}\\b`, 'g');  // Match exact field ID
+      updatedFormula = updatedFormula.replace(regex, `"${field.fieldName}"`);  // Replace ID with field name
+    });
+
+    return updatedFormula;
   };
 
   const columns = [
@@ -659,6 +743,7 @@ const TemplateView = () => {
           <Select.Option value="NUMERIC">Numeric</Select.Option>
           <Select.Option value="DATE">Date</Select.Option>
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
+          <Select.Option value="CALCULATION">Calculation</Select.Option>
         </Select>
           <div style={{ marginBottom: '16px' }}>
           <span>Required: </span>
@@ -711,6 +796,55 @@ const TemplateView = () => {
             </Button>
           </div>
         )}
+          {fieldData.type === 'CALCULATION' && (
+  <div style={{ marginTop: '16px' }}>
+    <Title level={5}>Formula</Title>
+    <Input
+      placeholder="Enter formula (e.g., x + y)"
+      value={replaceFieldIdsWithNames(fieldData.options, numericFields)}
+      onChange={(e) => setFieldData({ ...fieldData, options: e.target.value })}
+      style={{ marginBottom: '16px' }}
+    />
+
+    <div style={{ color: 'gray', fontSize: '12px' }}>
+      Enter a valid formula using field names (e.g., 'field1 + field2').
+    </div>
+
+    <div style={{ marginTop: '16px' }}>
+      <div>
+        {/* Display numeric fields as buttons */}
+        {numericFields.map((field) => (
+          <Button
+            key={field.id}
+            onClick={() => setFieldData({
+              ...fieldData,
+               options: `${fieldData.options ? fieldData.options : ''}"${field.fieldName}" `, // Add '|' separator here
+            })}
+            style={{ marginRight: '8px' }}
+          >
+            {field.fieldName}
+          </Button>
+        ))}
+      </div>
+
+      <div style={{ marginTop: '8px' }}>
+        {/* Operator Buttons */}
+        {['+', '-', '*', '/', '(', ')'].map((operator) => (
+          <Button
+            key={operator}
+            onClick={() => setFieldData({
+              ...fieldData,
+              options: `${fieldData.options}${operator}`,  // Add '|' separator here
+            })}
+            style={{ marginRight: '8px' }}
+          >
+            {operator}
+          </Button>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
       </Modal>
 
       <Modal
@@ -740,8 +874,7 @@ const TemplateView = () => {
           <Select.Option value="CHECKBOXES">Checkboxes</Select.Option>
           <Select.Option value="NUMERIC">Numeric</Select.Option>
           <Select.Option value="DATE">Date</Select.Option>
-          <Select.Option value="ATTACHMENT">Attachment</Select.Option>
-  
+
         </Select>
 
 

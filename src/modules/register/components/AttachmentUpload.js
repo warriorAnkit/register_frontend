@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-
+/* eslint-disable no-console */
 
 import React, { useEffect, useState } from 'react';
 import { Upload, message } from 'antd';
@@ -53,7 +53,7 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrl }) => {
       onUploadSuccess(data.Location);
     } catch (error) {
       message.error('File upload failed');
-      console.error('Error uploading file:', error);
+      // console.error('Error uploading file:', error);
     } finally {
       setLoading(false);
     }
@@ -66,6 +66,7 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrl }) => {
         onSuccess(url);
       })
       .catch((error) => {
+        console.log(error);
         onError(error);
       });
   };
