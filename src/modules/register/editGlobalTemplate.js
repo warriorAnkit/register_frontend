@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
+/* eslint-disable  */
+
 /* eslint-disable react/no-array-index-key */
 import React, { useState, useEffect } from 'react';
 import {
@@ -28,9 +30,6 @@ import './register.less';
 import FieldIcon from './components/FieldIcon';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
 import { ROUTES } from '../../common/constants';
-// import FieldModal from './components/FieldModal';
-// import PropertiesModal from './components/FillPropertyModal';
-// import PropertyModal from './components/PropertyModal';
 
 const { Title, Text } = Typography;
 
@@ -54,7 +53,7 @@ const GlobalTemplateView = () => {
   const [createTemplate] = useMutation(CREATE_TEMPLATE);
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [fields, setFields] = useState([]);
@@ -388,39 +387,51 @@ const GlobalTemplateView = () => {
   ];
 
   const handleStatusChange = async () => {
-    const allData = {
-      name: templateName,
-      projectId,
-      templateType: 'GLOBAL',
-      fields: fields.map(({ id, ...rest }) => rest),
-      properties: properties.map(({ id, ...rest }) => rest),
-    };
+    Modal.confirm({
+      title: 'Confirm Status Change',
+      content: 'Are you sure you want to publish  this regsiter to LIVE?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        const allData = {
+          name: templateName,
+          projectId,
+          templateType: 'GLOBAL',
+          fields: fields.map(({ id, ...rest }) => rest),
+          properties: properties.map(({ id, ...rest }) => rest),
+        };
 
-    try {
-      // Create the template first
-      const response = await createTemplate({ variables: allData });
+        try {
+          // Create the template first
+          const response = await createTemplate({ variables: allData });
 
-      const newTemplateId = response.data.createTemplate.data.id;
+          const newTemplateId = response.data.createTemplate.data.id;
 
-      // After creating the template, change its status to 'LIVE'
-      const newStatus = 'LIVE';
-     const response2= await changeTemplateStatus({
-        variables: {
-          id: newTemplateId, // Use the newly created template's ID
-          newStatus,
-        },
-      });
+          // After creating the template, change its status to 'LIVE'
+          const newStatus = 'LIVE';
+          // console.log("fs");
+          const response2 = await changeTemplateStatus({
+            variables: {
+              id: newTemplateId, // Use the newly created template's ID
+              newStatus,
+            },
+          });
 
-      // Optional: set editing state to false after saving
-      setIsEditing(false);
-      if (response2.data.changeTemplateStatus) {
-        navigate(ROUTES.MAIN);
-      }
-    // eslint-disable-next-line no-shadow
-    } catch (error) {
-      console.error('Error saving template or changing status:', error.message);
-    }
+          // Optional: set editing state to false after saving
+          setIsEditing(false);
+          if (response2.data.changeTemplateStatus) {
+            navigate(ROUTES.MAIN);
+          }
+        } catch (error) {
+          //  console.error('Error saving template or changing status:', error.message);
+        }
+      },
+      onCancel: () => {
+        console.log('Status change canceled');
+      },
+    });
   };
+
 
   return (
     <div style={{ padding: '24px' }}>
@@ -508,7 +519,7 @@ const GlobalTemplateView = () => {
           style={{ backgroundColor: 'red' }}
           onClick={toggleEditMode}
         >
-          {isEditing ? 'Cancel Edit' : 'Edit'}
+          {isEditing ? 'Discard' : 'Edit'}
         </Button>
 
           <Button
