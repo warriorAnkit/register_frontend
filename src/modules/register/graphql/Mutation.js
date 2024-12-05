@@ -42,6 +42,13 @@ export const CREATE_TEMPLATE = gql`
     }
   }
 `;
+export const GENERATE_SIGNED_URL = gql`
+  mutation generateSignedUrl($filename: String!, $fileType: String!) {
+    generateSignedUrl(filename: $filename, fileType: $fileType) {
+      signedUrl
+    }
+  }
+`;
 
 export const UPDATE_TEMPLATE = gql`
   mutation UpdateTemplate(

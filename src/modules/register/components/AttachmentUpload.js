@@ -1,15 +1,20 @@
+/* eslint-disable no-console */
 /* eslint-disable no-nested-ternary */
-
-
 import { FileImageOutlined, FilePdfOutlined, PlusOutlined } from '@ant-design/icons';
 import { Upload, message } from 'antd';
-import AWS from 'aws-sdk';
 import React, { useEffect, useState } from 'react';
+import { useMutation } from '@apollo/client'; // For calling the mutation
+
+// Import the GraphQL mutation for generating signed URL
+import { GENERATE_SIGNED_URL } from '../graphql/Mutation'; // Update with correct path to mutation
 
 const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrl }) => {
   const [loading, setLoading] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState(existingFileUrl || null);
   const [fileType, setFileType] = useState(null);
+
+  // Use the GraphQL mutation to get the signed URL
+  const [generateSignedUrl] = useMutation(GENERATE_SIGNED_URL);
 
   useEffect(() => {
     if (existingFileUrl) {
@@ -26,33 +31,40 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrl }) => {
     }
   }, [existingFileUrl]);
 
-  // AWS S3 configuration
-  AWS.config.update({
-    accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-    region: process.env.REACT_APP_AWS_S3_REGION,
-  });
-
-  const s3 = new AWS.S3();
   const handleFileUpload = async (file) => {
     setLoading(true);
     const fileName = `uploads/${Date.now()}_${file.name}`;
-    const params = {
-      Bucket: process.env.REACT_APP_AWS_S3_PUBLIC_BUCKET_NAME,
-      Key: fileName,
-      Body: file,
-      ACL: 'public-read',
-      ContentType: file.type,
-    };
-
+    const fileMimeType = file.type;
+    setFileType(fileMimeType);
     try {
-      const data = await s3.upload(params).promise();
-      message.success('File uploaded successfully');
-      setUploadedFileUrl(data.Location);
-      setFileType(file.type);
-      onUploadSuccess(data.Location);
+      // Call the mutation to get the signed URL
+      console.log(fileType);
+      const { data } = await generateSignedUrl({ variables: { filename: fileName , fileType:fileMimeType } });
+      const {signedUrl} = data.generateSignedUrl;
+      console.log(signedUrl);
+
+      if (signedUrl) {
+        // Upload the file to Google Cloud Storage using the signed URL
+        const response = await fetch(signedUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+          },
+        });
+
+        if (response.ok) {
+          message.success('File uploaded successfully');
+          setUploadedFileUrl(signedUrl.split('?')[0]); // Get the URL without query parameters
+          setFileType(file.type);
+          onUploadSuccess(signedUrl.split('?')[0]);
+        } else {
+          throw new Error('File upload failed');
+        }
+      }
     } catch (error) {
       message.error('File upload failed');
+      console.error(error);
     } finally {
       setLoading(false);
     }
