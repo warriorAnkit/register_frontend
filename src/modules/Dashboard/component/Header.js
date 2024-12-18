@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from 'react';
 import { Button, Dropdown, Input, Modal, Tabs, Menu, Row, Col } from 'antd';
-import { FilterOutlined, PlusOutlined, DownOutlined, SearchOutlined ,CloseOutlined} from '@ant-design/icons';
+import { FilterOutlined,UserOutlined, PlusOutlined, DownOutlined, SearchOutlined ,CloseOutlined} from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@apollo/client';
 
 const { TabPane } = Tabs;
 
@@ -23,12 +25,23 @@ const HeaderComponent = ({
 }) => {
   const [currentTab, setCurrentTab] = useState('template');
   const [selectedFilter, setSelectedFilter] = useState(activeFilter);
+  const navigate = useNavigate();
   const onFilterSelect = (filter) => {
     setSelectedFilter(filter);
     handleFilterChange(filter);
   };
 // eslint-disable-next-line no-console
-    console.log(selectedFilter)
+const userMenu = (
+  <Menu>
+    <Menu.Item
+      key="logout"
+      onClick={() => navigate('/logout')}
+      style={{ color: '#FF6B6B' }}
+    >
+      Logout
+    </Menu.Item>
+  </Menu>
+);
   const filterMenu = (
     <Menu onClick={(e) => onFilterSelect(e.key)}>
       <Menu.Item key="all">All</Menu.Item>
@@ -54,6 +67,8 @@ const HeaderComponent = ({
 
     handleTabChange(currentTab);
   }, [currentTab]);
+
+
   return (
     <div>
       <div style={{
@@ -71,6 +86,9 @@ const HeaderComponent = ({
             </Button>
           </Dropdown>
         )}
+      <Dropdown overlay={userMenu} trigger={['click']}>
+            <UserOutlined style={{ fontSize: '18px', cursor: 'pointer', color: '#FF6B6B' }} />
+          </Dropdown>
         </div>
       </div>
 

@@ -135,7 +135,7 @@
 
 // export default AddEntryModal;
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, DatePicker, Select, InputNumber, Button, Upload, Checkbox } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, Button, Upload, Checkbox } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 const AddEntryModal = ({ visible, onCancel, onSubmit, fields, initialValues }) => {

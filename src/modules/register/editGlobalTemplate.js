@@ -246,6 +246,18 @@ const GlobalTemplateView = () => {
       console.error('Error updating template:', error.message);
     }
   };
+  const confirmSave = () => {
+    Modal.confirm({
+      title: 'Are you sure?',
+      content: 'Do you want to save all changes to this template?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: handleSaveAll,
+      onCancel: () => {
+        console.log('Save canceled');
+      },
+    });
+  };
   const handleFieldOptionChange = (value, index) => {
     const newOptions = [...fieldData.options];
     newOptions[index] = value;
@@ -525,7 +537,7 @@ const GlobalTemplateView = () => {
           <Button
             type="primary"
             style={{ backgroundColor: 'red' }}
-            onClick={handleSaveAll}
+            onClick={confirmSave}
           >
             Save
           </Button>
