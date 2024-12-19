@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useEffect, useState } from 'react';
-import { Modal, Card, Input, Button, Typography, Spin, Alert, Row, Col } from 'antd';
+import { Modal, Card, Input, Button, Typography, Spin, Alert, Row, Col ,Empty} from 'antd';
 import { useQuery } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { LIST_GLOBAL_TEMPLATES } from '../graphql/Queries';
@@ -73,37 +73,47 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
             style={{ marginBottom: 16 }}
           />
           <Row gutter={[16, 16]}>
-            {filteredTemplates.map(template => (
-              <Col
-                xs={24}   // Full width on extra-small screens
-                sm={12}   // Two columns on small screens
-                md={8}    // Three columns on medium screens
-                lg={8}    // Three columns on large screens
-                key={template.id}
-              >
-                <Card
-                  hoverable
-                  style={{
-                    textAlign: 'center',
-                    borderRadius: 8,
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                    height: '100%',
-                    transition: 'transform 0.2s',
-                  }}
-                  onClick={() => handleTemplateSelect(template.id)}
-                  bodyStyle={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '150px', // Set a fixed height for uniformity
-                  }}
-                >
-                  <Title level={5} style={{ margin: 0, fontSize: '1.2rem', color: '#595959' }}>
-                    {template.name}
-                  </Title>
-                </Card>
-              </Col>
-            ))}
+          {filteredTemplates.length > 0 ? (
+    filteredTemplates.map(template => (
+      <Col
+        xs={24} // Full width on extra-small screens
+        sm={12} // Two columns on small screens
+        md={8} // Three columns on medium screens
+        lg={8} // Three columns on large screens
+        key={template.id}
+      >
+        <Card
+          hoverable
+          style={{
+            textAlign: 'center',
+            borderRadius: 8,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            height: '100%',
+            transition: 'transform 0.2s',
+          }}
+          onClick={() => handleTemplateSelect(template.id)}
+          bodyStyle={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '150px', // Set a fixed height for uniformity
+          }}
+        >
+          <Title level={5} style={{ margin: 0, fontSize: '1.2rem', color: '#595959' }}>
+            {template.name}
+          </Title>
+        </Card>
+      </Col>
+    ))
+  ) : (
+    <Col span={24}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+        <Empty
+          description="No templates found."
+        />
+      </div>
+    </Col>
+  )}
           </Row>
         </div>
       )}

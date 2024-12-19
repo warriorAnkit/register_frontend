@@ -44,10 +44,12 @@ const LogsPage = () => {
   };
   const { data: projectData } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = projectData ? projectData.getProjectIdForUser : null;
-
+// eslint-disable-next-line no-console
+console.log(projectId);
   const { data: allTemplatesData, loading, error } = useQuery(GET_ALL_SETS_FOR_ALL_TEMPLATES, {
     variables: { projectId },
     fetchPolicy: 'cache-and-network',
+    skip: !projectId,
   });
 
 
@@ -196,9 +198,9 @@ const LogsPage = () => {
 
       />
       </div>
-      {filteredLogs.length === 0 && (
+      {/* {filteredLogs.length === 0 && (
         <Alert message="No logs found" type="warning" style={{ marginTop: '20px' }} />
-      )}
+      )} */}
       <Pagination
         current={currentPage}
         pageSize={pageSize}

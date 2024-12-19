@@ -119,10 +119,9 @@ const CreateRegisterPage = () => {
     return;
   }
   if (fieldData.name.length > 50) {
-    message.error('Field Name cannot exceed 100 characters.');
+    message.error('Field Name cannot exceed 50 characters.');
     return;
   }
-  console.log(currentField);
     if (
       fields.some(
         (f) => f.fieldName === fieldData.name && f.tempId !== currentField?.tempId,
@@ -131,7 +130,7 @@ const CreateRegisterPage = () => {
      {
       notification.error({
         message: 'Duplicate Field Name',
-        description: `The field name "${fieldData.name}" already exists as a field or property.`,
+        description: `The field name "${fieldData.name}" already exists as a field.`,
         duration: 3,
       });
       return;
@@ -147,6 +146,17 @@ const CreateRegisterPage = () => {
         duration: 3,
       });
       return; // Prevent further action if no options are provided
+    }
+    if (
+      (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
+      fieldData.options.some((option) => !option.trim())
+    ) {
+      notification.error({
+        message: 'Invalid Options',
+        description: 'All options must be filled. Blank options are not allowed.',
+        duration: 3,
+      });
+      return;
     }
     if (currentField) {
 
@@ -209,6 +219,15 @@ const CreateRegisterPage = () => {
       message.warning('You can only add up to 20 options.');
       return;
     }
+    if (fieldData.options.length > 0 && fieldData.options[fieldData.options.length - 1].trim() === '') {
+      message.error('Please fill the previous option before adding a new one.');
+      return;
+    }
+    const trimmedOptions = fieldData.options.map((option) => option.trim());
+  if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+    message.error('Duplicate options are not allowed.');
+    return;
+  }
     setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
     setTimeout(() => focusLastInput(), 0);
   };
@@ -227,11 +246,19 @@ const CreateRegisterPage = () => {
     }
   };
   const handleAddPropertyOption = () => {
-
     if (propertyData.options.length >= 20) {
       message.warning('You can only add up to 20 options.');
       return;
     }
+    if (propertyData.options.length > 0 && propertyData.options[propertyData.options.length - 1].trim() === '') {
+      message.error('Please fill the previous option before adding a new one.');
+      return;
+    }
+    const trimmedOptions = propertyData.options.map((option) => option.trim());
+  if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+    message.error('Duplicate options are not allowed.');
+    return;
+  }
     setPropertyData({
       ...propertyData,
       options: [...propertyData.options, ''],
@@ -305,6 +332,14 @@ const CreateRegisterPage = () => {
     }
   };
   const handlePublish = async () => {
+    if (!fields || fields.length === 0) {
+      notification.warning({
+        message: 'No Fields Added',
+        description: 'Please add at least one field before publishing the template.',
+        duration: 3,
+      });
+      return;
+    }
     const formattedFields = fields.map((field) => ({
       fieldName: field.fieldName,
       fieldType: field.fieldType,
@@ -412,19 +447,20 @@ const CreateRegisterPage = () => {
 
   const handlePropertySave = () => {
     if (!propertyData.name || propertyData.name.trim() === '') {
-      message.error('Field Name is required.');
+      message.error('Property Name is required.');
       return;
     }
     if (propertyData.name.length > 100) {
-      message.error('Field Name cannot exceed 100 characters.');
+      message.error('property Name cannot exceed 100 characters.');
       return;
     }
+
     if (
-      properties.some((p) => p.propertyName === propertyData.name)
+      properties.some((p) => p.propertyName === propertyData.name && p.tempId !== currentProperty?.tempId)
     ) {
       notification.error({
-        message: 'Duplicate Field Name',
-        description: `The field name "${propertyData.name}" already exists as a field or property.`,
+        message: 'Duplicate property Name',
+        description: `The property name "${propertyData.name}" already exists as a property.`,
         duration: 3,
       });
       return;
@@ -433,13 +469,24 @@ const CreateRegisterPage = () => {
       (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
       propertyData.options.length === 0
     ) {
-      // Show a message or alert to inform the user
+
       notification.error({
         message: 'Failed to add',
         description: 'Please add at least one option.',
         duration: 3,
       });
       return; // Prevent further action if no options are provided
+    }
+    if (
+      (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
+      propertyData.options.some((option) => !option.trim())
+    ) {
+      notification.error({
+        message: 'Invalid Options',
+        description: 'Blank options are not allowed.',
+        duration: 3,
+      });
+      return;
     }
     if (currentProperty) {
       setProperties((prevProperties) =>

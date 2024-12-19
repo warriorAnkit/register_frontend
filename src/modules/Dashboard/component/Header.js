@@ -82,7 +82,7 @@ const userMenu = (
         {userRole !== 'USER' && (
           <Dropdown overlay={createMenu} trigger={['click']}>
             <Button type="primary" icon={<PlusOutlined />} style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}>
-              Create New <DownOutlined />
+              Create New <DownOutlined/>
             </Button>
           </Dropdown>
         )}
@@ -103,6 +103,7 @@ const userMenu = (
           value={registerName}
           onChange={(e) => setRegisterName(e.target.value)}
           placeholder="Register Name"
+          maxLength={50}
         />
       </Modal>
 

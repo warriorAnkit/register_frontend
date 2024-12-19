@@ -16,6 +16,7 @@ import {
   Spin,
   Tooltip,
   Typography,
+  Empty,
 } from 'antd';
 
 import React, { useEffect, useState } from 'react';
@@ -435,10 +436,11 @@ const Dashboard = () => {
             ))
           ) : (
             <Col span={24}>
-              <Alert
-                message={`No ${activeFilter} templates found.`}
-                type="info"
-              />
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+        <Empty
+          description="No templates found."
+        />
+      </div>
             </Col>
           )}
         </Row>

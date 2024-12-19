@@ -21,6 +21,7 @@ import {
   Switch,
   Table,
   Typography,
+  message,
 } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -47,7 +48,7 @@ const TemplateView = () => {
   const [updateTemplate] = useMutation(UPDATE_TEMPLATE);
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
   const [fields, setFields] = useState([]);
@@ -174,8 +175,51 @@ const TemplateView = () => {
     }
   };
   const handleFieldSave = () => {
-    if (currentField) {
+    if (!fieldData.name || fieldData.name.trim() === '') {
+      message.error('Field Name is required.');
+      return;
+    }
+    if (fieldData.name.length > 50) {
+      message.error('Field Name cannot exceed 50 characters.');
+      return;
+    }
+    if (
+      fields.some(
+        (f) => f.fieldName === fieldData.name && (f.tempId !== currentField?.tempId||f.id !== currentField?.id),
+      )
+    )
+     {
+      notification.error({
+        message: 'Duplicate Field Name',
+        description: `The field name "${fieldData.name}" already exists as a field.`,
+        duration: 3,
+      });
+      return;
+    }
+    if (
+      (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
+      fieldData.options.length === 0
+    ) {
 
+      notification.error({
+        message: 'Failed to add',
+        description: 'Please add at least one option.',
+        duration: 3,
+      });
+      return; // Prevent further action if no options are provided
+    }
+    if (
+      (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
+      fieldData.options.some((option) => !option.trim())
+    ) {
+      notification.error({
+        message: 'Invalid Options',
+        description: 'Blank options are not allowed.',
+        duration: 3,
+      });
+      return;
+    }
+    if (currentField) {
       if (currentField.id) {
         setFields((prevFields) =>
           prevFields.map((f) =>
@@ -241,6 +285,16 @@ const TemplateView = () => {
       message.warning('You can only add up to 20 options.');
       return;
     }
+    if (fieldData.options.length > 0 && fieldData.options[fieldData.options.length - 1].trim() === '') {
+      message.error('Please fill the previous option before adding a new one.');
+      return;
+    }
+    const trimmedOptions = fieldData.options.map((option) => option.trim());
+  if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+    message.error('Duplicate options are not allowed.');
+    return;
+  }
+
     setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
     setTimeout(() => focusLastInput(), 0);
   };
@@ -263,6 +317,15 @@ const TemplateView = () => {
       message.warning('You can only add up to 20 options.');
       return;
     }
+    if (propertyData.options.length > 0 && propertyData.options[propertyData.options.length - 1].trim() === '') {
+      message.error('Please fill the previous option before adding a new one.');
+      return;
+    }
+    const trimmedOptions = propertyData.options.map((option) => option.trim());
+  if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+    message.error('Duplicate options are not allowed.');
+    return;
+  }
     setPropertyData({
       ...propertyData,
       options: [...propertyData.options, ''],
@@ -279,7 +342,18 @@ const TemplateView = () => {
       setTimeout(() => focusLastInput(), 0);
     }
   };
-
+  const confirmSave = () => {
+    Modal.confirm({
+      title: 'Are you sure?',
+      content: 'Are you sure you want to save the changes of register?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: handleSaveAll,
+      onCancel: () => {
+        console.log('Save canceled');
+      },
+    });
+  };
   const handleSaveAll = async () => {
     const invalidCalculationFields = fields.filter(
       (field) =>
@@ -349,6 +423,8 @@ const TemplateView = () => {
     }
   };
   const handleFieldOptionChange = (value, index) => {
+
+
     const newOptions = [...fieldData.options];
     newOptions[index] = value;
     setFieldData({ ...fieldData, options: newOptions });
@@ -390,6 +466,46 @@ const TemplateView = () => {
   };
 
   const handlePropertySave = () => {
+    if (!propertyData.name || propertyData.name.trim() === '') {
+      message.error('Property Name is required.');
+      return;
+    }
+    if (propertyData.name.length > 100) {
+      message.error('Property Name cannot exceed 100 characters.');
+      return;
+    }
+    if (
+      properties.some((p) => p.propertyName === propertyData.name && ( p.tempId !== currentProperty?.tempId||p.id !== currentProperty?.id))
+    ) {
+      notification.error({
+        message: 'Duplicate property Name',
+        description: `The property name "${propertyData.name}" already exists as a property.`,
+        duration: 3,
+      });
+      return;
+    }
+    if (
+      (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
+      propertyData.options.length === 0
+    ) {
+      notification.error({
+        message: 'Failed to add',
+        description: 'Please add at least one option.',
+        duration: 3,
+      });
+      return; // Prevent further action if no options are provided
+    }
+    if (
+      (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
+      propertyData.options.some((option) => !option.trim())
+    ) {
+      notification.error({
+        message: 'Invalid Options',
+        description: 'Blank options are not allowed.',
+        duration: 3,
+      });
+      return;
+    }
     if(currentProperty){
     if (currentProperty.id) {
       setProperties((prevProperties) =>
@@ -570,29 +686,57 @@ console.log(fieldNamesInFormula);
   ];
 
   const handleStatusChange = async () => {
-    // Determine the new status based on current status
     let newStatus;
-    if (data.getTemplateById.status === 'LIVE') {
+    const oldStatus = data.getTemplateById.status;
+
+    if (oldStatus === 'LIVE') {
       newStatus = 'ARCHIVED';
-    } else if (data.getTemplateById.status === 'ARCHIVED' || data.getTemplateById.status === 'DRAFT') {
+    } else if (oldStatus === 'ARCHIVED' || oldStatus === 'DRAFT') {
       newStatus = 'LIVE';
     }
-
-    try {
-      await changeTemplateStatus({
-        variables: {
-          id: templateId,
-          newStatus,
-        },
+    if (!fields || fields.length === 0) {
+      notification.warning({
+        message: 'No Fields Added',
+        description: 'Please add at least one field before making the Register Live.',
+        duration: 3,
       });
-      notification.success({
-        message: 'Status Updated',
-        description: `The status is now ${newStatus}`,
-      });
-    // eslint-disable-next-line no-shadow
-    } catch (error) {
-      console.error('Error changing status:', error.message);
+      return;
     }
+    Modal.confirm({
+      title: 'Confirm Status Change',
+      content: `Are you sure you want to save the changes of register and change the status from "${oldStatus}" to "${newStatus}"?`,
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: async () => {
+        try {
+          const saveResult = await handleSaveAll();
+
+          if (!saveResult) {
+            return;
+          }
+          await changeTemplateStatus({
+            variables: {
+              id: templateId,
+              newStatus,
+            },
+          });
+          notification.success({
+            message: 'Status Updated',
+            description: `The status is now ${newStatus}`,
+          });
+        // eslint-disable-next-line no-shadow
+        } catch (error) {
+          console.error('Error changing status:', error.message);
+          notification.error({
+            message: 'Error',
+            description: 'There was an issue updating the status. Please try again.',
+          });
+        }
+      },
+      onCancel: () => {
+        console.log('Status change canceled.');
+      },
+    });
   };
   const handleViewChangeLog = () => {
     const changeLogUrl = ROUTES.VIEW_TEMPLATE_CHANGE_LOG.replace(':templateId', templateId);
@@ -629,7 +773,8 @@ console.log(fieldNamesInFormula);
       fontSize: '1.25rem',
       lineHeight: '1.5',
     }}
-    placeholder="Template Name"
+    placeholder="Register Name"
+    maxLength={50}
   />
 ) : (
   <Title level={4} style={{ textAlign: 'center', fontSize: '1.25rem' }}>
@@ -641,7 +786,48 @@ console.log(fieldNamesInFormula);
           View Change Log
         </Button>
 </div>
-
+<div style={{ marginTop: '16px' }}>
+        <Space
+          style={{
+            marginTop: '16px',
+            float: 'right',
+            flexWrap: 'wrap', // Allow buttons to wrap on small screens
+            justifyContent: 'center', // Center buttons horizontally
+            gap: '10px',
+          }}
+          className="button-group"
+        >
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={handleStatusChange}
+          >
+            {templateStatus === 'LIVE' ? 'Archive' : 'Live'}
+          </Button>
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={toggleEditMode}
+          >
+            {isEditing ? 'Discard' : 'Edit'}
+          </Button>
+          {isEditing && (
+            <Button
+              type="primary"
+              style={{ backgroundColor: 'red' }}
+              onClick={confirmSave}
+            >
+              Save
+            </Button>
+          )}
+        </Space>
+        <div style={{ marginTop: '16px', textAlign: 'left' }}>
+          <Text strong>Register Status: </Text>
+          <Text style={{ color: templateStatus === 'LIVE' ? 'green' : 'gray' }}>
+            {templateStatus}
+          </Text>
+        </div>
+      </div>
       <Title level={4}>Properties</Title>
       <div style={{ marginBottom: '24px' }}>
         {properties.map((property) => (
@@ -692,7 +878,7 @@ console.log(fieldNamesInFormula);
       />
 
 
-<Space style={{ marginTop: '16px', float: 'right' }}>
+{/* <Space style={{ marginTop: '16px', float: 'right' }}>
         <Button
           type="primary"
           style={{ backgroundColor: 'red' }}
@@ -705,7 +891,7 @@ console.log(fieldNamesInFormula);
           style={{ backgroundColor: 'red' }}
           onClick={toggleEditMode}
         >
-          {isEditing ? 'Cancel Edit' : 'Edit'}
+          {isEditing ? 'Discard' : 'Edit'}
         </Button>
         {isEditing && (
           <Button
@@ -716,7 +902,7 @@ console.log(fieldNamesInFormula);
             Save
           </Button>
         )}
-      </Space>
+      </Space> */}
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}

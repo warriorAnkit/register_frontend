@@ -21,7 +21,7 @@ import {
   PlusOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import { useParams} from 'react-router-dom';
+import { useNavigate, useParams} from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_GLOBAL_TEMPLATE_BY_ID } from './graphql/Queries';
 import { CHANGE_TEMPLATE_STATUS, CREATE_TEMPLATE } from './graphql/Mutation';
@@ -30,6 +30,7 @@ import './register.less';
 import FieldIcon from './components/FieldIcon';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
 import { ROUTES } from '../../common/constants';
+import Header from './components/Header';
 
 const { Title, Text } = Typography;
 
@@ -62,7 +63,7 @@ const GlobalTemplateView = () => {
   const [currentProperty, setCurrentProperty] = useState(null);
   const [templateName, setTemplateName] = useState('');
   const [templateStatus, setTemplateStatus] = useState('');
-
+  const navigate=useNavigate();
   const [fieldData, setFieldData] = useState({
     name: '',
     type: 'TEXT',
@@ -237,7 +238,7 @@ const GlobalTemplateView = () => {
     try {
       const response = await createTemplate({ variables: allData });
       setIsEditing(false);
-      if (response.data.createTemplate.message==='Template Created succesfully') {
+      if (response.data.createTemplate.message==="Template Created succesfully") {
         navigate(ROUTES.MAIN);
       }
       // eslint-disable-next-line no-shadow
@@ -249,7 +250,7 @@ const GlobalTemplateView = () => {
   const confirmSave = () => {
     Modal.confirm({
       title: 'Are you sure?',
-      content: 'Do you want to save all changes to this template?',
+      content: 'Are you sure you want to make this template as draft?',
       okText: 'Yes',
       cancelText: 'No',
       onOk: handleSaveAll,
@@ -447,7 +448,10 @@ const GlobalTemplateView = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <Header name={templateName}/>
+
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop:"10px"}}>
+
     {isEditing ? (
   <Input
     value={templateName}
@@ -461,6 +465,7 @@ const GlobalTemplateView = () => {
       lineHeight: '1.5',
     }}
     placeholder="Template Name"
+    maxLength={50}
   />
 ) : (
   <Title level={4} style={{ textAlign: 'center', fontSize: '1.25rem' }}>

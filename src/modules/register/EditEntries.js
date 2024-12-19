@@ -638,8 +638,7 @@ value=String(value);
 
         const result = evaluate(formulaWithValues);
         // tableData[rowIndex][fieldName].value=result;
-console.log(result ,rowIndex,tableData[rowIndex]);
-console.log("kl",tableData.length);
+
 if(rowIndex < tableData.length - 1){
   // eslint-disable-next-line no-restricted-globals
 if (result !== undefined && !isNaN(result) && fieldValue !== result) {
