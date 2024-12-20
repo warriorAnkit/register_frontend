@@ -79,7 +79,7 @@ return(
         <>
          <span style={{ marginRight: "10px" }}>{"  > "}</span>
           <Title level={5} style={{ margin: 0 }}>
-           Template Change Logs
+            Change Logs
           </Title>
         </>
       )

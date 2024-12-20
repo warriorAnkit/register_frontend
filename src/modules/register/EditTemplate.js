@@ -709,11 +709,12 @@ console.log(fieldNamesInFormula);
       cancelText: 'No',
       onOk: async () => {
         try {
-          const saveResult = await handleSaveAll();
+          // const saveResult = await handleSaveAll();
 
-          if (!saveResult) {
-            return;
-          }
+          // if (!saveResult) {
+          //   return;
+          // }
+          await handleSaveAll();
           await changeTemplateStatus({
             variables: {
               id: templateId,

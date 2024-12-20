@@ -11,6 +11,7 @@ export const LIST_LIVE_TEMPLATES_BY_PROJECT = gql`
       createdById
       numberOfSets
       numberOfEntries
+      createdAt
     }
   }
 `;
@@ -26,6 +27,7 @@ export const LIST_DRAFT_TEMPLATES_BY_PROJECT = gql`
       createdById
       numberOfSets
       numberOfEntries
+      createdAt
     }
   }
 `;
@@ -41,6 +43,7 @@ export const LIST_ARCHIVED_TEMPLATES_BY_PROJECT = gql`
       createdById
       numberOfSets
       numberOfEntries
+      createdAt
     }
   }
 `;

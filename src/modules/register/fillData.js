@@ -5,7 +5,7 @@
 
 import { DeleteOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Checkbox, Form, Input, Select, Table, notification } from 'antd';
+import { Button, Card, Checkbox, Form, Input, Select, Table, notification ,Modal} from 'antd';
 import { evaluate } from 'mathjs';
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -23,8 +23,6 @@ const FillTable = () => {
   const [tableData, setTableData] = useState([{}]);
   const [propertiesData, setPropertiesData] = useState({});
   const [openedIndex,setOpenedIndex]=useState(false);
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
   const [fieldErrors, setFieldErrors] = useState({});
   const [propertyErrors, setPropertyErrors] = useState({});
   const selectRef = useRef(null);
@@ -46,16 +44,14 @@ const FillTable = () => {
   }, [data]);
 
   const handleInputChange = (index, fieldName, value) => {
-    console.log(fieldName + value);
+    console.log("njgkfh",fieldName +  value);
     setTableData((prevData) => {
       const updatedData = prevData.map((row, i) =>
         i === index ? { ...row, [fieldName]: value } : row,
       );
       if (index === prevData.length - 1 && Object.values(updatedData[index]).every(val => val !== '')) {
         updatedData.push({});
-        if (updatedData.length > (currentPage * pageSize)) {
-          setCurrentPage(currentPage + 1);
-        }
+
       }
       return updatedData;
     });
@@ -176,9 +172,6 @@ const FillTable = () => {
     const errors = {...propertyErrors};
     const property = data.getTemplateById?.properties.find(f => f.propertyName === propertyName);
 
-      // const value = propertiesData[property.propertyName];
-// eslint-disable-next-line no-console
-console.log(property);
       if ( (property.isRequired &&
         (!value ||
          (typeof value === 'string' && value.trim() === '') ||
@@ -203,8 +196,6 @@ console.log(property);
         errors[property.propertyName] = 'Value must be a valid number';
       }
 
-// eslint-disable-next-line no-console
-console.log(errors);
     setPropertyErrors(errors);
     return Object.keys(errors).length === 0; // Return whether there are no errors
   };
@@ -401,8 +392,6 @@ value=String(value);
         // errors[errorKey] = `${field.fieldName} is required`;
 
       } else {
-        // eslint-disable-next-line no-console
-
         delete errors[errorKey];
       }
 
@@ -458,7 +447,7 @@ value=String(value);
           return value !== undefined ? value : 0;
         });
 
-         const res=formulaWithValues;
+       //  const res=formulaWithValues;
         const result = evaluate(formulaWithValues);
         // eslint-disable-next-line use-isnan, no-restricted-globals
         if (result !== undefined && !isNaN(result) && tableData[rowIndex][fieldName] !== result) {
@@ -600,8 +589,8 @@ value=String(value);
     setTableData((prevData) => {
       const updatedRow = prevData[rowIndex];
       const newValues = checked
-        ? [...(updatedRow[fieldName] || []), option] // Add the value if checked
-        : updatedRow[fieldName]?.filter((item) => item !== option); // Remove the value if unchecked
+        ? [...(updatedRow[fieldName] || []), option]
+        : updatedRow[fieldName]?.filter((item) => item !== option);
       const updatedTableData = [...prevData];
       updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
       return updatedTableData;
@@ -635,6 +624,7 @@ value=String(value);
         <ImageUpload
           onUploadSuccess={(url) => handleInputChange(rowIndex, fieldName, url)}
           errorMessage={errorMessage}
+          existingFileUrls={tableData[rowIndex][fieldName]||''}
         />
       )}
         {fieldType === 'DATE' && (
@@ -653,32 +643,42 @@ value=String(value);
               border: '1px solid #d9d9d9',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
-
           />
         )}
       </Form.Item>
     );
   };
   const handleDeleteRow = (rowIndex) => {
+    // Check if the row to be deleted is the last one
+    console.log(tableData);
     if (rowIndex === tableData.length - 1) {
-
       notification.error({
-        message: "Cannot Delete Last Row",
-        description: "You cannot delete the last row. Please add a new row before deleting.",
-      });   return;
+        message: 'Cannot Delete Last Row',
+        description:
+          'You cannot delete the last row. Please add a new row before deleting.',
+      });
+      return;
     }
-    const newData = [...tableData];
-    newData.splice(rowIndex, 1); // Delete the row at the specified index
-    setTableData(newData);
+
+    Modal.confirm({
+      title: 'Are you sure you want to delete this row?',
+      content: 'This action cannot be undone.',
+      okText: 'Yes',
+      cancelText: 'No',
+      okType: 'danger',
+      icon: <DeleteOutlined style={{ color: 'red' }} />,
+      onOk: () => {
+        const newData = tableData.filter((_, index) => index !== rowIndex);
+        console.log("Updated Data:", newData);
+        setTableData(newData);
+      },
+    });
   };
   const columns = [
     {
       title: 'Index',
       key: 'index',
-      render: (text, record, index) => {
-        const globalIndex = (currentPage - 1) * pageSize + index + 1;
-        return globalIndex;
-      },
+      render: (text, record, index) => index + 1,
       width: 15, // Set a fixed width for the index column
     },
     ...(Array.isArray(data?.getTemplateById?.fields) ? data?.getTemplateById?.fields.map((field) => ({
@@ -750,7 +750,7 @@ value=String(value);
         <Table
           dataSource={tableData}
           columns={columns}
-          rowKey="id"
+          rowKey={(record, index) => index}
           pagination={false}
           scroll={{ x: 'max-content' }}
         />

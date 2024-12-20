@@ -7,6 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse'; // Import Papa Parse
 import { ROUTES } from '../../../common/constants';
 
+const sampleFormat = ["Type", "Field Name", "Field Type", "Is Required", "Options"]; // Define the expected headers
+
+const validateFileFormat = (headers) =>
+  // Check if all required headers are present
+   sampleFormat.every((header) => headers.includes(header))
+;
+
 const transformData = (parsedData) => {
 
 
@@ -57,7 +64,7 @@ const FileUploadModal = ({ visible, onClose }) => {
 
 
   const handleFileChange = ({ fileList }) => {
-    setFile(fileList.length ? fileList[0] : null);
+    setFile(fileList.length ? fileList[fileList.length-1] : null);
   };
 
   // Handle file upload
@@ -83,10 +90,20 @@ const FileUploadModal = ({ visible, onClose }) => {
       let parsedData;
       if (file.name.endsWith('.csv')) {
         // Parse CSV file
-        parsedData = Papa.parse(fileContent, {
-          header: true, // Treat first row as headers
+        const parsedResult = Papa.parse(fileContent, {
+          header: true,
           skipEmptyLines: true,
-        }).data;
+        });
+
+        parsedData = parsedResult.data;
+
+        const headers = parsedResult.meta.fields; // Extract headers
+
+        if (!validateFileFormat(headers)) {
+          message.error('File format does not match the required structure!');
+          setLoading(false);
+          return;
+        }
       } else if (file.name.endsWith('.json')) {
         // Parse JSON file
         try {
@@ -161,7 +178,7 @@ const FileUploadModal = ({ visible, onClose }) => {
         <p>Accepted formats: CSV</p>
         <p>Ensure the file contains the correct structure for field data.</p>
         {/* Added link to sample file */}
-        <p>Here is a <a href="https://drive.google.com/file/d/11w2gqSmiAxiCN-tuVxee08XJhHZ66IqM/view" target="_blank" rel="noopener noreferrer"><strong>sample file</strong></a> to help you format your data correctly.</p>
+        <p>Here is a <a href="https://drive.google.com/uc?export=download&id=11w2gqSmiAxiCN-tuVxee08XJhHZ66IqM" target="_blank" rel="noopener noreferrer"><strong>sample file</strong></a> to help you format your data correctly.</p>
       </div>
     </Modal>
   );

@@ -331,6 +331,19 @@ const CreateRegisterPage = () => {
       console.error(error);
     }
   };
+  const confirmSave = () => {
+    Modal.confirm({
+      title: 'Are you sure?',
+      content: 'Are you sure you want to save the register as Draft?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk: handleSave,
+      onCancel: () => {
+        console.log('Save canceled');
+      },
+    });
+  };
+
   const handlePublish = async () => {
     if (!fields || fields.length === 0) {
       notification.warning({
@@ -340,70 +353,80 @@ const CreateRegisterPage = () => {
       });
       return;
     }
-    const formattedFields = fields.map((field) => ({
-      fieldName: field.fieldName,
-      fieldType: field.fieldType,
-      isRequired: field.isRequired,
-      options: field.options,
-    }));
 
-    const formattedProperties = properties.map((property) => ({
-      propertyName: property.propertyName,
-      propertyFieldType: property.propertyFieldType,
-      isRequired: property.isRequired,
-      options: property.options,
-    }));
+    // Show confirmation modal
+    Modal.confirm({
+      title: 'Are you sure you want to publish this Register?',
+      content: 'Once published, the template will be live',
+      okText: 'Yes, Publish',
+      cancelText: 'No, Cancel',
+      onOk: async () => {
+        const formattedFields = fields.map((field) => ({
+          fieldName: field.fieldName,
+          fieldType: field.fieldType,
+          isRequired: field.isRequired,
+          options: field.options,
+        }));
 
-    try {
-      // eslint-disable-next-line eqeqeq
-      if (projectId === '60') {
-      const response=  await createGlobalTemplate({
-          variables: {
-            name: regName ,
-            templateType: 'GLOBAL',
-            fields: formattedFields,
-            properties: formattedProperties,
-          },
-        });
-        if (response.data.createTemplate.message==='Template Created succesfully') {
-          navigate(ROUTES.MAIN); // Navigate to the main route after success
+        const formattedProperties = properties.map((property) => ({
+          propertyName: property.propertyName,
+          propertyFieldType: property.propertyFieldType,
+          isRequired: property.isRequired,
+          options: property.options,
+        }));
+
+        try {
+          // eslint-disable-next-line eqeqeq
+          if (projectId === '60') {
+            const response = await createGlobalTemplate({
+              variables: {
+                name: regName,
+                templateType: 'GLOBAL',
+                fields: formattedFields,
+                properties: formattedProperties,
+              },
+            });
+            if (response.data.createTemplate.message === 'Template Created successfully') {
+              navigate(ROUTES.MAIN); // Navigate to the main route after success
+            }
+          } else {
+            // For other projectIds, create a scratch template
+            const response = await createTemplate({
+              variables: {
+                name: regName,
+                projectId,
+                templateType: 'SCRATCH',
+                fields: formattedFields,
+                properties: formattedProperties,
+              },
+            });
+
+            const newTemplateId = response.data.createTemplate.data.id;
+            const newStatus = 'LIVE';
+            const response2 = await changeTemplateStatus({
+              variables: {
+                id: newTemplateId,
+                newStatus,
+              },
+            });
+            if (response2.data.changeTemplateStatus) {
+              navigate(ROUTES.MAIN);
+            }
+          }
+        } catch (error) {
+          notification.error({
+            message: 'Failed to Publish',
+            description: 'An error occurred while creating the template.',
+            duration: 3,
+          });
+          console.error(error);
         }
-      } else {
-        // For other projectIds, create a scratch template
-        const response = await createTemplate({
-          variables: {
-            name: regName,
-            projectId,
-            templateType: 'SCRATCH',
-            fields: formattedFields,
-            properties: formattedProperties,
-          },
-        });
-
-      const newTemplateId = response.data.createTemplate.data.id;
-      const newStatus = 'LIVE';
-      const response2= await changeTemplateStatus({
-        variables: {
-          id: newTemplateId,
-          newStatus,
-        },
-      });
-      if (response2.data.changeTemplateStatus) {
-        navigate(ROUTES.MAIN);
-      }
-
-      }
-
-    } catch (error) {
-      notification.error({
-        message: 'Failed to Publish',
-        description: 'An error occurred while creating the template.',
-        duration: 3,
-      });
-      console.error(error);
-    }
+      },
+      onCancel() {
+        console.log('Publishing canceled.');
+      },
+    });
   };
-
   const handleFieldOptionChange = (value, index) => {
     const newOptions = [...fieldData.options];
     newOptions[index] = value;
@@ -683,7 +706,7 @@ const CreateRegisterPage = () => {
           <Button
             type="primary"
             style={{ backgroundColor: 'red' }}
-            onClick={handleSave}
+            onClick={confirmSave}
           >
             Save
           </Button>

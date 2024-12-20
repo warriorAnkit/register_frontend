@@ -103,20 +103,20 @@ const Dashboard = () => {
 
   const { data: currentUserData } = useQuery(GET_CURRENT_USER);
   const handleGlobalClick = () => {
-    setGlobalModalVisible(true); // Open the global template modal
+    setGlobalModalVisible(true);
   };
 
   const handleCloseGlobalModal = () => {
-    setGlobalModalVisible(false); // Close the global template modal
+    setGlobalModalVisible(false);
   };
   useEffect(() => {
     if (currentUserData) {
-      setUserRole(currentUserData.getCurrentUser.role); // Set the role from the user data
+      setUserRole(currentUserData.getCurrentUser.role);
     }
   }, [currentUserData]);
   useEffect(() => {
     if (dataLive && dataDraft && dataArchived) {
-      setTemplates([
+      const allTemplates = [
         ...dataLive.getLiveTemplatesByProject.map((template) => ({
           ...template,
           status: 'Live',
@@ -129,7 +129,13 @@ const Dashboard = () => {
           ...template,
           status: 'Archived',
         })),
-      ]);
+      ];
+      allTemplates.forEach((a) => console.log(a));
+      // Sort templates by 'createdAt' in descending order
+      const sortedTemplates = allTemplates.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      // Update the state with sorted templates
+      setTemplates(sortedTemplates);
     }
   }, [dataLive, dataDraft, dataArchived]);
   useEffect(() => {

@@ -118,7 +118,8 @@ const Login = () => {
                 <Link to={ROUTES?.FORGET_PASSWORD}>Forgot password ?</Link>
               </Form.Item>
               <Form.Item className=" full-width mb-8">
-                <Button type="primary" className="full-width" htmlType="submit">
+                <Button type="primary" className="full-width" htmlType="submit"
+                 style={{ backgroundColor: '#ff784f', borderColor: '#FC5027' }}>
                   Login
                 </Button>
               </Form.Item>
