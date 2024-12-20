@@ -141,15 +141,7 @@ const Dashboard = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter]);
-  // const filteredTemplates = templates
-  //   .filter(
-  //     (template) =>
-  //       activeFilter === 'all' ||
-  //       template.status.toLowerCase() === activeFilter,
-  //   )
-  //   .filter((template) =>
-  //     template.name.toLowerCase().includes(searchText.toLowerCase()),
-  //   );
+
   const filteredTemplates = templates
   .filter((template) =>
      userRole === 'USER'
@@ -310,6 +302,7 @@ const Dashboard = () => {
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                     textAlign: 'left',
                   }}
+                  bodyStyle={{ padding: '24px' }}
                 >
                   <Badge.Ribbon
                     text={template.status}
@@ -326,8 +319,9 @@ const Dashboard = () => {
                         ellipsis
                         level={5}
                         style={{
+                          marginTop:'0px',
                           marginBottom: '8px',
-                          maxWidth: 'calc(100% - 50px)',
+                          maxWidth: 'calc(100% - 61px)',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -341,7 +335,7 @@ const Dashboard = () => {
                     <div
                       style={{
                         width: '4px',
-                        height: '50px',
+                        height: '30px',
                         borderRadius: '25px',
                         background: '#D9D9D9',
                         marginRight: '16px',
@@ -386,7 +380,7 @@ const Dashboard = () => {
                   {/* Add buttons here with event propagation handling */}
                   <div
                     style={{
-                      marginTop: '16px',
+                      marginTop: '10px',
                       display: 'flex',
                       justifyContent: template.status === 'Draft' ? 'space-between' : 'space-between',
                     }}

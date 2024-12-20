@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-console */
 /* eslint-disable no-shadow */
 
@@ -26,6 +27,23 @@ const FillTable = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [propertyErrors, setPropertyErrors] = useState({});
   const selectRef = useRef(null);
+  const [tableHeight, setTableHeight] = useState('100vh'); // Default height
+
+  useEffect(() => {
+    const updateTableHeight = () => {
+      const offset = 300; // Adjust based on header, padding, or other elements
+      const availableHeight = window.innerHeight - offset;
+      setTableHeight(availableHeight > 0 ? availableHeight : 0); // Ensure non-negative height
+    };
+
+    updateTableHeight(); // Initial calculation
+    window.addEventListener('resize', updateTableHeight); // Recalculate on resize
+
+    return () => {
+      window.removeEventListener('resize', updateTableHeight); // Cleanup listener
+    };
+  }, []);
+
   const { data, loading, error } = useQuery(GET_TEMPLATE_BY_ID, {
     variables: { id: templateId },
     fetchPolicy: 'cache-and-network',
@@ -752,7 +770,8 @@ value=String(value);
           columns={columns}
           rowKey={(record, index) => index}
           pagination={false}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: tableHeight }} // Adjust `y` to your desired height
+          sticky
         />
       </div>
 

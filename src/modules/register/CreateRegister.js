@@ -708,7 +708,7 @@ const CreateRegisterPage = () => {
             style={{ backgroundColor: 'red' }}
             onClick={confirmSave}
           >
-            Save
+            Save as Draft
           </Button>
           <Button
             type="primary"

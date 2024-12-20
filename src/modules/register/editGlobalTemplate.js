@@ -544,7 +544,7 @@ const GlobalTemplateView = () => {
             style={{ backgroundColor: 'red' }}
             onClick={confirmSave}
           >
-            Save
+            Save As Draft
           </Button>
 
       </Space>

@@ -52,7 +52,22 @@ const EditEntry = () => {
   const [propertiesData, setPropertiesData] = useState({});
   const [editingIndex, setEditingIndex] = useState(null);
   const navigate = useNavigate();
+  const [tableHeight, setTableHeight] = useState('100vh'); // Default height
 
+  useEffect(() => {
+    const updateTableHeight = () => {
+      const offset = 300; // Adjust based on header, padding, or other elements
+      const availableHeight = window.innerHeight - offset;
+      setTableHeight(availableHeight > 0 ? availableHeight : 0); // Ensure non-negative height
+    };
+
+    updateTableHeight(); // Initial calculation
+    window.addEventListener('resize', updateTableHeight); // Recalculate on resize
+
+    return () => {
+      window.removeEventListener('resize', updateTableHeight); // Cleanup listener
+    };
+  }, []);
   const fetchUserNames = useFetchUserFullName();
   const { templateId, setId } = useParams();
 
@@ -159,10 +174,7 @@ const EditEntry = () => {
       setPropertiesData(existingProperties);
     }
   }, [templateData, responseData]);
-  const handleAddEntry = () => {
-    setEditingIndex(null);
-    setIsModalVisible(true);
-  };
+
   const finalValidateFields = () => {
     const errors = {};
     tableData.forEach((row, rowIndex) => {
@@ -1211,13 +1223,6 @@ const EditEntry = () => {
               marginTop: 16,
             }}
           >
-            <Button
-              type="primary"
-              onClick={handleAddEntry}
-              style={{ position: 'relative', left: 1 }}
-            >
-              + Add Entry
-            </Button>
             <Button type="primary" onClick={handleSave}>
               Save Response
             </Button>
@@ -1229,7 +1234,8 @@ const EditEntry = () => {
               columns={columns}
               rowKey={(record, index) => index}
               locale={{ emptyText: 'No data available' }}
-              scroll={{ x: 'max-content' }}
+              scroll={{ x: 'max-content', y: tableHeight }} // Adjust `y` to your desired height
+              sticky
               pagination={false}
             />
           </div>

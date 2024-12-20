@@ -177,7 +177,7 @@ const ViewEntries = () => {
         return dateA.isBefore(dateB) ? -1 : 1;
       },
       render: (text) => moment(text).isValid()
-        ? moment(text).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss') // Convert to IST
+        ? moment(text).tz('Asia/Kolkata').format('DD-MM-YYYY HH:mm:ss') // Convert to IST
         : 'Invalid Date',
     },
     {
@@ -227,7 +227,7 @@ const ViewEntries = () => {
         const dateB = moment(Number(b));
         return dateA.isBefore(dateB) ? -1 : 1;
       },
-      render: (text) => moment(Number(text)).tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'),
+      render: (text) => moment(Number(text)).tz('Asia/Kolkata').format('DD-MM-YYYY HH:mm:ss'),
     },
     {
       title: 'Edit',
@@ -254,7 +254,7 @@ const ViewEntries = () => {
           .map(col => {
             if (col.title === 'Created At') {
               const time = moment(row.createdAt, 'x').isValid()
-                ? moment(row.createdAt, 'x').format('YYYY-MM-DD')
+                ? moment(row.createdAt, 'x').format('DD-MM-YYYY')
                 : 'Invalid Date';
               return time;
             }
@@ -329,7 +329,7 @@ const exportPDF = async (column, data, fileName) => {
         }
         if (col.title === 'Created At') {
           const time = moment(row.createdAt, 'x').isValid()
-            ? moment(row.createdAt, 'x').format('YYYY-MM-DD HH:mm:ss')
+            ? moment(row.createdAt, 'x').format('DD-MM-YYYY HH:mm:ss')
             : 'Invalid Date';
           return time;
         }
@@ -521,6 +521,7 @@ return (
                 })}
                 scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
                 style={{ tableLayout: 'auto' }}
+                // sticky
                 // tableLayout="fixed"
               />
             </div>

@@ -51,44 +51,52 @@ const ChangeLogOfTemplatePage = () => {
       title: 'Index',
       key: 'index',
       render: (text, record, index) => index + 1,
+      width: '10%',
     },
     {
       title: 'Action Type',
       dataIndex: 'actionType',
       key: 'actionType',
+      width: '15%', // Min width as percentage
     },
     {
       title: 'Entity Type',
       dataIndex: 'entityType',
       key: 'entityType',
+      width: '13%', // Min width as percentage
     },
     {
       title: 'Entity ID',
       dataIndex: 'entityId',
       key: 'entityId',
+      width: '10%', // Min width as percentage
     },
     {
       title: 'Previous Value',
       key: 'previousValue',
       render: (record) => renderValue(record, 'previous'),
+      width: '25%', // Min width as percentage
     },
     {
       title: 'Updated Value',
       key: 'updatedValue',
       render: (record) => renderValue(record, 'new'),
+      width: '20%', // Min width as percentage
     },
     {
       title: 'Template Name',
       dataIndex: 'templateName',
       key: 'templateName',
+      width: '15%', // Min width as percentage
     },
     {
       title: 'Edited By',
       dataIndex: 'editedBy',
       key: 'editedBy',
+      width: '15%', // Min width as percentage
     },
     {
-      title: 'Upadted At',
+      title: 'Updated At',
       dataIndex: 'timestamp',
       key: 'timestamp',
       sorter: (a, b) => {
@@ -97,18 +105,22 @@ const ChangeLogOfTemplatePage = () => {
         return dateA.isBefore(dateB) ? -1 : 1;
       },
       render: (timestamp) => moment(parseInt(timestamp, 10)).format('DD/MM/YYYY HH:mm:ss'),
+      width: '10%', // Min width as percentage
     },
   ];
 
-
+  const tableStyle = {
+    tableLayout: 'auto', // This enables auto width adjustment based on content
+    // width: '100%',
+  };
 
   const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div>
       <Header name={templateName} templateId={templateId} templateLogs/>
-    <div style={{ padding: '20px' }}>
-      <Title level={2}>Change Log</Title>
+    <div style={{ padding: '10px' }}>
+      <Title level={2}style={{ margin: '5px 0' }}>Change Log</Title>
       {error && <p>Error loading logs</p>}
       {logs.length === 0 ? (
         <div
@@ -124,12 +136,15 @@ const ChangeLogOfTemplatePage = () => {
         </div>
       ) : (
         <>
-            <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto' }}>
+            <div style={{ maxHeight: 'calc(100vh - 175px)', overflowY: 'auto' }}>
             <Table
               columns={columns}
               dataSource={paginatedLogs}
               rowKey={(record) => record.id}
               pagination={false}
+               sticky
+               style={tableStyle}
+
             />
           </div>
 
