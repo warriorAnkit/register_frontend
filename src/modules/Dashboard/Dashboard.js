@@ -8,15 +8,14 @@ import {
   Button,
   Card,
   Col,
+  Empty,
   Menu,
   Modal,
   notification,
   Pagination,
   Row,
-  Spin,
   Tooltip,
   Typography,
-  Empty,
 } from 'antd';
 
 import React, { useEffect, useState } from 'react';
@@ -29,12 +28,12 @@ import {
   LIST_LIVE_TEMPLATES_BY_PROJECT,
 } from './graphql/Queries';
 
-import {DELETE_TEMPLATE} from '../register/graphql/Mutation';
-import HeaderComponent from './component/Header';
 import { GET_CURRENT_USER } from '../auth/graphql/Queries';
-import GlobalTemplateModal from '../register/components/GlobalTemplateModal';
 import FileUploadModal from '../register/components/FileUploadModal';
+import GlobalTemplateModal from '../register/components/GlobalTemplateModal';
+import { DELETE_TEMPLATE } from '../register/graphql/Mutation';
 import CenteredSpin from './component/CentredSpin';
+import HeaderComponent from './component/Header';
 
 const { Title, Text } = Typography;
 
@@ -76,7 +75,6 @@ const Dashboard = () => {
   console.log('id:,', projectId);
   const { loading: loadingLive, error: errorLive, data: dataLive } = useQuery(
     LIST_LIVE_TEMPLATES_BY_PROJECT,
-
     {
       variables: { projectId },
       skip: !projectId,
@@ -280,7 +278,7 @@ const Dashboard = () => {
           marginTop: '40px',
         }}
       >
-         {(loadingLive || loadingDraft || loadingArchived) && <CenteredSpin />}
+         {(loadingLive || loadingDraft || loadingArchived) ? <CenteredSpin /> : null}
         {(errorLive || errorDraft || errorArchived) && (
           <Alert
             message="Error"
@@ -436,9 +434,11 @@ const Dashboard = () => {
           ) : (
             <Col span={24}>
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+      {(loadingLive || loadingDraft || loadingArchived) &&
         <Empty
           description="No templates found."
         />
+        }
       </div>
             </Col>
           )}
