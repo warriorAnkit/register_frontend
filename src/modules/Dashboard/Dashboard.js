@@ -280,9 +280,7 @@ const Dashboard = () => {
           marginTop: '40px',
         }}
       >
-        {(loadingLive || loadingDraft || loadingArchived) && (
-       <CenteredSpin />
-        )}
+         {(loadingLive || loadingDraft || loadingArchived) && <CenteredSpin />}
         {(errorLive || errorDraft || errorArchived) && (
           <Alert
             message="Error"
