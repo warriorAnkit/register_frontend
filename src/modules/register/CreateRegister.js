@@ -36,6 +36,7 @@ import {
   CREATE_TEMPLATE,
 } from './graphql/Mutation';
 import './register.less';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title, Text } = Typography;
 const CreateRegisterPage = () => {
@@ -88,6 +89,8 @@ const CreateRegisterPage = () => {
     data: dataProject,
   } = useQuery(GET_PROJECT_ID_FOR_USER);
 
+
+
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
   const showFieldEditModal = (field = null) => {
     setCurrentField(field);
@@ -117,6 +120,7 @@ const CreateRegisterPage = () => {
   const validateFormula = async (formula) => {
     try {
       // Attempt to compile the formula
+      console.log(formula);
       await Jexl.compile(formula);
       return true; // Formula is valid
     } catch (e) {
@@ -650,7 +654,13 @@ const CreateRegisterPage = () => {
   };
 
 
+  if (loadingProject) {
+    return <CenteredSpin />;
+  }
 
+  if (errorProject) {
+    return <p>Error loading project data</p>;
+  }
   return (
     <div >
        <Header name={regName}/>
@@ -832,6 +842,27 @@ const CreateRegisterPage = () => {
       placeholder="Enter formula (e.g., x + y)"
       value={fieldData.options}
       onChange={(e) => setFieldData({ ...fieldData, options: e.target.value })}
+      onKeyDown={(e) => {
+        const allowedKeys = ['Backspace', 'Delete'];
+
+    if (!allowedKeys.includes(e.key)) {
+      e.preventDefault();
+    }
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+          const updatedFormula = fieldData.options.trim();
+          const segments = updatedFormula.split(' ');
+          const lastSegment = segments[segments.length - 1];
+
+          if (lastSegment.startsWith('"') && lastSegment.endsWith('"')) {
+            const newFormula = updatedFormula.slice(0, updatedFormula.lastIndexOf(lastSegment));
+            setFieldData({ ...fieldData, options: newFormula });
+            e.preventDefault();
+          } else {
+            const newFormula = updatedFormula.slice(0, updatedFormula.lastIndexOf(lastSegment));
+            setFieldData({ ...fieldData, options: newFormula });
+            e.preventDefault();
+          }
+        }}}
       style={{ marginBottom: '16px' }}
     />
 
@@ -863,7 +894,7 @@ const CreateRegisterPage = () => {
             key={operator}
             onClick={() => setFieldData({
               ...fieldData,
-              options: `${fieldData.options}${operator}`,  // Add '|' separator here
+              options: `${fieldData.options} ${operator} `,  // Add '|' separator here
             })}
             style={{ marginRight: '8px' }}
           >
@@ -871,6 +902,40 @@ const CreateRegisterPage = () => {
           </Button>
         ))}
       </div>
+
+      <div style={{ marginTop: '16px' }}>
+        {/* Clear Button */}
+        <Button
+          type="default"
+          danger
+          onClick={() =>
+            setFieldData((prev) => {
+              const segments = (prev.options || '').trim().split(' ');
+              if (segments.length > 0) {
+                if (segments[segments.length - 1].startsWith('"')) {
+                  segments.pop();
+                } else {
+                  segments.pop();
+                }
+              }
+              return { ...prev, options: segments.join(' ') };
+            })
+          }
+        >
+          Clear Last
+        </Button>
+        <Button
+    type="default"
+    onClick={() => {
+      // Clear all options (reset to default or empty value)
+      setFieldData({ ...fieldData, options: '' });
+    }}
+    style={{ marginLeft: '8px' }} // Optional, to add space between the buttons
+  >
+    Clear All
+  </Button>
+      </div>
+
     </div>
   </div>
 )}

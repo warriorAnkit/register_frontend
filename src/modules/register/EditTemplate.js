@@ -26,6 +26,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import Jexl from 'jexl';
 import { ROUTES } from '../../common/constants';
 import FieldIcon from './components/FieldIcon';
 import Header from './components/Header';
@@ -174,7 +175,20 @@ const TemplateView = () => {
       lastInput?.focus();
     }
   };
-  const handleFieldSave = () => {
+  const validateFormula = async (formula) => {
+    try {
+      // Attempt to compile the formula
+      const formulaAsString = Array.isArray(formula)
+      ? formula.join(' ') // Join array elements with a space
+      : formula.options;
+      await Jexl.compile(formulaAsString);
+      // console.log(formulaAsString);
+      return true; // Formula is valid
+    } catch (e) {
+      return false; // Formula is invalid
+    }
+  };
+  const handleFieldSave = async () => {
     if (!fieldData.name || fieldData.name.trim() === '') {
       message.error('Field Name is required.');
       return;
@@ -218,6 +232,18 @@ const TemplateView = () => {
         duration: 3,
       });
       return;
+    }
+    if (fieldData.type === 'CALCULATION') {
+      console.log("forumk",fieldData.options);
+      const isValid = await validateFormula(fieldData.options);
+      if (!isValid) {
+        notification.error({
+          message: 'Invalid Formula',
+          description: 'The formula syntax is invalid. Please correct it.',
+          duration: 3,
+        });
+        return;
+      }
     }
     if (currentField) {
       if (currentField.id) {
@@ -957,6 +983,27 @@ console.log(fieldNamesInFormula);
       placeholder="Enter formula (e.g., x + y)"
       value={replaceFieldIdsWithNames(fieldData.options, numericFields)}
       onChange={(e) => setFieldData({ ...fieldData, options: e.target.value })}
+      onKeyDown={(e) => {
+        const allowedKeys = ['Backspace', 'Delete'];
+
+    if (!allowedKeys.includes(e.key)) {
+      e.preventDefault();
+    }
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+          const updatedFormula = fieldData.options.trim();
+          const segments = updatedFormula.split(' ');
+          const lastSegment = segments[segments.length - 1];
+
+          if (lastSegment.startsWith('"') && lastSegment.endsWith('"')) {
+            const newFormula = updatedFormula.slice(0, updatedFormula.lastIndexOf(lastSegment));
+            setFieldData({ ...fieldData, options: newFormula });
+            e.preventDefault();
+          } else {
+            const newFormula = updatedFormula.slice(0, updatedFormula.lastIndexOf(lastSegment));
+            setFieldData({ ...fieldData, options: newFormula });
+            e.preventDefault();
+          }
+        }}} // Prevent typing in the formula field
       style={{ marginBottom: '16px' }}
     />
 
@@ -988,13 +1035,50 @@ console.log(fieldNamesInFormula);
             key={operator}
             onClick={() => setFieldData({
               ...fieldData,
-              options: `${fieldData.options}${operator}`,  // Add '|' separator here
+              options: `${fieldData.options} ${operator} `,  // Add '|' separator here
             })}
             style={{ marginRight: '8px' }}
           >
             {operator}
           </Button>
         ))}
+      </div>
+      <div style={{ marginTop: '16px' }}>
+        {/* Clear Button */}
+        <Button
+          type="default"
+          onClick={() => {
+            // Remove the last segment (word) from the formula
+            const optionsAsString = Array.isArray(fieldData.options)
+        ? fieldData.options.join(' ') // Join array elements with a space
+        : fieldData.options;
+console.log(optionsAsString);
+          const updatedFormula = optionsAsString.trim();
+            // const updatedFormula = fieldData.options.trim();
+
+            const segments = updatedFormula.split(' ');
+
+            // Remove the last segment (if any)
+            segments.pop();
+
+            // Reassemble the formula
+            const newFormula = segments.join(' ');
+
+            setFieldData({ ...fieldData, options: newFormula });
+          }}
+        >
+          Clear
+        </Button>
+        <Button
+    type="default"
+    onClick={() => {
+      // Clear all options (reset to default or empty value)
+      setFieldData({ ...fieldData, options: '' });
+    }}
+    style={{ marginLeft: '8px' }} // Optional, to add space between the buttons
+  >
+    Clear All
+  </Button>
       </div>
     </div>
   </div>
