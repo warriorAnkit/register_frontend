@@ -35,10 +35,8 @@ const FillTable = () => {
       const availableHeight = window.innerHeight - offset;
       setTableHeight(availableHeight > 0 ? availableHeight : 0); // Ensure non-negative height
     };
-
     updateTableHeight(); // Initial calculation
     window.addEventListener('resize', updateTableHeight); // Recalculate on resize
-
     return () => {
       window.removeEventListener('resize', updateTableHeight); // Cleanup listener
     };
@@ -48,6 +46,7 @@ const FillTable = () => {
     variables: { id: templateId },
     fetchPolicy: 'cache-and-network',
   });
+
 
   const [submitResponse] = useMutation(SUBMIT_RESPONSE);
 

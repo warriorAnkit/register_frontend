@@ -34,6 +34,7 @@ import HeaderComponent from './component/Header';
 import { GET_CURRENT_USER } from '../auth/graphql/Queries';
 import GlobalTemplateModal from '../register/components/GlobalTemplateModal';
 import FileUploadModal from '../register/components/FileUploadModal';
+import CenteredSpin from './component/CentredSpin';
 
 const { Title, Text } = Typography;
 
@@ -280,7 +281,7 @@ const Dashboard = () => {
         }}
       >
         {(loadingLive || loadingDraft || loadingArchived) && (
-          <Spin size="large" />
+       <CenteredSpin />
         )}
         {(errorLive || errorDraft || errorArchived) && (
           <Alert
