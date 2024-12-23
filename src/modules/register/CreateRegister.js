@@ -25,6 +25,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import Jexl from 'jexl';
 import { ROUTES } from '../../common/constants';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
 import FieldIcon from './components/FieldIcon';
@@ -113,7 +114,16 @@ const CreateRegisterPage = () => {
     focusLastInput();
   }, [fieldData.options]);
 
-  const handleFieldSave = () => {
+  const validateFormula = async (formula) => {
+    try {
+      // Attempt to compile the formula
+      await Jexl.compile(formula);
+      return true; // Formula is valid
+    } catch (e) {
+      return false; // Formula is invalid
+    }
+  };
+  const handleFieldSave = async() => {
   if (!fieldData.name || fieldData.name.trim() === '') {
     message.error('Field Name is required.');
     return;
@@ -158,6 +168,18 @@ const CreateRegisterPage = () => {
       });
       return;
     }
+    if (fieldData.type === 'CALCULATION') {
+      const isValid = await validateFormula(fieldData.options);
+      if (!isValid) {
+        notification.error({
+          message: 'Invalid Formula',
+          description: 'The formula syntax is invalid. Please correct it.',
+          duration: 3,
+        });
+        return;
+      }
+    }
+
     if (currentField) {
 
       setFields((prevFields) =>
@@ -191,19 +213,19 @@ const CreateRegisterPage = () => {
     setIsFieldModalVisible(false);
   };
 
-  const validateFormula = (formula) => {
-    if (!formula) return "Formula can't be empty.";
-    // Allowable characters: alphanumeric, operators, parentheses, and spaces
-    const validChars = /^[0-9a-zA-Z_+\-*/().\s]+$/;
-    if (!validChars.test(formula)) return 'Invalid characters in formula.';
-    // const replacedFormula = formula.replace(/[a-zA-Z_]+/g, '1');
-    try {
-      evaluate(replacedFormula);
-    } catch (error) {
-      return 'Invalid formula syntax.';
-    }
-    return ''; // No error if formula is valid
-  };
+  // const validateFormula = (formula) => {
+  //   if (!formula) return "Formula can't be empty.";
+  //   // Allowable characters: alphanumeric, operators, parentheses, and spaces
+  //   const validChars = /^[0-9a-zA-Z_+\-*/().\s]+$/;
+  //   if (!validChars.test(formula)) return 'Invalid characters in formula.';
+  //   // const replacedFormula = formula.replace(/[a-zA-Z_]+/g, '1');
+  //   try {
+  //     evaluate(replacedFormula);
+  //   } catch (error) {
+  //     return 'Invalid formula syntax.';
+  //   }
+  //   return ''; // No error if formula is valid
+  // };
   const handleFieldTypeChange = (type) => {
     setFieldData({
       ...fieldData,

@@ -22,6 +22,7 @@
     "dayjs": "1.11.10",
     "graphql": "16.5.0",
     "history": "4.9.0",
+    "jexl": "^2.3.0",
     "json2csv": "^6.0.0-alpha.2",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
