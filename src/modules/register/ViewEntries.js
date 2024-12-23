@@ -4,7 +4,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, Dropdown, Menu, Space, Tabs, DatePicker,Pagination } from 'antd';
-import { SearchOutlined, ExportOutlined, DownOutlined } from '@ant-design/icons';
+import { SearchOutlined, ExportOutlined, DownOutlined,UploadOutlined ,FileImageOutlined} from '@ant-design/icons';
 import { useQuery, useApolloClient} from '@apollo/client';
 import './ViewEntry.less';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -37,11 +37,14 @@ const ViewEntries = () => {
     setCurrentPage(page);
     setPageSize(pageSize);
   };
+
   // eslint-disable-next-line no-shadow
   const handleEntriesPageChange = (page,pageSize) => {
     setEntriesCurrentPage(page);
     setEntriesPageSize(pageSize);
   };
+
+  const disabledDate = (current) => current && current > Date.now();
   const { templateId } = useParams();
 
   const { data: templateData } = useQuery(GET_TEMPLATE_BY_ID, {
@@ -211,13 +214,53 @@ const ViewEntries = () => {
 
       render: (text) => text || '-',
     })) || []),
+    // ...(templateData?.getTemplateById?.fields.map((field) => ({
+    //   title: field.fieldName,
+    //   dataIndex: field.id,
+    //   width: 120,
+
+    //   render: (text) => text || '-',
+    // })) || []),
     ...(templateData?.getTemplateById?.fields.map((field) => ({
       title: field.fieldName,
+      fieldType:field.fieldType,
       dataIndex: field.id,
       width: 120,
-
-      render: (text) => text || '-',
+      render: (text) => {
+        if (field.fieldType === 'ATTACHMENT') {
+          return text ? (
+            <div style={{ marginTop: 16, textAlign: 'center' }}>
+              {text.split(',').map((fileName, index) => {
+                const fileUrl = `https://storage.googleapis.com/digiqc_register/${fileName}`;
+                return (
+                  <div
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={index}
+                    style={{ position: 'relative', display: 'inline-block', margin: '8px' }}
+                  >
+                    <FileImageOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+                    <div>
+                      <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', color: 'inherit' }}
+                      >
+                        Open File
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            '-'
+          );
+        }
+        return text || '-';
+      },
     })) || []),
+
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -321,7 +364,10 @@ const exportPDF = async (column, data, fileName) => {
 
     const filteredColumns = column.filter(col => col.title !== 'Edit');
     const headers = filteredColumns.map(col => col.title);
-
+    const doc = new jsPDF({
+      unit: 'mm',
+      format: 'a4',
+    });
     const body = await Promise.all(data.map(async (row, rowIndex) => {
       const rowData = await Promise.all(filteredColumns.map(async (col) => {
         if (col.title === '#') {
@@ -337,15 +383,14 @@ const exportPDF = async (column, data, fileName) => {
           const fullName = await getFullNameById(row.createdById, client);
           return fullName;
         }
+        // console.log("columns",col);
+
         return row[col.dataIndex] || '';
       }));
       return rowData;
     }));
 
-    const doc = new jsPDF({
-      unit: 'mm',
-      format: 'a4',
-    });
+
 
 
     const leftLogoWidth = 30;
@@ -462,9 +507,11 @@ return (
         <TabPane tab="Sets" key="set">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
-              <RangePicker onChange={handleDateChange} />
+              <RangePicker onChange={handleDateChange}  disabledDate={disabledDate}
+
+                  />
               <Dropdown overlay={exportMenu}>
-                <Button icon={<ExportOutlined />} onClick={(e) => e.preventDefault()}>
+                <Button icon={<UploadOutlined/>} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />
                 </Button>
               </Dropdown>
@@ -502,9 +549,9 @@ return (
         <TabPane tab="Entries" key="entries">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
-              <RangePicker onChange={handleEntriesDateChange} />
+              <RangePicker onChange={handleEntriesDateChange}  disabledDate={disabledDate}/>
               <Dropdown overlay={exportMenu}>
-                <Button icon={<ExportOutlined />} onClick={(e) => e.preventDefault()}>
+                <Button icon={<UploadOutlined/>} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />
                 </Button>
               </Dropdown>

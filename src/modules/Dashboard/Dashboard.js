@@ -50,7 +50,7 @@ const Dashboard = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [registerName, setRegisterName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(16);
+  const [pageSize, setPageSize] = useState(10);
 
   const [userRole, setUserRole] = useState(null);
   const [isGlobalModalVisible, setGlobalModalVisible] = useState(false);
@@ -453,7 +453,7 @@ const Dashboard = () => {
           pageSize={pageSize}
           total={filteredTemplates.length}
           showSizeChanger
-          pageSizeOptions={['10', '16', '25', '50']}
+          pageSizeOptions={['10', '15', '25', '50']}
           onChange={(page, size) => {
             setCurrentPage(page);
             setPageSize(size);

@@ -252,10 +252,10 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
     return true;
   };
 
-  // Handle file removal
+
   const handleRemoveFile = (fileName) => {
     setUploadedFileUrls((prevUrls) => {
-      // Remove the file name from the comma-separated string
+
       const updatedUrls = prevUrls
         .split(',')
         .filter((url) => url !== fileName)
@@ -266,7 +266,6 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
 console.log("upload file urls",uploadedFileUrls);
   return (
     <div>
-      {/* Show uploaded file preview */}
 
       {uploadedFileUrls.length > 0 && (
         <div style={{ marginTop: 16, textAlign: 'center' }}>
@@ -302,7 +301,6 @@ console.log("upload file urls",uploadedFileUrls);
         </div>
       )}
 
-      {/* Upload button */}
       {uploadedFileUrls.split(',').length < 3 && (
         <Upload
           customRequest={customRequest}
@@ -318,10 +316,8 @@ console.log("upload file urls",uploadedFileUrls);
         </Upload>
       )}
 
-      {/* Display loading state */}
       {loading && <div>Uploading...</div>}
 
-      {/* Display error message if any */}
       {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
     </div>
   );

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useLazyQuery  } from '@apollo/client';
 import { Table, Pagination, Alert, Typography } from 'antd';
-import { ExportOutlined } from '@ant-design/icons';
+import { ExportOutlined,UploadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { GET_ALL_SETS_FOR_ALL_TEMPLATES } from './graphql/Queries'; // Updated query import
@@ -18,7 +18,7 @@ const LogsPage = () => {
   const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(16);
+  const [pageSize, setPageSize] = useState(10);
   const [userNames, setUserNames] = useState({});
   const [searchText, setSearchText] = useState('');
 

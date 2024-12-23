@@ -23,15 +23,20 @@ const handleViewEntry = () => {
   navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
 };
 return(
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: "20px 30px",
-        borderBottom: "1px solid #ddd",
-        background: "#f8f9fa",
-      }}
-    >
+  <div
+  style={{
+    position: "fixed", // Fixes the header to the top of the page
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000, // Ensures the header is above other content
+    display: "flex",
+    alignItems: "center",
+    padding: "20px 30px",
+    borderBottom: "1px solid #ddd",
+    background: "#f8f9fa",
+  }}
+>
 
 
       {/* Folder Icon */}

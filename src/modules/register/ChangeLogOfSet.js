@@ -97,7 +97,7 @@ const { templateName, templateId } = location.state || {};
   return (
     <div>
       <Header name={templateName} templateId={templateId} setId={setId} responseLogs/>
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px' ,marginTop: '40px'}}>
       <Title level={2}>Change Log</Title>
       {error && <p>Error loading logs</p>}
       {logs.length === 0 ? (
@@ -126,7 +126,7 @@ const { templateName, templateId } = location.state || {};
             pageSize={pageSize}
             total={logs.length}
             showSizeChanger
-            pageSizeOptions={['10', '16', '25', '50']}
+            pageSizeOptions={['10', '15', '25', '50']}
             onChange={(page, size) => {
               setCurrentPage(page);
               setPageSize(size);

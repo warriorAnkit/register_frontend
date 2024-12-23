@@ -6,7 +6,8 @@
 import {
   DeleteOutlined,
   DownOutlined,
-  ExportOutlined,
+  UploadOutlined,
+  FileImageOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import {
@@ -179,9 +180,13 @@ const EditEntry = () => {
     const errors = {};
     tableData.forEach((row, rowIndex) => {
       const isLastRow = rowIndex === tableData.length - 1;
-      const isRowBlank = templateData.getTemplateById?.fields.every(
-        (field) => !row[field.id]?.value || row[field.id].value.trim() === '',
-      );
+      // const isRowBlank = templateData.getTemplateById?.fields.every(
+      //   (field) => !row[field.id]?.value || row[field.id].value.trim() === '',
+      // );
+      const isRowBlank =templateData.getTemplateById?.fields.every((field) => {
+        const value = row[field.fieldName];
+        return value === null || value === undefined || (typeof value === 'string' && value.trim() === '');
+      });
       console.log(`Row ${rowIndex} is blank:`, isRowBlank);
       if (isLastRow && isRowBlank) return;
 
@@ -381,7 +386,34 @@ const EditEntry = () => {
     const tableDatas = tableData.map((row) =>
       templateData?.getTemplateById?.fields.map((field) => {
         const fieldId = field.id;
-        return row[fieldId]?.value || '-';
+        const fieldValue = row[fieldId]?.value;
+
+        // if (field.fieldType === 'ATTACHMENT') {
+        //   return fieldValue
+        //     ? fieldValue.split(',').map((fileName) => {
+        //         const fileUrl = `https://storage.googleapis.com/digiqc_register/${fileName}`;
+        //         return (
+        //           <div
+        //             key={fileName}
+        //             style={{ position: 'relative', display: 'inline-block', margin: '8px' }}
+        //           >
+        //             <FileImageOutlined style={{ fontSize: 16, color: '#1890ff' }} />
+        //             <div>
+        //               <a
+        //                 href={fileUrl}
+        //                 target="_blank"
+        //                 rel="noopener noreferrer"
+        //                 style={{ textDecoration: 'none', color: 'inherit' }}
+        //               >
+        //                 Open File
+        //               </a>
+        //             </div>
+        //           </div>
+        //         );
+        //       })
+        //     : '-';
+        // }
+        return fieldValue || '-';
       }),
     );
 
@@ -885,9 +917,11 @@ const EditEntry = () => {
             {templateData.getTemplateById?.fields
               .find((f) => f.id === fieldName)
               ?.options.map((option, index) => (
+
                 <Checkbox
                   // eslint-disable-next-line react/no-array-index-key
                   key={index}
+
                   checked={
                     tableData[rowIndex][fieldName]?.value?.includes(option) ||
                     false
@@ -896,8 +930,14 @@ const EditEntry = () => {
                     const { checked } = e.target;
                     setTableData((prevData) => {
                       const updatedTableData = [...prevData];
+                      if (!updatedTableData[rowIndex]) {
+                        updatedTableData[rowIndex] = {};
+                      }
+                      if (!updatedTableData[rowIndex][fieldName]) {
+                        updatedTableData[rowIndex][fieldName] = { value: [] };
+                      }
                       const updatedRow = updatedTableData[rowIndex] || {};
-
+                      // console.log(":jkii",updatedRow[fieldName]);
                       const currentValues = Array.isArray(updatedRow[fieldName].value)
                       ? updatedRow[fieldName].value
                       : typeof updatedRow[fieldName].value === 'string'
@@ -913,7 +953,14 @@ const EditEntry = () => {
                         ...updatedRow,
                         [fieldName]: { value: newValues }, // Ensure structure consistency
                       };
-
+                      if (
+                        rowIndex === prevData.length - 1 &&
+                        Object.values(updatedTableData[rowIndex]).every(
+                          (val) => val !== '',
+                        )
+                      ) {
+                        updatedTableData.push({}); // Add a new empty row
+                      }
                       return updatedTableData;
                     });
 
@@ -930,6 +977,12 @@ const EditEntry = () => {
 
                       setTableData((prevData) => {
                         const updatedTableData = [...prevData];
+                        if (!updatedTableData[rowIndex]) {
+                          updatedTableData[rowIndex] = {};
+                        }
+                        if (!updatedTableData[rowIndex][fieldName]) {
+                          updatedTableData[rowIndex][fieldName] = { value: [] };
+                        }
                         const updatedRow = updatedTableData[rowIndex] || {};
 
                         const currentValues = Array.isArray(updatedRow[fieldName].value)
@@ -946,7 +999,14 @@ const EditEntry = () => {
                           ...updatedRow,
                           [fieldName]: { value: newValues },
                         };
-
+                        if (
+                          rowIndex === prevData.length - 1 &&
+                          Object.values(updatedTableData[rowIndex]).every(
+                            (val) => val !== '',
+                          )
+                        ) {
+                          updatedTableData.push({}); // Add a new empty row
+                        }
                         return updatedTableData;
                       });
 
@@ -1132,10 +1192,10 @@ const EditEntry = () => {
   };
   const exportMenu = (
     <Menu>
-      <Menu.Item key="csv" icon={<ExportOutlined />} onClick={handleCsvExport}>
+      <Menu.Item key="csv" icon={<UploadOutlined />} onClick={handleCsvExport}>
         Export as CSV
       </Menu.Item>
-      <Menu.Item key="pdf" icon={<ExportOutlined />} onClick={handlePdfExport}>
+      <Menu.Item key="pdf" icon={<UploadOutlined />} onClick={handlePdfExport}>
         Export as Pdf
       </Menu.Item>
     </Menu>
@@ -1147,11 +1207,11 @@ const EditEntry = () => {
         setId={setId}
         templateId={templateId}
       />
-      <div className="header" style={{ padding: '16px' }}>
+      <div className="header" style={{ padding: '16px',marginTop: '60px' }}>
         <Dropdown overlay={exportMenu} trigger={['click']}>
           <Button
             type="primary"
-            icon={<ExportOutlined />}
+            icon={<UploadOutlined />}
             style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}
           >
             Export <DownOutlined />
@@ -1241,6 +1301,7 @@ const EditEntry = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

@@ -87,8 +87,8 @@ const Login = () => {
       <div className="login-wrap d-flex align-center justify-start">
         <Card className="full-width">
           <Spin spinning={loginLoading} wrapperClassName="full-width">
-            <div className="text-center  mb-48">
-              <Logo />
+            <div className="text-center  mb-30">
+            <Logo style={{  maxHeight: '80px' }} />
             </div>
             <Form
               name="Login"
@@ -114,16 +114,16 @@ const Login = () => {
                   placeholder="Enter password"
                 />
               </Form.Item>
-              <Form.Item className="text-right mb-8">
+              {/* <Form.Item className="text-right mb-8">
                 <Link to={ROUTES?.FORGET_PASSWORD}>Forgot password ?</Link>
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item className=" full-width mb-8">
                 <Button type="primary" className="full-width" htmlType="submit"
                  style={{ backgroundColor: '#ff784f', borderColor: '#FC5027' }}>
                   Login
                 </Button>
               </Form.Item>
-              <Form.Item className="text-center mb-0">
+              {/* <Form.Item className="text-center mb-0">
                 <Space>
                   Don't have an account yet ?
                   <Button
@@ -136,7 +136,7 @@ const Login = () => {
                     Signup
                   </Button>
                 </Space>
-              </Form.Item>
+              </Form.Item> */}
             </Form>
           </Spin>
         </Card>

@@ -756,7 +756,7 @@ console.log(fieldNamesInFormula);
     <div >
        <Header name={templateName}/>
 
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '24px',marginTop: '60px' }}>
 
       <div className='header'>
 
@@ -875,7 +875,7 @@ console.log(fieldNamesInFormula);
         pagination={false}
         bordered
         scroll={{ x: 'max-content' }}
-        style={{ marginTop: '16px' }}
+        style={{ marginTop: '16px' ,marginBottom:'20px'}}
       />
 
 

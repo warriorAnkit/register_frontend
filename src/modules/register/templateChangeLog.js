@@ -45,7 +45,7 @@ const ChangeLogOfTemplatePage = () => {
     }
     return JSON.stringify(value);
   };
-  // Define table columns
+
   const columns = [
     {
       title: 'Index',
@@ -119,7 +119,7 @@ const ChangeLogOfTemplatePage = () => {
   return (
     <div>
       <Header name={templateName} templateId={templateId} templateLogs/>
-    <div style={{ padding: '10px' }}>
+    <div style={{ padding: '10px',marginTop: '60px'}}>
       <Title level={2}style={{ margin: '5px 0' }}>Change Log</Title>
       {error && <p>Error loading logs</p>}
       {logs.length === 0 ? (

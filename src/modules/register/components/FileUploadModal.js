@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 import React, { useState } from 'react';
 import { Modal, Upload, Button, message, Input } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { DownloadOutlined} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse'; // Import Papa Parse
 import { ROUTES } from '../../../common/constants';
@@ -172,7 +172,7 @@ const FileUploadModal = ({ visible, onClose }) => {
         onChange={handleFileChange}
         accept=".csv" // Accepted file formats
       >
-        <Button icon={<UploadOutlined />}>Select File</Button>
+        <Button icon={<DownloadOutlined />}>Select File</Button>
       </Upload>
       <div style={{ marginTop: 20 }}>
         <p>Accepted formats: CSV</p>

@@ -78,10 +78,11 @@ const FillTable = () => {
   const finalValidateFields = () => {
     const errors = {};
     tableData.forEach((row, rowIndex) => {
-      const isRowBlank = data.getTemplateById?.fields.every(
-        (field) => !row[field.fieldName] || row[field.fieldName].trim() === '',
-      );
-
+    //  console.log("hi i",row[field.fieldName]);
+     const isRowBlank = data.getTemplateById?.fields.every((field) => {
+      const value = row[field.fieldName];
+      return value === null || value === undefined || (typeof value === 'string' && value.trim() === '');
+    });
       if (isRowBlank) return;
       data.getTemplateById?.fields.forEach((field) => {
         const value = row[field.fieldName];
@@ -611,6 +612,14 @@ value=String(value);
         : updatedRow[fieldName]?.filter((item) => item !== option);
       const updatedTableData = [...prevData];
       updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
+      if (
+        rowIndex === prevData.length - 1 &&
+        Object.values(updatedTableData[rowIndex]).every(
+          (val) => val !== '',
+        )
+      ) {
+        updatedTableData.push({}); // Add a new empty row
+      }
       return updatedTableData;
     });
     validateFields(fieldName, rowIndex, checked);
@@ -627,6 +636,14 @@ value=String(value);
           : updatedRow[fieldName]?.filter((item) => item !== option);
         const updatedTableData = [...prevData];
         updatedTableData[rowIndex] = { ...updatedRow, [fieldName]: newValues };
+        if (
+          rowIndex === prevData.length - 1 &&
+          Object.values(updatedTableData[rowIndex]).every(
+            (val) => val !== '',
+          )
+        ) {
+          updatedTableData.push({}); // Add a new empty row
+        }
         return updatedTableData;
       });
       validateFields(fieldName, rowIndex, checked);

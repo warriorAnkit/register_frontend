@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button, Dropdown, Input, Tabs, Menu, Row, Col } from 'antd';
-import {  DownOutlined, SearchOutlined, ExportOutlined } from '@ant-design/icons';
+import {  DownOutlined, SearchOutlined, ExportOutlined ,UploadOutlined} from '@ant-design/icons';
 import { jsPDF } from 'jspdf';
 import { parse } from 'json2csv'; // Used to convert JSON to CSV
 import moment from 'moment';
@@ -61,7 +61,7 @@ const LogHeaderComponent = ({
   // Dropdown menu for export options
   const exportMenu = (
     <Menu>
-      <Menu.Item key="csv" icon={<ExportOutlined />} onClick={exportCSV}>
+      <Menu.Item key="csv" icon={<UploadOutlined/>} onClick={exportCSV}>
         Export as CSV
       </Menu.Item>
     </Menu>
@@ -78,7 +78,7 @@ const LogHeaderComponent = ({
         <Button>Project ID: {projectId}</Button>
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
           <Dropdown overlay={exportMenu} trigger={['click']}>
-            <Button type="primary" icon={<ExportOutlined />} style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}>
+            <Button type="primary" icon={<UploadOutlined/>} style={{ backgroundColor: '#FF6B6B', borderColor: '#FF6B6B' }}>
               Export <DownOutlined />
             </Button>
           </Dropdown>
