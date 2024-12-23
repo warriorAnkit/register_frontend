@@ -32,6 +32,7 @@ import Header from './components/Header';
 import { CHANGE_TEMPLATE_STATUS, UPDATE_TEMPLATE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title, Text } = Typography;
 
@@ -130,7 +131,6 @@ const TemplateView = () => {
   }, [isEditing]);
 
 
-  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   const toggleEditMode = () => {
@@ -556,13 +556,6 @@ const TemplateView = () => {
   const handlePropertyCancel = () => {
     setIsPropertyModalVisible(false);
   };
-
-  // const replaceFieldIdsWithNames = (formula, numericFields) => {
-  //   return formula.replace(/\b\d+\b/g, (fieldId) => {
-  //     const field = numericFields.find((f) => f.id === parseInt(fieldId, 10));
-  //     return field ? `"${field.fieldName}"` : fieldId;
-  //   });
-  // };
   const validateFormulaFields = (formula) => {
     // Convert field IDs to field names
     const convertedFormula = replaceFieldIdsWithNames(formula);
@@ -709,11 +702,6 @@ console.log(fieldNamesInFormula);
       cancelText: 'No',
       onOk: async () => {
         try {
-          // const saveResult = await handleSaveAll();
-
-          // if (!saveResult) {
-          //   return;
-          // }
           await handleSaveAll();
           await changeTemplateStatus({
             variables: {
@@ -751,6 +739,12 @@ console.log(fieldNamesInFormula);
     }
   };
 
+
+  if (loading) {
+    return (
+     <CenteredSpin/>
+    );
+  }
 
   return (
     <div >
@@ -877,33 +871,6 @@ console.log(fieldNamesInFormula);
         scroll={{ x: 'max-content' }}
         style={{ marginTop: '16px' ,marginBottom:'20px'}}
       />
-
-
-{/* <Space style={{ marginTop: '16px', float: 'right' }}>
-        <Button
-          type="primary"
-          style={{ backgroundColor: 'red' }}
-           onClick={handleStatusChange}
-        >
-          {templateStatus === 'LIVE' ? 'Archive' : 'Live'}
-        </Button>
-        <Button
-          type="primary"
-          style={{ backgroundColor: 'red' }}
-          onClick={toggleEditMode}
-        >
-          {isEditing ? 'Discard' : 'Edit'}
-        </Button>
-        {isEditing && (
-          <Button
-            type="primary"
-            style={{ backgroundColor: 'red' }}
-            onClick={handleSaveAll}
-          >
-            Save
-          </Button>
-        )}
-      </Space> */}
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}

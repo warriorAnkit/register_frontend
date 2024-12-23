@@ -632,7 +632,7 @@ const CreateRegisterPage = () => {
   return (
     <div >
        <Header name={regName}/>
-    <div style={{ padding: '15px' }}>
+    <div style={{ padding: '15px',marginTop: '40px'}}>
 
 
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>

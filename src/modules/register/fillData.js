@@ -15,6 +15,7 @@ import Header from './components/Header';
 import { SUBMIT_RESPONSE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { TextArea } = Input;
 
@@ -740,6 +741,13 @@ value=String(value);
       width: 100, // Set a fixed width for the action column
     },
   ];
+
+
+  if (loading) {
+    return (
+    <CenteredSpin/>
+    );
+  }
   return (
     <div
       style={{

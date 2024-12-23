@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { GET_TEMPLATE_ACTIVITY_LOGS_BY_TEMPLATE_ID } from './graphql/Queries';
 import '../Dashboard/dashboard.less';
 import Header from './components/Header';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title } = Typography;
 
@@ -115,7 +116,12 @@ const ChangeLogOfTemplatePage = () => {
   };
 
   const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  if (loading) {
+    return (
+     <CenteredSpin/>
 
+    );
+  }
   return (
     <div>
       <Header name={templateName} templateId={templateId} templateLogs/>

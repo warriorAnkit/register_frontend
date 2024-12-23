@@ -41,6 +41,7 @@ import {
 } from './graphql/Queries';
 import './headerButton.less';
 import './register.less';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { TextArea } = Input;
 
@@ -89,6 +90,8 @@ const EditEntry = () => {
     variables: { setId },
     fetchPolicy: 'cache-and-network',
   });
+
+
 
   const [editResponse] = useMutation(EDIT_RESPONSE_MUTATION);
 
@@ -816,6 +819,15 @@ const EditEntry = () => {
         return '';
       }
     };
+
+
+    if (templateError || responseError) {
+      return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <p>Error loading data. Please try again later.</p>
+        </div>
+      );
+    }
     return (
       <Form.Item
         validateStatus={hasError ? 'error' : ''}
@@ -1200,6 +1212,13 @@ const EditEntry = () => {
       </Menu.Item>
     </Menu>
   );
+
+  if (templateLoading && responseLoading) {
+    return (
+      <CenteredSpin/>
+    );
+  }
+
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
@@ -1276,17 +1295,7 @@ const EditEntry = () => {
         </Card>
 
         <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: 16,
-            }}
-          >
-            <Button type="primary" onClick={handleSave}>
-              Save Response
-            </Button>
-          </div>
+
 
           <div style={{ minHeight: '300px', overflowY: 'auto' }}>
             <Table
@@ -1301,7 +1310,24 @@ const EditEntry = () => {
           </div>
         </div>
       </div>
-
+      <div
+        style={{
+          marginBottom: 5,
+          marginTop: 16,
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '10px',
+          background: '#fff',
+          borderTop: '1px solid #f0f0f0',
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 1,
+        }}
+      >
+        <Button type="primary" onClick={handleSave}>
+          Save Response
+        </Button>
+      </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { useQuery } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { LIST_GLOBAL_TEMPLATES } from '../graphql/Queries';
 import { ROUTES } from '../../../common/constants';
+import CenteredSpin from '../../Dashboard/component/CentredSpin';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -61,7 +62,7 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
       width={800}
     >
       {loading ? (
-        <Spin size="large" />
+       <CenteredSpin/>
       ) : error ? (
         <Alert message="Error" description={error} type="error" showIcon />
       ) : (

@@ -250,10 +250,12 @@ const Dashboard = () => {
     setActiveFilter(newFilter); // Update activeFilter state
     setCurrentPage(1); // Reset page to the first one on filter change
   };
-
+if((loadingLive || loadingDraft || loadingArchived)){
+  return <CenteredSpin />;
+}
 
   return (
-    <div style={{ padding: '20px',display: 'flex', flexDirection: 'column', height: '100vh'  }}>
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative' }}>
       <HeaderComponent
         projectId={projectId}
         createMenu={createMenu}
@@ -272,13 +274,14 @@ const Dashboard = () => {
       <div
         style={{
           flex: 1,
-          overflowY: 'auto', // This makes the templates area scrollable
-          paddingTop: '140px', // Space for the fixed header
+          overflowY: 'auto',
+          paddingTop: '140px',
           paddingBottom: '60px',
           marginTop: '40px',
+          filter: (loadingLive || loadingDraft || loadingArchived) ? 'blur(4px)' : 'none',
         }}
       >
-         {(loadingLive || loadingDraft || loadingArchived) ? <CenteredSpin /> : null}
+        {/* {(loadingLive || loadingDraft || loadingArchived) ? <CenteredSpin /> : null} */}
         {(errorLive || errorDraft || errorArchived) && (
           <Alert
             message="Error"
@@ -316,7 +319,7 @@ const Dashboard = () => {
                         ellipsis
                         level={5}
                         style={{
-                          marginTop:'0px',
+                          marginTop: '0px',
                           marginBottom: '8px',
                           maxWidth: 'calc(100% - 61px)',
                           whiteSpace: 'nowrap',
@@ -374,7 +377,6 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Add buttons here with event propagation handling */}
                   <div
                     style={{
                       marginTop: '10px',
@@ -393,18 +395,17 @@ const Dashboard = () => {
                         Edit
                       </Button>
                     )}
-                    {
-                      template.status === 'Draft' && (
-                        <Button
-                          onClick={() => {
-                            handleDeleteButtonClick(template.id);
-                          }}
-                          type="default"
-                          size="small"
-                        >
-                          Delete Template
-                        </Button>
-                   ) }
+                    {template.status === 'Draft' && (
+                      <Button
+                        onClick={() => {
+                          handleDeleteButtonClick(template.id);
+                        }}
+                        type="default"
+                        size="small"
+                      >
+                        Delete Template
+                      </Button>
+                    )}
                     {template.status !== 'Draft' && (
                       <Button
                         onClick={() => {
@@ -433,13 +434,11 @@ const Dashboard = () => {
             ))
           ) : (
             <Col span={24}>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-      {(loadingLive || loadingDraft || loadingArchived) &&
-        <Empty
-          description="No templates found."
-        />
-        }
-      </div>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                {(loadingLive || loadingDraft || loadingArchived) && (
+                  <Empty description="No templates found." />
+                )}
+              </div>
             </Col>
           )}
         </Row>

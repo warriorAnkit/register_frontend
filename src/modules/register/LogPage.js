@@ -10,6 +10,7 @@ import { ROUTES } from '../../common/constants';
 import LogHeaderComponent from '../Dashboard/component/logHeader';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
 import { GET_USER_BY_ID } from '../auth/graphql/Queries';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title, Text } = Typography;
 
@@ -87,7 +88,7 @@ console.log(projectId);
 
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <CenteredSpin/>;
   }
 
   if (error) {

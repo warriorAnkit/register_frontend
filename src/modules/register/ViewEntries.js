@@ -17,6 +17,7 @@ import { GET_ALL_PROPERTY_RESPONSES_FOR_TEMPLATE, GET_ALL_RESPONSES_FOR_TEMPLATE
 import { GET_USER_BY_ID } from '../auth/graphql/Queries';
 import FullNameById from './components/userFullName';
 import Header from './components/Header';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
@@ -47,20 +48,21 @@ const ViewEntries = () => {
   const disabledDate = (current) => current && current > Date.now();
   const { templateId } = useParams();
 
-  const { data: templateData } = useQuery(GET_TEMPLATE_BY_ID, {
+  const { loading: templateLoading, data: templateData } = useQuery(GET_TEMPLATE_BY_ID, {
     variables: { id: templateId },
     fetchPolicy: 'cache-and-network',
   });
-
-  const { data: responseData } = useQuery(GET_ALL_PROPERTY_RESPONSES_FOR_TEMPLATE, {
+  const { loading: responseLoading, data: responseData } = useQuery(GET_ALL_PROPERTY_RESPONSES_FOR_TEMPLATE, {
     variables: { templateId },
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data: entryResponseData } = useQuery(GET_ALL_RESPONSES_FOR_TEMPLATE, {
+  const { loading: entryResponseLoading, data: entryResponseData } = useQuery(GET_ALL_RESPONSES_FOR_TEMPLATE, {
     variables: { templateId },
     fetchPolicy: 'cache-and-network',
   });
+
+
 
   useEffect(() => {
     if (responseData && templateData) {
@@ -490,7 +492,9 @@ useEffect(() => {
   };
 }, []);
 
-
+if (templateLoading || responseLoading || entryResponseLoading) {
+  return <CenteredSpin/>;
+}
 return (
   <div className="tabs-page-container">
     <div className="header-container">

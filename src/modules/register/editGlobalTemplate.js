@@ -31,6 +31,7 @@ import FieldIcon from './components/FieldIcon';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
 import { ROUTES } from '../../common/constants';
 import Header from './components/Header';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title, Text } = Typography;
 
@@ -133,7 +134,7 @@ const GlobalTemplateView = () => {
   }, [isEditing]);
 
 
-  if (loading) return <p>Loading...</p>;
+  if (loading||loadingProject) return <CenteredSpin/>;
   if (error) return <p>Error: {error.message}</p>;
 
 
@@ -450,7 +451,7 @@ const GlobalTemplateView = () => {
     <div style={{ padding: '24px' }}>
         <Header name={templateName}/>
 
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop:"10px"}}>
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop:"50px"}}>
 
     {isEditing ? (
   <Input

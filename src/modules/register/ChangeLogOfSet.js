@@ -5,6 +5,7 @@ import moment from 'moment';
 import { useLocation, useParams } from 'react-router-dom';
 import { GET_ACTIVITY_LOGS_BY_SET_ID } from './graphql/Queries';
 import Header from './components/Header';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title } = Typography;
 
@@ -17,8 +18,10 @@ const location = useLocation();
 const { templateName, templateId } = location.state || {};
   const { loading, error, data } = useQuery(GET_ACTIVITY_LOGS_BY_SET_ID, {
     variables: { setId },
-    fetchPolicy:'cache-and-network',
+    fetchPolicy: 'cache-and-network',
   });
+
+
 
   const [logs, setLogs] = useState([]);
 
@@ -93,7 +96,11 @@ const { templateName, templateId } = location.state || {};
   ];
 
   const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
+  if (loading) {
+    return (
+     <CenteredSpin/>
+    );
+  }
   return (
     <div>
       <Header name={templateName} templateId={templateId} setId={setId} responseLogs/>
