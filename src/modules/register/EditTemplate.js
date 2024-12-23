@@ -180,7 +180,8 @@ const TemplateView = () => {
       // Attempt to compile the formula
       const formulaAsString = Array.isArray(formula)
       ? formula.join(' ') // Join array elements with a space
-      : formula.options;
+      : formula;
+      console.log("formula",formulaAsString);
       await Jexl.compile(formulaAsString);
       // console.log(formulaAsString);
       return true; // Formula is valid
@@ -1052,7 +1053,7 @@ console.log(fieldNamesInFormula);
             const optionsAsString = Array.isArray(fieldData.options)
         ? fieldData.options.join(' ') // Join array elements with a space
         : fieldData.options;
-console.log(optionsAsString);
+console.log("formula",optionsAsString);
           const updatedFormula = optionsAsString.trim();
             // const updatedFormula = fieldData.options.trim();
 
