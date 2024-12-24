@@ -4,7 +4,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, Dropdown, Menu, Space, Tabs, DatePicker,Pagination } from 'antd';
-import { SearchOutlined, ExportOutlined, DownOutlined,UploadOutlined ,FileImageOutlined} from '@ant-design/icons';
+import { SearchOutlined, ExportOutlined, DownOutlined,UploadOutlined ,FileImageOutlined,FilePdfOutlined} from '@ant-design/icons';
 import { useQuery, useApolloClient} from '@apollo/client';
 import './ViewEntry.less';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -234,13 +234,18 @@ const ViewEntries = () => {
             <div style={{ marginTop: 16, textAlign: 'center' }}>
               {text.split(',').map((fileName, index) => {
                 const fileUrl = `https://storage.googleapis.com/digiqc_register/${fileName}`;
+                const isPdf = fileName.toLowerCase().endsWith('.pdf');
                 return (
                   <div
                     // eslint-disable-next-line react/no-array-index-key
                     key={index}
                     style={{ position: 'relative', display: 'inline-block', margin: '8px' }}
                   >
-                    <FileImageOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+                    {isPdf ? (
+              <FilePdfOutlined style={{ fontSize: 48, color:'#ff4d4f' }} />
+            ) : (
+              <FileImageOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+            )}
                     <div>
                       <a
                         href={fileUrl}

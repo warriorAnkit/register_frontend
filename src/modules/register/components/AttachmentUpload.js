@@ -150,8 +150,8 @@
 
 /* eslint-disable no-console */
 /* eslint-disable no-nested-ternary */
-import { FileImageOutlined, PlusOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { Upload, message } from 'antd';
+import { FileImageOutlined, FilePdfOutlined, PlusOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Upload, message,Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client'; // For calling the mutation
 
@@ -162,11 +162,9 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
   const [loading, setLoading] = useState(false);
   const [uploadedFileUrls, setUploadedFileUrls] = useState(existingFileUrls || ''); // Store as string
   const [fileType, setFileType] = useState(null);
-
+  const [isFileLimitExceeded, setIsFileLimitExceeded] = useState(false);
   // Use the GraphQL mutation to get the signed URL
   const [generateSignedUrl] = useMutation(GENERATE_SIGNED_URL);
-
- console.log("hfi",existingFileUrls);
 
   useEffect(() => {
     if (existingFileUrls && existingFileUrls.length > 0) {
@@ -175,8 +173,6 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
       setUploadedFileUrls('');
     }
   }, [existingFileUrls]);
-
-
 
   const handleFileUpload = async (file) => {
     setLoading(true);
@@ -204,7 +200,6 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
 
           setUploadedFileUrls((prevUrls) => {
             const updatedUrls = prevUrls ? `${prevUrls},${fileName}` : fileName;
-            console.log("uil",updatedUrls);
             onUploadSuccess(updatedUrls);
             return updatedUrls;
           });
@@ -234,13 +229,22 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
       });
   };
 
-  // Validate file before upload (image only, max 5MB)
-  const beforeUpload = (file) => {
+  // Validate file before upload (image or PDF, max 5MB)
+  const beforeUpload = (file,fileList) => {
     const isImage = file.type.startsWith('image/');
+    const isPDF = file.type === 'application/pdf';
     const isValidSize = file.size / 1024 / 1024 < 5; // Limit file size to 5MB
+    // const totalFiles = uploadedFileUrls.split(',').length + fileList.length;
+    if (fileList.findIndex(f => f === file) > 2) {
+     setIsFileLimitExceeded(true);
+      return Upload.LIST_IGNORE; // Prevent upload of additional files
+    }
 
-    if (!isImage) {
-      message.error('You can only upload image files!');
+
+    // Check all files in the current batch
+
+    if (!isImage && !isPDF) {
+      message.error('You can only upload image or PDF files!');
       return Upload.LIST_IGNORE;
     }
 
@@ -252,10 +256,8 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
     return true;
   };
 
-
   const handleRemoveFile = (fileName) => {
     setUploadedFileUrls((prevUrls) => {
-
       const updatedUrls = prevUrls
         .split(',')
         .filter((url) => url !== fileName)
@@ -263,18 +265,37 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
       return updatedUrls;
     });
   };
-console.log("upload file urls",uploadedFileUrls);
+  const showLimitExceededModal = () => {
+    if (isFileLimitExceeded) {
+      Modal.info({
+        title: 'File Limit Exceeded',
+        content: 'You can only upload up to 3 files at a time.',
+        onOk() {
+          setIsFileLimitExceeded(false); // Reset the variable after modal is closed
+        },
+      });
+    }
+  };
+
+  useEffect(() => {
+    showLimitExceededModal();
+  }, [isFileLimitExceeded]);
   return (
     <div>
-
       {uploadedFileUrls.length > 0 && (
         <div style={{ marginTop: 16, textAlign: 'center' }}>
           {uploadedFileUrls.split(',').map((fileName, index) => {
             const fileUrl = `https://storage.googleapis.com/digiqc_register/${fileName}`;
+            const ext = fileName.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext);
             return (
               // eslint-disable-next-line react/no-array-index-key
               <div key={index} style={{ position: 'relative', display: 'inline-block', margin: '8px' }}>
-                <FileImageOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+                {isImage ? (
+                  <FileImageOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+                ) : (
+                  <FilePdfOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
+                )}
                 <div>
                   <a
                     href={fileUrl}
@@ -305,13 +326,24 @@ console.log("upload file urls",uploadedFileUrls);
         <Upload
           customRequest={customRequest}
           showUploadList={false}
-          accept="image/*"
+          accept="image/*,.pdf"
           beforeUpload={beforeUpload}
+          multiple
           maxCount={3 - uploadedFileUrls.split(',').length}
+          onChange={(info) => {
+            const { fileList } = info;
+            console.log("gg",fileList);
+            if (fileList.length > 3) {
+              // Display an error message if more than 3 files are selected
+              message.error("You can only upload up to 3 files.");
+              return false;  // Prevent adding more files
+            }
+
+          }}
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Upload Image</div>
+            <div style={{ marginTop: 8 }}>Upload Image or PDF</div>
           </div>
         </Upload>
       )}

@@ -1,71 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-// import React, { useState, useEffect } from 'react';
-// import { Modal, Input, Button, Form } from 'antd';
-
-// const PropertiesModal = ({ visible, onCancel, onSubmit, properties }) => {
-//   const [form] = Form.useForm();
-//   const [updatedProperties, setUpdatedProperties] = useState([]);
-
-//   useEffect(() => {
-//     // Initialize form with current property data
-//     const initialValues = Object.entries(properties).map(([propertyName, value]) => ({
-//       propertyName,
-//       value,
-//     }));
-//     setUpdatedProperties(initialValues);
-//   }, [properties]);
-
-//   const handleChange = (value, propertyName) => {
-//     setUpdatedProperties((prevState) =>
-//       prevState.map((property) =>
-//         property.propertyName === propertyName ? { ...property, value } : property,
-//       ),
-//     );
-//   };
-
-//   const handleSubmit = () => {
-//     // Convert the updated properties to the expected format and submit
-//     const updatedPropertiesList = updatedProperties.map((property) => ({
-//       propertyName: property.propertyName,
-//       value: property.value,
-//     }));
-//     onSubmit(updatedPropertiesList);
-//   };
-
-//   return (
-//     <Modal
-//       title="Edit Properties"
-//       visible={visible}
-//       onCancel={onCancel}
-//       footer={[
-//         <Button key="cancel" onClick={onCancel}>
-//           Cancel
-//         </Button>,
-//         <Button key="submit" type="primary" onClick={handleSubmit}>
-//           Save
-//         </Button>,
-//       ]}
-//     >
-//       <Form form={form} layout="vertical">
-//         {updatedProperties.map((property) => (
-//           <Form.Item
-//             key={property.propertyName}
-//             label={property.propertyName}
-//             name={property.propertyName}
-//             initialValue={property.value}
-//           >
-//             <Input
-//               value={property.value}
-//               onChange={(e) => handleChange(e.target.value, property.propertyName)}
-//             />
-//           </Form.Item>
-//         ))}
-//       </Form>
-//     </Modal>
-//   );
-// };
-
-// export default PropertiesModal;
 import React, { useState, useEffect } from 'react';
 import { Modal, Input, Button, Form, Checkbox, InputNumber, DatePicker,Select } from 'antd';
 import moment from 'moment';
@@ -131,7 +64,7 @@ const PropertiesModal = ({ visible, onCancel, onSubmit, properties, fieldData })
           </Checkbox.Group>
         );
 
-      
+
 case 'DATE':
   return (
     <Input
