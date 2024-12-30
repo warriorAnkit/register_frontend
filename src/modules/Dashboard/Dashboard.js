@@ -209,7 +209,8 @@ const Dashboard = () => {
   };
 
   const handleFillEntryButtonClick = (templateId) => {
-    navigate(`/register/fill-template/${templateId}`);
+    const fillSetRoute = ROUTES.FILL_SET.replace(':templateId', templateId);
+    navigate(fillSetRoute);
   };
   const handleViewEntryButtonClick = (templateId) => {
     navigate(`/register/view-entries/${templateId}`);

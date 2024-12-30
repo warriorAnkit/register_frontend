@@ -47,7 +47,32 @@ export const LIST_ARCHIVED_TEMPLATES_BY_PROJECT = gql`
     }
   }
 `;
-
+export const LIST_TEMPLATES_WITH_PAGINATION = gql`
+  query getTemplatesWithPagination(
+    $projectId: ID!
+    $page: Int
+    $pageSize: Int
+    $searchQuery: String
+    $filters: String
+  ) {
+    getTemplatesWithPagination(
+      projectId: $projectId
+      page: $page
+      pageSize: $pageSize
+      searchQuery: $searchQuery
+      filters: $filters
+    ) {
+      id
+      name
+      status
+      projectId
+      createdById
+      numberOfSets
+      numberOfEntries
+      createdAt
+    }
+  }
+`;
 export const GET_PROJECT_ID_FOR_USER = gql`
   query getProjectIdForUser {
     getProjectIdForUser

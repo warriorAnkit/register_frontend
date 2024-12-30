@@ -18,6 +18,7 @@ import { GET_USER_BY_ID } from '../auth/graphql/Queries';
 import FullNameById from './components/userFullName';
 import Header from './components/Header';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
+import { ROUTES } from '../../common/constants';
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
@@ -139,10 +140,9 @@ const ViewEntries = () => {
         return createdAt.isBetween(startDate, endDate, 'day', '[]');
       });
       setEntriesFilterDataByDate(filteredEntries);
-      // setEntriesFilterData(filteredEntries);
     } else {
       setEntriesFilterDataByDate(entriesFilteredData);
-      // setEntriesFilterData(entryResponseData.getAllResponsesForTemplate.responses);
+
     }
   };
 
@@ -216,13 +216,6 @@ const ViewEntries = () => {
 
       render: (text) => text || '-',
     })) || []),
-    // ...(templateData?.getTemplateById?.fields.map((field) => ({
-    //   title: field.fieldName,
-    //   dataIndex: field.id,
-    //   width: 120,
-
-    //   render: (text) => text || '-',
-    // })) || []),
     ...(templateData?.getTemplateById?.fields.map((field) => ({
       title: field.fieldName,
       fieldType:field.fieldType,
@@ -534,7 +527,7 @@ return (
                 pagination={false}
                 onRow={(record) => ({
                   onClick: () =>
-                    navigate(`/register/edit-entries/${templateId}/${record.setId}`),
+                    navigate(ROUTES.FILL_TABLE.replace(':templateId', templateId).replace(':setId', record.setId)),
                 })}
                 scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
                 style={{ tableLayout: 'auto' }}
@@ -573,7 +566,8 @@ return (
                 pagination={false}
                 onRow={(record) => ({
                   onClick: () =>
-                    navigate(`/register/edit-entries/${templateId}/${record.setId}`),
+
+                    navigate( ROUTES.FILL_TABLE.replace(':templateId', templateId).replace(':setId', record.setId)),
                 })}
                 scroll={{ y: tableHeight, x: 'max-content' }} // Enable horizontal scroll
                 style={{ tableLayout: 'auto' }}

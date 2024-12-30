@@ -183,10 +183,6 @@ const FillTable = () => {
       alert('An error occurred while submitting the response.');
     }
   };
-
-
-
-
   const validateProperties = (propertyName,value) => {
     const errors = {...propertyErrors};
     const property = data.getTemplateById?.properties.find(f => f.propertyName === propertyName);

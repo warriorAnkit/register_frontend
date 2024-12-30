@@ -14,6 +14,7 @@ import {
   Divider,
   Input,
   List,
+  message,
   Modal,
   notification,
   Select,
@@ -21,19 +22,19 @@ import {
   Switch,
   Table,
   Typography,
-  message,
 } from 'antd';
+import Jexl from 'jexl';
+import ReactDragListView from "react-drag-listview";
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import Jexl from 'jexl';
 import { ROUTES } from '../../common/constants';
+import CenteredSpin from '../Dashboard/component/CentredSpin';
 import FieldIcon from './components/FieldIcon';
 import Header from './components/Header';
 import { CHANGE_TEMPLATE_STATUS, UPDATE_TEMPLATE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
-import CenteredSpin from '../Dashboard/component/CentredSpin';
 
 const { Title, Text } = Typography;
 
@@ -398,18 +399,19 @@ const TemplateView = () => {
       return;
     }
 
-    const updatedFields = fields.map((field) => {
+    const updatedFields = fields.map((field,index) => {
+      const updatedField = { ...field, sequence: index };
       if (field.fieldType === 'CALCULATION') {
         const { isValid, convertedFormula } = validateFormulaFields(field.options, fields);
         if (isValid) {
-          return { ...field, options: convertedFormula };
+          return { ...updatedField, options: convertedFormula };
         }
 
-        return field; // Otherwise, return the field as it is
+        return updatedField; // Otherwise, return the field as it is
       }
-      return field; // Return non-calculation fields as they are
+      return updatedField; // Return non-calculation fields as they are
     });
-
+console.log("updatedFieldsSequence",updatedFields);
     const transformedfields = updatedFields.map(item => {
 
       if (item.tempId) {
@@ -765,7 +767,21 @@ console.log(fieldNamesInFormula);
       handleAddFieldOption();
     }
   };
+  const dragProps = {
+    onDragEnd: (fromIndex, toIndex) => {
+      console.log("indec ",fromIndex, toIndex);
+      if (columns[fromIndex]?.key === 'addField' || columns[toIndex]?.key === 'addField') {
+        return; // Do nothing if the drag involves 'Add Field'
+      }
+      const newFields = [...fields];
+      const fieldItem = newFields.splice(fromIndex, 1)[0];
+      newFields.splice(toIndex, 0, fieldItem);
+      console.log("after fields:", newFields);
+      setFields(newFields);
 
+    },
+    nodeSelector: "th", // Dragging happens on <th> elements
+  };
 
   if (loading) {
     return (
@@ -890,6 +906,7 @@ console.log(fieldNamesInFormula);
       <Divider />
 
       <Title level={4}>Table</Title>
+      <ReactDragListView.DragColumn {...dragProps}>
       <Table
         columns={columns}
         dataSource={[{}]}
@@ -898,6 +915,7 @@ console.log(fieldNamesInFormula);
         scroll={{ x: 'max-content' }}
         style={{ marginTop: '16px' ,marginBottom:'20px'}}
       />
+      </ReactDragListView.DragColumn>
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}

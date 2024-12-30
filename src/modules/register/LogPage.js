@@ -194,7 +194,7 @@ console.log(projectId);
         bordered
         style={{ marginTop: '120px' }}
         onRow={(record) => ({
-          onClick: () => navigate(`/register/edit-entries/${record.templateId}/${record.setId}`),
+          onClick: () => navigate(ROUTES.FILL_TABLE.replace(':templateId', record.templateId).replace(':setId', record.setId)),
         })}
 
       />

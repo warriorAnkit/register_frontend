@@ -1149,7 +1149,6 @@ const EditEntry = () => {
       return;
     }
     try {
-      console.log(propertiesData);
       const propertyValues = Object.keys(propertiesData).map((propertyName) => {
         const propertyId = templateData.getTemplateById.properties.find(
           (prop) => prop.propertyName === propertyName,
@@ -1182,7 +1181,7 @@ const EditEntry = () => {
             })
             .filter((entry) => entry !== null), // Filter out null entries
       );
-
+console.log(tableEntries);
       const response = await editResponse({
         variables: {
           setId,

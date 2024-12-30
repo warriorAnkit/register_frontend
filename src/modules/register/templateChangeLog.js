@@ -37,11 +37,19 @@ const ChangeLogOfTemplatePage = () => {
   const renderValue = (record, type) => {
     const value = record.changes?.[`${type}Value`] || 'N/A';
     if (record.actionType === 'UPDATE_TEMPLATE') {
+      // eslint-disable-next-line no-console
+      console.log("fcvdgff",record.entityType);
       return (
         <>
           <div><strong>{type === 'previous' ? 'Old' : 'New'}  Name: </strong>{value.fieldName ||value.propertyName ||'N/A'}</div>
           <div><strong>{type === 'previous' ? 'Old' : 'New'}  Type: </strong>{value.fieldType ||value.propertyFieldType||'N/A'}</div>
-        </>
+          {record.entityType !== 'PROPERTY' && (
+        <div>
+          <strong>{type === 'previous' ? 'Old' : 'New'} Sequence: </strong>
+          {value.sequence !== undefined ? value.sequence+1 : 'N/A'}
+        </div>
+      )}
+     </>
       );
     }
     return JSON.stringify(value);

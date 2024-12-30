@@ -180,3 +180,36 @@ export const CREATE_GLOBAL_TEMPLATE_MUTATION = gql`
   }
   }
 `;
+export const CREATE_SET = gql`
+  mutation createSet($templateId: ID!, $propertyValues: [PropertyInput!]!) {
+    createSet(templateId: $templateId, propertyValues: $propertyValues) {
+      success
+      setId
+      message
+    }
+  }
+`;
+export const FIELD_RESPONSE_SUBMIT = gql`
+  mutation fieldResponseSubmit($setId: ID!, $tableEntries: [[UpdateFieldEntryInput]],$rowNumberDelete: Int,$filling: Boolean) {
+    fieldResponseSubmit(setId: $setId, tableEntries: $tableEntries,rowNumberDelete: $rowNumberDelete,filling: $filling) {
+      success
+      message
+      updatedOrCreatedResponses {
+        responseId
+        fieldId
+        value
+        rowNumber
+        status
+      }
+    }
+  }
+`;
+
+export const EDIT_SET = gql`
+mutation editSet($setId: ID!, $propertyValues: [UpdatePropertyValueInput]) {
+  editSet(setId: $setId, propertyValues: $propertyValues) {
+    success
+    message
+  }
+}
+`;

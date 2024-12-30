@@ -42,6 +42,9 @@ import GlobalTemplateView from './modules/register/editGlobalTemplate';
 import PreviewPage from './modules/register/PreviewPage';
 import ChangeLogOfSetPage from './modules/register/ChangeLogOfSet';
 import ChangeLogOfTemplatePage from './modules/register/templateChangeLog';
+import FillSet from './modules/register/FillSet';
+import FillTableResponse from './modules/register/FillTable';
+
 
 const { Paragraph } = Typography;
 
@@ -127,6 +130,9 @@ const RoutesCollection = () => {
             {path:ROUTES.PREVIEW_REGISTER,element:<PreviewPage/>},
             {path:ROUTES.VIEW_SET_CHANGE_LOG,element:<ChangeLogOfSetPage/>},
             {path:ROUTES.VIEW_TEMPLATE_CHANGE_LOG,element:<ChangeLogOfTemplatePage/>},
+            {path:ROUTES.FILL_SET,element:<FillSet/>},
+            {path:ROUTES.FILL_TABLE,element:<FillTableResponse/>},
+
           ],
 
         },

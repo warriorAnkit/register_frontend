@@ -1,16 +1,32 @@
 import { FolderOutlined } from "@ant-design/icons";
-import { Typography } from "antd";
+import { Typography,Modal } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../common/constants";
 
 const { Title } = Typography;
 
-const Header = ({ name ,setId,templateId,responseLogs,templateLogs}) =>{
+const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,location}) =>{
   const navigate = useNavigate(); // Initialize the navigate function
+// eslint-disable-next-line no-console
 
+const isFillTablePage = location?.includes("/register/fill-table");
 const handleIconClick = () => {
-  navigate(ROUTES.MAIN);
+  if (isFillTablePage) {
+    // Show a confirmation modal before navigation
+    Modal.confirm({
+      title: "Unsaved Changes",
+      content: "You may have unsaved changes. Do you want to navigate away?",
+      onOk: () => {
+        navigate(ROUTES.MAIN);
+      },
+      onCancel: () => {
+        // Do nothing if the user cancels
+      },
+    });
+  } else {
+    navigate(ROUTES.MAIN);
+  }
 };
 const handleSetClick=()=>{
   navigate(ROUTES.EDIT_ENTRIES.replace(':templateId', templateId).replace(':setId', setId));
@@ -19,17 +35,30 @@ const templogClick=()=>{
   navigate(ROUTES.REGISTER_TEMPLATE_VIEW.replace(':templateId', templateId));
 }
 const handleViewEntry = () => {
-
-  navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
+  if (isFillTablePage) {
+    // Show a confirmation modal before navigation
+    Modal.confirm({
+      title: "Unsaved Changes",
+      content: "You have unsaved changes. Do you want to navigate away?",
+      onOk: () => {
+        navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
+      },
+      onCancel: () => {
+        // Do nothing if the user cancels
+      },
+    });
+  } else {
+    navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
+  }
 };
 return(
   <div
   style={{
-    position: "fixed", // Fixes the header to the top of the page
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 1000, // Ensures the header is above other content
+    zIndex: 1000,
     display: "flex",
     alignItems: "center",
     padding: "20px 30px",
@@ -58,6 +87,18 @@ return(
       >
         {name}
       </Title>
+      {fillSet && (
+        <>
+          <span style={{ marginRight: "10px" }}>{"  > "}</span>
+          <Title
+        level={5}
+        style={{ margin: 0, marginRight: "10px", cursor: templateId ? "pointer" : "default" }}
+        onClick={() => responseLogs && handleSetClick()}
+      >
+           Create Set
+          </Title>
+        </>
+      )}
       {setId && (
         <>
           <span style={{ marginRight: "10px" }}>{"  > "}</span>

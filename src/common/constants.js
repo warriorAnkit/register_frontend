@@ -25,6 +25,9 @@ export const ROUTES = {
   PREVIEW_REGISTER:'/register/preview',
   VIEW_SET_CHANGE_LOG:'/register/response-change-log/:setId',
   VIEW_TEMPLATE_CHANGE_LOG:'/register/register-change-log/:templateId',
+  FILL_SET:'/register/fill-set/:templateId',
+  FILL_TABLE:'/register/fill-table/:templateId/:setId',
+  TEST_PAGE:'/register/test-page',
 };
 /*  Modules */
 export const MODULES = {

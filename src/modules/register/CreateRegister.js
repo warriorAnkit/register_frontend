@@ -1,40 +1,20 @@
+/* eslint-disable react/no-this-in-sfc */
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-array-index-key */
-import {
-  CloseOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { CloseOutlined,DeleteOutlined,EditOutlined,PlusOutlined} from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import {
-  Button,
-  Divider,
-  Input,
-  List,
-  message,
-  Modal,
-  notification,
-  Select,
-  Space,
-  Switch,
-  Table,
-  Typography,
-} from 'antd';
+import { Button, Divider, Input, List, message, Modal, notification,Select,Space,Switch,Table,Typography} from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import Jexl from 'jexl';
+import ReactDragListView from "react-drag-listview";
 import { ROUTES } from '../../common/constants';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
 import FieldIcon from './components/FieldIcon';
 import Header from './components/Header';
-import {
-  CHANGE_TEMPLATE_STATUS,
-  CREATE_GLOBAL_TEMPLATE_MUTATION,
-  CREATE_TEMPLATE,
-} from './graphql/Mutation';
+import {CHANGE_TEMPLATE_STATUS,CREATE_GLOBAL_TEMPLATE_MUTATION,CREATE_TEMPLATE} from './graphql/Mutation';
 import './register.less';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
 
@@ -67,7 +47,6 @@ const CreateRegisterPage = () => {
     setNumericFields(filteredFields);
   }, [fields]);
   const [fieldData, setFieldData] = useState({
-
     name: '',
     type: 'TEXT',
     required: true,
@@ -88,8 +67,6 @@ const CreateRegisterPage = () => {
     error: errorProject,
     data: dataProject,
   } = useQuery(GET_PROJECT_ID_FOR_USER);
-
-
 
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
   const showFieldEditModal = (field = null) => {
@@ -216,20 +193,6 @@ const CreateRegisterPage = () => {
   const handleFieldCancel = () => {
     setIsFieldModalVisible(false);
   };
-
-  // const validateFormula = (formula) => {
-  //   if (!formula) return "Formula can't be empty.";
-  //   // Allowable characters: alphanumeric, operators, parentheses, and spaces
-  //   const validChars = /^[0-9a-zA-Z_+\-*/().\s]+$/;
-  //   if (!validChars.test(formula)) return 'Invalid characters in formula.';
-  //   // const replacedFormula = formula.replace(/[a-zA-Z_]+/g, '1');
-  //   try {
-  //     evaluate(replacedFormula);
-  //   } catch (error) {
-  //     return 'Invalid formula syntax.';
-  //   }
-  //   return ''; // No error if formula is valid
-  // };
   const handleFieldTypeChange = (type) => {
     setFieldData({
       ...fieldData,
@@ -304,13 +267,14 @@ const CreateRegisterPage = () => {
 
   const handleSave = async () => {
 
-    const formattedFields = fields.map((field) => ({
+    const formattedFields = fields.map((field,index) => ({
+      sequence: index,
       fieldName: field.fieldName,
       fieldType:  field.fieldType,
       isRequired: field.isRequired,
       options: field.options,
     }));
-
+console.log("formattedFields",formattedFields);
     const formattedProperties = properties.map((property) => ({
       propertyName: property.propertyName,
       propertyFieldType: property.propertyFieldType,
@@ -350,7 +314,7 @@ const CreateRegisterPage = () => {
       }
     } catch (error) {
       notification.error({
-        message: 'Failed to Publish',
+        message: 'Failed to Save',
         description: 'An error occurred while creating the template.',
         duration: 3, // The notification will auto-close after 3 seconds
       });
@@ -387,7 +351,8 @@ const CreateRegisterPage = () => {
       okText: 'Yes, Publish',
       cancelText: 'No, Cancel',
       onOk: async () => {
-        const formattedFields = fields.map((field) => ({
+        const formattedFields = fields.map((field,index) => ({
+          sequence: index,
           fieldName: field.fieldName,
           fieldType: field.fieldType,
           isRequired: field.isRequired,
@@ -592,6 +557,7 @@ const CreateRegisterPage = () => {
 
   const columns = [
     ...fields.map((field) => ({
+
       title: (
         <span>
               <FieldIcon fieldType={field.fieldType} />
@@ -645,15 +611,30 @@ const CreateRegisterPage = () => {
         ]
       ),
   ];
-
+console.log("field",fields);
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddFieldOption();
     }
   };
+  const dragProps = {
+    onDragEnd: (fromIndex, toIndex) => {
+      console.log("indec ",fromIndex, toIndex);
+      if (columns[fromIndex]?.key === 'addField' || columns[toIndex]?.key === 'addField') {
+        return;
+      }
+      const newFields = [...fields];
+      const fieldItem = newFields.splice(fromIndex, 1)[0];
+      newFields.splice(toIndex, 0, fieldItem);
+      console.log("after fields:", newFields);
+      setFields(newFields);
 
+    },
+    nodeSelector: "th", // Dragging happens on <th> elements
+  };
 
+  // Render each column with drag-and-drop functionality
   if (loadingProject) {
     return <CenteredSpin />;
   }
@@ -722,6 +703,7 @@ const CreateRegisterPage = () => {
       <Divider />
 
       <Title level={4}>Table</Title>
+      <ReactDragListView.DragColumn {...dragProps}>
       <Table
         columns={columns}
         dataSource={[{}]}
@@ -730,8 +712,7 @@ const CreateRegisterPage = () => {
         scroll={{ x: 'max-content', y: 400 }} // Vertical scroll with fixed header
         style={{ marginTop: '16px' }}
       />
-
-
+   </ReactDragListView.DragColumn>
 <Space style={{ marginTop: '16px', float: 'right' }}>
 
 
