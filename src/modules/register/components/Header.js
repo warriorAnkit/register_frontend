@@ -1,12 +1,13 @@
-import { FolderOutlined } from "@ant-design/icons";
-import { Typography,Modal } from "antd";
+import { FolderOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Typography, Modal, Popover } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../common/constants";
+import SetDetailsCard from "./SetDetailsCard";
 
 const { Title } = Typography;
 
-const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,location}) =>{
+const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,location,setData}) =>{
   const navigate = useNavigate(); // Initialize the navigate function
 // eslint-disable-next-line no-console
 
@@ -29,7 +30,7 @@ const handleIconClick = () => {
   }
 };
 const handleSetClick=()=>{
-  navigate(ROUTES.EDIT_ENTRIES.replace(':templateId', templateId).replace(':setId', setId));
+  navigate(ROUTES.FILL_TABLE.replace(':templateId', templateId).replace(':setId', setId));
 }
 const templogClick=()=>{
   navigate(ROUTES.REGISTER_TEMPLATE_VIEW.replace(':templateId', templateId));
@@ -109,6 +110,14 @@ return(
       >
            setId-{setId}
           </Title>
+          {setData && (
+          <Popover
+            content={<SetDetailsCard setData={setData} />}
+            overlayStyle={{ padding: 0 ,margin: 0}}
+          >
+            <InfoCircleOutlined style={{color: "#1890ff", cursor: "pointer" }} />
+          </Popover>
+          )}
         </>
       )}
       {responseLogs && (

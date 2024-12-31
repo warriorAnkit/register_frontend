@@ -611,7 +611,7 @@ console.log("formattedFields",formattedFields);
         ]
       ),
   ];
-console.log("field",fields);
+
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
       e.preventDefault();

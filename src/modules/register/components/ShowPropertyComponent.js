@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Input, Select, Checkbox, Form, Button } from 'antd';
 import { useMutation } from '@apollo/client';
+import { format } from 'date-fns';
+import moment from 'moment';
 import { EDIT_SET } from '../graphql/Mutation';
 
 const { TextArea } = Input;
@@ -12,11 +14,11 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
   const [editSet] = useMutation(EDIT_SET);
 
   const handleExpandClick = () => {
-    setIsExpanded((prev) => !prev); // Toggle expanded view for all properties
+    setIsExpanded((prev) => !prev);
   };
   const handleDiscardClick = () => {
     setPropertiesData(initialPropertiesData);
-    setIsEditing(false); // Turn off edit mode
+    setIsEditing(false);
   };
   const validateProperties = (propertyName, value) => {
     const errors = { ...propertyErrors };
@@ -266,6 +268,11 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
         ))}
     </Select>
   </div>
+)}
+
+
+{propertyType === 'DATE' && !isEditing && (
+  <span>{moment(propertiesData[propertyName]).format('DD/MM/YYYY')}</span>
 )}
 {propertyType === 'DATE' && isEditing && (
   <Input

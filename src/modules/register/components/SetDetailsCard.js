@@ -8,7 +8,9 @@ const SetDetailsCard = ({ setData }) => {
   const { createdBy, createdAt, updatedBy, updatedAt } = setData || {};
 
   return (
-    <Card className="details-card">
+    <Card className="details-card"
+    bodyStyle={{ padding: 0 }}
+      style={{ border: 'none', boxShadow: 'none' }}>
       <div className="details-item">
         <strong>Created By: </strong>
         <span>{createdBy || 'N/A'}</span>

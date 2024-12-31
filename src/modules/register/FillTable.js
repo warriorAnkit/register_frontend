@@ -427,6 +427,7 @@ const FillTableResponse = () => {
         setId={setId}
         templateId={templateId}
         location={window.location.href}
+        setData={setData}
       />
 
       <div className="header" style={{ padding: '16px',marginTop: '55px' }}>

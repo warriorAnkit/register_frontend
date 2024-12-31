@@ -38,19 +38,14 @@ import './register.less';
 
 const { Title, Text } = Typography;
 
-
-
 const TemplateView = () => {
   const { templateId } = useParams();
-
   const { loading, error, data } = useQuery(GET_TEMPLATE_BY_ID, {
     variables: { id: templateId },
     fetchPolicy: 'cache-and-network',
   });
-
   const [updateTemplate] = useMutation(UPDATE_TEMPLATE);
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
-
   const [isEditing, setIsEditing] = useState(true);
   const [isFieldModalVisible, setIsFieldModalVisible] = useState(false);
   const [isPropertyModalVisible, setIsPropertyModalVisible] = useState(false);
@@ -588,11 +583,6 @@ console.log("updatedFieldsSequence",updatedFields);
   const validateFormulaFields = (formula) => {
     // Convert field IDs to field names
     const convertedFormula = replaceFieldIdsWithNames(formula);
-
-    console.log("Converted Formula:", convertedFormula);
-
-    // Extract any remaining numbers in the formula (these represent unconverted IDs)
-    // const remainingIds = convertedFormula.match(/\b\d+\b/g);
     const unconvertedIds = convertedFormula.replace(/"([^"]*)"/g, ''); // Remove strings inside quotes
     const remainingIds = unconvertedIds.match(/\b\d+\b/g);
 console.log(remainingIds);

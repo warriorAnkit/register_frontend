@@ -300,6 +300,7 @@ console.log('tableDatafirst:', tableData);
               handleInputChange(rowIndex, fieldName, value);
               validateFields(fieldName, rowIndex, value);
             }}
+            placeholder='Input text'
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -323,6 +324,7 @@ console.log('tableDatafirst:', tableData);
               handleInputChange(rowIndex, fieldName, value);
               validateFields(fieldName, rowIndex, value);
             }}
+            placeholder='Input Multi Line Text'
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -337,6 +339,7 @@ console.log('tableDatafirst:', tableData);
 
         {fieldType === 'OPTIONS' && (
           <Select
+           placeholder="Select an option"
             value={fieldValue}
             onChange={(value) => {
               handleInputChange(rowIndex, fieldName, value);
@@ -350,6 +353,7 @@ console.log('tableDatafirst:', tableData);
               height: '30px',
               boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
+
             onFocus={() => setOpenedIndex(`${rowIndex}-${fieldName}`)} // Open dropdown for this index
             onBlur={() => {
               setOpenedIndex(null); // Close dropdown when focus is lost
@@ -357,6 +361,7 @@ console.log('tableDatafirst:', tableData);
             }}
             open={openedIndex === `${rowIndex}-${fieldName}`}
           >
+
             {templateData.getTemplateById?.fields
               .find((f) => f.id === fieldName)
               ?.options.map((option) => (
@@ -387,12 +392,14 @@ console.log('tableDatafirst:', tableData);
             onBlur={() => {
               handleBlur(rowIndex);
             }}
+            placeholder="input number"
           />
         )}
 {fieldType === 'CHECKBOXES' && (
   <div style={{ marginTop: 8 }}>
     <Select
       mode="multiple"
+      placeholder="Select multiple options"
       value={
         Array.isArray(tableData[rowIndex][fieldName]?.value)
           ? tableData[rowIndex][fieldName]?.value

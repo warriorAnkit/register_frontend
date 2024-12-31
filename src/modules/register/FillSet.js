@@ -4,6 +4,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import Title from 'antd/es/skeleton/Title';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
 import Header from './components/Header';
 import { CREATE_SET} from './graphql/Mutation';
@@ -138,8 +139,9 @@ console.log(property);
   return (
     <div className="fill-table">
       <Header name={data?.getTemplateById?.name} fillSet/>
-      <div style={{marginTop: '80px ',padding:'15px '}}>
+      <div style={{marginTop: '80px ',paddingLeft:'10px '}}>
       <div className="properties-section">
+      <h2>Properties</h2>
         {Object.keys(propertiesData).length > 0 ? (
           Object.entries(propertiesData).map(([propertyName, value]) => {
             const property = data?.getTemplateById.properties.find(
