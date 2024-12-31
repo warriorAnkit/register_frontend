@@ -44,6 +44,7 @@ import ChangeLogOfSetPage from './modules/register/ChangeLogOfSet';
 import ChangeLogOfTemplatePage from './modules/register/templateChangeLog';
 import FillSet from './modules/register/FillSet';
 import FillTableResponse from './modules/register/FillTable';
+import TestPage from './modules/register/TestPage';
 
 
 const { Paragraph } = Typography;
@@ -132,6 +133,7 @@ const RoutesCollection = () => {
             {path:ROUTES.VIEW_TEMPLATE_CHANGE_LOG,element:<ChangeLogOfTemplatePage/>},
             {path:ROUTES.FILL_SET,element:<FillSet/>},
             {path:ROUTES.FILL_TABLE,element:<FillTableResponse/>},
+            {path:ROUTES.TEST_PAGE,element:<TestPage/>},
 
           ],
 

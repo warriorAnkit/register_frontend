@@ -21,22 +21,16 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { ROUTES } from '../../common/constants';
-import {
-  GET_PROJECT_ID_FOR_USER,
-  LIST_ARCHIVED_TEMPLATES_BY_PROJECT,
-  LIST_DRAFT_TEMPLATES_BY_PROJECT,
-  LIST_LIVE_TEMPLATES_BY_PROJECT,
-} from './graphql/Queries';
 
 import { GET_CURRENT_USER } from '../auth/graphql/Queries';
-import FileUploadModal from '../register/components/FileUploadModal';
-import GlobalTemplateModal from '../register/components/GlobalTemplateModal';
 import { DELETE_TEMPLATE } from '../register/graphql/Mutation';
+import GlobalTemplateModal from '../register/components/GlobalTemplateModal';
+import FileUploadModal from '../register/components/FileUploadModal';
 import CenteredSpin from './component/CentredSpin';
 import HeaderComponent from './component/Header';
+import { GET_ALL_TEMPLATES, GET_PROJECT_ID_FOR_USER } from './graphql/Queries';
 
 const { Title, Text } = Typography;
-
 const Dashboard = () => {
   const navigate = useNavigate();
   const isBrowser = typeof window !== 'undefined';
@@ -73,31 +67,18 @@ const Dashboard = () => {
   } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
   console.log('id:,', projectId);
-  const { loading: loadingLive, error: errorLive, data: dataLive } = useQuery(
-    LIST_LIVE_TEMPLATES_BY_PROJECT,
-    {
-      variables: { projectId },
-      skip: !projectId,
-      fetchPolicy: 'cache-and-network',
+console.log(projectId)
+
+  const { data:templateData, loading:templateLoading, error:templateError, refetch } = useQuery(GET_ALL_TEMPLATES, {
+    variables: {
+      page: currentPage,
+      pageSize,
+      search: searchText,
+      filters: activeFilter,
+      projectId,
     },
-  );
-  const {
-    loading: loadingDraft,
-    error: errorDraft,
-    data: dataDraft,
-  } = useQuery(LIST_DRAFT_TEMPLATES_BY_PROJECT, {
-    variables: { projectId },
     skip: !projectId,
-    fetchPolicy: 'cache-and-network',
-  });
-  const {
-    loading: loadingArchived,
-    error: errorArchived,
-    data: dataArchived,
-  } = useQuery(LIST_ARCHIVED_TEMPLATES_BY_PROJECT, {
-    variables: { projectId },
-    skip: !projectId,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
   });
 
   const { data: currentUserData } = useQuery(GET_CURRENT_USER);
@@ -114,48 +95,29 @@ const Dashboard = () => {
     }
   }, [currentUserData]);
   useEffect(() => {
-    if (dataLive && dataDraft && dataArchived) {
-      const allTemplates = [
-        ...dataLive.getLiveTemplatesByProject.map((template) => ({
-          ...template,
-          status: 'Live',
-        })),
-        ...dataDraft.getDraftTemplatesByProject.map((template) => ({
-          ...template,
-          status: 'Draft',
-        })),
-        ...dataArchived.getArchiveTemplatesByProject.map((template) => ({
-          ...template,
-          status: 'Archived',
-        })),
-      ];
-      allTemplates.forEach((a) => console.log(a));
-      // Sort templates by 'createdAt' in descending order
-      const sortedTemplates = allTemplates.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      // Update the state with sorted templates
-      setTemplates(sortedTemplates);
+    if (userRole === 'USER') {
+      setActiveFilter('live'); // Automatically set filter to "live" for user role
     }
-  }, [dataLive, dataDraft, dataArchived]);
+  }, [userRole]);
+
+  // Effect to refetch the data when search text, filter, page size, or page number changes
+  useEffect(() => {
+    if(projectId){
+    refetch({
+      page: currentPage,
+      pageSize,
+      search: searchText,
+      filters: activeFilter,
+    });
+  }
+  }, [searchText, activeFilter, pageSize, currentPage, refetch]);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter]);
+console.log(templateData);
 
-  const filteredTemplates = templates
-  .filter((template) =>
-     userRole === 'USER'
-      ? template.status === 'Live'
-      : activeFilter === 'all' || template.status.toLowerCase() === activeFilter,
-  )
-  .filter((template) =>
-    template.name.toLowerCase().includes(searchText.toLowerCase()),
-  );
-
-  const paginatedTemplates = filteredTemplates.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-
+  const paginatedTemplates = templateData?.getAllTemplates?.templates || [];
   // Filter dropdown menu
   useEffect(() => {
     if (isBrowser) {
@@ -231,9 +193,7 @@ const Dashboard = () => {
         await deleteTemplate({
           variables: { id: templateId },
         });
-        setTemplates((prevTemplates) =>
-          prevTemplates.filter((template) => template.id !== templateId),
-        );
+        await refetch();
 
         notification.success({
           message: 'Template Deleted',
@@ -251,12 +211,11 @@ const Dashboard = () => {
     setActiveFilter(newFilter); // Update activeFilter state
     setCurrentPage(1); // Reset page to the first one on filter change
   };
-if((loadingLive || loadingDraft || loadingArchived)){
-  return <CenteredSpin />;
-}
+
 
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative' }}>
+
       <HeaderComponent
         projectId={projectId}
         createMenu={createMenu}
@@ -279,19 +238,19 @@ if((loadingLive || loadingDraft || loadingArchived)){
           paddingTop: '140px',
           paddingBottom: '60px',
           marginTop: '40px',
-          filter: (loadingLive || loadingDraft || loadingArchived) ? 'blur(4px)' : 'none',
+          filter: (templateLoading) ? 'blur(4px)' : 'none',
         }}
       >
-        {/* {(loadingLive || loadingDraft || loadingArchived) ? <CenteredSpin /> : null} */}
-        {(errorLive || errorDraft || errorArchived) && (
+        {(templateError )&& (
           <Alert
             message="Error"
-            description={(errorLive || errorDraft || errorArchived).message}
+            description={(templateError).message}
             type="error"
             showIcon
           />
         )}
-
+{templateLoading && (<CenteredSpin />)}
+{(!templateLoading &&
         <Row gutter={[16, 16]}>
           {paginatedTemplates.length > 0 ? (
             paginatedTemplates.map((template) => (
@@ -308,9 +267,9 @@ if((loadingLive || loadingDraft || loadingArchived)){
                   <Badge.Ribbon
                     text={template.status}
                     color={
-                      template.status === 'Live'
+                      template.status === 'LIVE'
                         ? 'green'
-                        : template.status === 'Draft'
+                        : template.status === 'DRAFT'
                         ? 'blue'
                         : 'gray'
                     }
@@ -396,7 +355,7 @@ if((loadingLive || loadingDraft || loadingArchived)){
                         Edit
                       </Button>
                     )}
-                    {template.status === 'Draft' && (
+                    {template.status === 'DRAFT' && (
                       <Button
                         onClick={() => {
                           handleDeleteButtonClick(template.id);
@@ -407,7 +366,7 @@ if((loadingLive || loadingDraft || loadingArchived)){
                         Delete Template
                       </Button>
                     )}
-                    {template.status !== 'Draft' && (
+                    {template.status !== 'DRAFT' && (
                       <Button
                         onClick={() => {
                           handleViewEntryButtonClick(template.id);
@@ -418,7 +377,7 @@ if((loadingLive || loadingDraft || loadingArchived)){
                         View Entries
                       </Button>
                     )}
-                    {template.status === 'Live' && (
+                    {template.status === 'LIVE' && (
                       <Button
                         onClick={() => {
                           handleFillEntryButtonClick(template.id);
@@ -436,21 +395,23 @@ if((loadingLive || loadingDraft || loadingArchived)){
           ) : (
             <Col span={24}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-                {(loadingLive || loadingDraft || loadingArchived) && (
+                {(templateLoading) && (
                   <Empty description="No templates found." />
                 )}
               </div>
             </Col>
           )}
         </Row>
+        )}
       </div>
       <div
         style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}
       >
+
         <Pagination
           current={currentPage}
           pageSize={pageSize}
-          total={filteredTemplates.length}
+          total={templateData?.getAllTemplates?.totalCount || 0}
           showSizeChanger
           pageSizeOptions={['10', '15', '25', '50']}
           onChange={(page, size) => {

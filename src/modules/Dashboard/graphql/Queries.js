@@ -47,29 +47,25 @@ export const LIST_ARCHIVED_TEMPLATES_BY_PROJECT = gql`
     }
   }
 `;
-export const LIST_TEMPLATES_WITH_PAGINATION = gql`
-  query getTemplatesWithPagination(
-    $projectId: ID!
+export const GET_ALL_TEMPLATES = gql`
+  query getAllTemplates(
     $page: Int
     $pageSize: Int
-    $searchQuery: String
+    $search: String
     $filters: String
+    $projectId: ID!
   ) {
-    getTemplatesWithPagination(
-      projectId: $projectId
-      page: $page
-      pageSize: $pageSize
-      searchQuery: $searchQuery
-      filters: $filters
-    ) {
-      id
-      name
-      status
-      projectId
-      createdById
-      numberOfSets
-      numberOfEntries
-      createdAt
+    getAllTemplates(page: $page, pageSize: $pageSize, search: $search, filters: $filters,projectId: $projectId) {
+      templates {
+        id
+        name
+        status
+        numberOfSets
+        numberOfEntries
+      }
+      totalCount
+      page
+      pageSize
     }
   }
 `;
