@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 
 import React, { useState, useEffect } from 'react';
 import { useQuery, useLazyQuery  } from '@apollo/client';
@@ -17,12 +18,15 @@ const { Title, Text } = Typography;
 
 const LogsPage = () => {
   const navigate = useNavigate();
+  const isBrowser = typeof window !== 'undefined';
   const [logs, setLogs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [userNames, setUserNames] = useState({});
-  const [searchText, setSearchText] = useState('');
-
+  const [searchText, setSearchText] = useState(
+    isBrowser ? sessionStorage.getItem('searchLogText') || '' : '',
+  );
+ const [count,setcount]=useState(0);
   const [getUserById] = useLazyQuery(GET_USER_BY_ID);
 
   const fetchUserNames = async (userIds) => {
@@ -47,16 +51,23 @@ const LogsPage = () => {
   const projectId = projectData ? projectData.getProjectIdForUser : null;
 // eslint-disable-next-line no-console
 console.log(projectId);
-  const { data: allTemplatesData, loading, error } = useQuery(GET_ALL_SETS_FOR_ALL_TEMPLATES, {
-    variables: { projectId },
+  const { data: allTemplatesData, loading, error ,refetch} = useQuery(GET_ALL_SETS_FOR_ALL_TEMPLATES, {
+    variables: { projectId,
+      page:currentPage,
+      pageSize,
+      search:searchText,
+    },
     fetchPolicy: 'cache-and-network',
     skip: !projectId,
   });
-
+// eslint-disable-next-line no-console
+console.log("dtat",allTemplatesData);
 
   useEffect(() => {
     if (allTemplatesData && allTemplatesData.getAllSetsForAllTemplates) {
-      const sets = allTemplatesData.getAllSetsForAllTemplates.map((template) => ({
+      // eslint-disable-next-line no-console
+
+      const sets = allTemplatesData.getAllSetsForAllTemplates.sets.map((template) => ({
         templateName: template.templateName,
         setId: template.setId,
         createdAt: template.createdAt,
@@ -68,8 +79,30 @@ console.log(projectId);
       setLogs(sets);
       const userIds = sets.map((log) => log.userId);
       fetchUserNames(userIds);
+      const {totalCount} = allTemplatesData.getAllSetsForAllTemplates;
+      // eslint-disable-next-line no-console
+      // console.log(totalCount.totalCount);
+     setcount(totalCount);
     }
   }, [allTemplatesData]);
+
+  useEffect(() => {
+    if(projectId){
+    refetch({
+      page: currentPage,
+      pageSize,
+      search: searchText,
+    });
+  }
+  }, [searchText,  pageSize, currentPage, refetch]);
+
+  useEffect(() => {
+    if (isBrowser) {
+      sessionStorage.setItem('searchLogText', searchText);
+      // console.log(searchText,"ghd");
+    }
+    setCurrentPage(1);
+  }, [ searchText]);
   const handleTabChange = (key) => {
         if (key === 'template') {
           navigate(ROUTES.MAIN); // Switch to Template page
@@ -87,15 +120,16 @@ console.log(projectId);
   );
 
 
-  if (loading) {
-    return <CenteredSpin/>;
-  }
+  // if (loading) {
+  //   return <CenteredSpin/>;
+  // }
 
   if (error) {
     return <div>
        <LogHeaderComponent
         projectId={projectId}
         handleTabChange={handleTabChange}
+        searchText={searchText}
         setSearchText={setSearchText}
         logs={filteredLogs}
         userNames={userNames}
@@ -181,14 +215,19 @@ console.log(projectId);
         handleTabChange={handleTabChange}
         setSearchText={setSearchText}
         logs={filteredLogs}
+        searchText={searchText}
         userNames={userNames}
       />
       <Title level={3}>Logs</Title>
+      {loading && <CenteredSpin/>}
+
+      {!loading&&  (
+        <>
       <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto',overflowX:'auto' ,scrollbarWidth: 'thin', // This applies to both but affects X in Firefox
     scrollbarColor: '#888 transparent' }}>
       <Table
         columns={columns}
-        dataSource={paginatedLogs}
+        dataSource={logs}
         rowKey="setId"
         pagination={false}
         bordered
@@ -205,11 +244,11 @@ console.log(projectId);
       <Pagination
         current={currentPage}
         pageSize={pageSize}
-        total={filteredLogs.length}
+       total={count}
         onChange={(page) => setCurrentPage(page)}
         onShowSizeChange={(current, size) => setPageSize(size)}
         showSizeChanger
-        showTotal={(total) => `Total ${total} logs`}
+
         style={{
           position: 'fixed',
           bottom: 0,
@@ -222,6 +261,8 @@ console.log(projectId);
           display: 'flex',
         }}
       />
+      </>
+      )}
     </div>
   );
 };

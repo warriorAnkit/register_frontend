@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button, Dropdown, Input, Tabs, Menu, Row, Col } from 'antd';
-import {  DownOutlined, SearchOutlined, ExportOutlined ,UploadOutlined} from '@ant-design/icons';
+import {  DownOutlined, SearchOutlined, ExportOutlined ,UploadOutlined, CloseOutlined } from '@ant-design/icons';
 import { jsPDF } from 'jspdf';
 import { parse } from 'json2csv'; // Used to convert JSON to CSV
 import moment from 'moment';
@@ -13,10 +13,12 @@ const LogHeaderComponent = ({
   handleTabChange,
   setSearchText,
   logs,
+  searchText,
   userNames,
 }) => {
   const [currentTab, setCurrentTab] = useState('log');
-
+// eslint-disable-next-line no-console
+console.log("text",searchText,projectId);
   const exportCSV = () => {
     try {
       const mappedLogs = logs.map(log => ({
@@ -66,7 +68,9 @@ const LogHeaderComponent = ({
       </Menu.Item>
     </Menu>
   );
-
+  const clearSearch = () => {
+    setSearchText('');
+  };
   return (
     <div>
       <div style={{
@@ -101,7 +105,16 @@ const LogHeaderComponent = ({
           <Col xs={24} sm={8} md={12} style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
             <Input
               placeholder="Search..."
+              value={searchText}
               prefix={<SearchOutlined style={{ color: '#FF6B6B' }} />}
+              suffix={
+                searchText && (
+                  <CloseOutlined
+                    onClick={clearSearch}
+                    style={{ color: '#FF6B6B', cursor: 'pointer' }}
+                  />
+                )
+              }
               onChange={(e) => setSearchText(e.target.value)}
               style={{ width: 200, height: 33 }}
             />

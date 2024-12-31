@@ -115,9 +115,10 @@ console.log(projectId)
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter]);
-console.log(templateData);
+
 
   const paginatedTemplates = templateData?.getAllTemplates?.templates || [];
+  console.log(paginatedTemplates);
   // Filter dropdown menu
   useEffect(() => {
     if (isBrowser) {
@@ -125,6 +126,7 @@ console.log(templateData);
       sessionStorage.setItem('searchText', searchText);
       console.log(searchText,"ghd");
     }
+    setCurrentPage(1);
   }, [activeFilter, searchText]);
 
   const handleTabChange = (key) => {

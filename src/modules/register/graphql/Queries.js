@@ -132,15 +132,18 @@ export const GET_ALL_RESPONSES_FOR_TEMPLATE = gql`
 
 
 export const GET_ALL_SETS_FOR_ALL_TEMPLATES = gql`
-  query getAllSetsForAllTemplates($projectId: ID!) {
-    getAllSetsForAllTemplates(projectId: $projectId) {
-      setId
-      templateName
-      createdAt
-      userId
-      updatedAt
-      updatedBy
-      templateId
+  query getAllSetsForAllTemplates($projectId: ID! ,$page:Int,$pageSize:Int,$search:String) {
+    getAllSetsForAllTemplates(projectId: $projectId,page:$page,pageSize:$pageSize,search:$search) {
+      sets {
+        setId
+        templateName
+        createdAt
+        userId
+        updatedAt
+        updatedBy
+        templateId
+      }
+      totalCount
     }
   }
 `;
