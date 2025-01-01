@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-undef */
@@ -327,7 +328,7 @@ const FillTableResponse = () => {
 
     const startY = 30; // Position below the header
     const contentLines = doc.splitTextToSize(
-      `${setDetailsContent}\n${propertiesContent}`,
+      `${setDetailsContent}\n     Properties-${propertiesContent}`,
       doc.internal.pageSize.width - 20,
     );
     doc.text(contentLines, 10, startY);
@@ -337,21 +338,6 @@ const FillTableResponse = () => {
       templateData?.getTemplateById?.fields.map((field) => {
         const fieldId = field.id;
         const fieldValue = row[fieldId]?.value;
-        if (field.fieldType === 'ATTACHMENT' && fieldValue) {
-          const fileLinks = fieldValue.split(',').map((fileName) => {
-            const fileUrl = `https://storage.googleapis.com/digiqc_register/${fileName.trim()}`;
-
-            return {
-              text: '📎 Open File', // Image icon for the attachment
-               link: fileUrl,
-              imageUrl: fileUrl,
-            };
-          });
-
-          return fileLinks.length > 0
-            ? fileLinks.map((link) => `[${link.link}]`).join(', ')
-            : '-';
-        }
         return fieldValue || '-';
       }),
     );
@@ -371,6 +357,62 @@ const FillTableResponse = () => {
       theme: 'striped',
       margin: { bottom: 50 },
       pageBreak: 'auto',
+      didParseCell: (data) => {
+        const columnIndex = data.column.index;
+        const field = templateData?.getTemplateById?.fields[columnIndex];
+        if (field?.fieldType === 'ATTACHMENT' && data.row.section === 'body') {
+          // Clear cell text to prevent displaying placeholder or empty string
+          data.cell.text = [];
+        }
+      },
+      didDrawCell: (data) => {
+        const columnIndex = data.column.index;
+        const rowIndex = data.row.index;
+        const field = templateData?.getTemplateById?.fields[columnIndex];
+        const fieldValue = tableDatas[rowIndex][columnIndex];
+        // eslint-disable-next-line no-param-reassign
+        console.log("data",data);
+        if (data.row.section === 'head') {
+          return data.cell.text; // Exit if it's a header cell
+        }
+        // Check if the field type is ATTACHMENT and fieldValue exists
+        if (field?.fieldType === 'ATTACHMENT' && fieldValue) {
+          const fileLinks = fieldValue.split(',').map((fileName) => {
+            const fileUrl = `https://storage.googleapis.com/digiqc_register/${fileName.trim()}`;
+            return fileUrl;
+          });
+          data.cell.text = [];
+          // const linkX = data.cell.x + 2; // Padding inside the cell
+          // const linkY = data.cell.y + data.cell.height / 2; // Center the link vertically
+
+          const iconSize = 5;
+          fileLinks.forEach((fileUrl, index) => {
+            // const linkX = data.cell.x + 2 + index *19; // Adjust horizontal spacing (50 is just an example, you can change it)
+            // const linkY = data.cell.y + data.cell.height / 2; // Center vertically
+            const linkX = data.cell.x + 2 + index * 10; // Adjust horizontal spacing
+            const linkY = data.cell.y + (data.cell.height - iconSize) / 2; // Center vertically
+
+            // Add the image icon in the cell
+            // doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+            // doc.addImage(, 'PNG', linkX, linkY, 10, 10);
+            // doc.imageWithLink(fileUrl, linkX, linkY, iconSize, iconSize, {    url: fileUrl});
+            // doc.textWithLink(
+            //   ``, // Display text
+            //   linkX,
+            //   linkY, // Add spacing for multiple links
+            //   { url: fileUrl },
+            // );
+            doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+
+            // Create a clickable link over the image area
+            doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+          });
+
+          // Clear the default content in the cell
+          // eslint-disable-next-line no-param-reassign
+
+        }
+      },
       didDrawPage: (data) => {
         const currentPageHeight = doc.internal.pageSize.height;
         const footerY = currentPageHeight - 8;
@@ -411,11 +453,11 @@ const FillTableResponse = () => {
     </Menu>
   );
 
-  if (templateLoading && responseLoading) {
-    return (
-      <CenteredSpin/>
-    );
-  }
+  // if (templateLoading && responseLoading) {
+  //   return (
+  //     <CenteredSpin/>
+  //   );
+  // }
 
   return (
    <NavigationGuard
@@ -429,7 +471,9 @@ const FillTableResponse = () => {
         location={window.location.href}
         setData={setData}
       />
-
+      {(templateLoading||responseLoading)&&
+      <CenteredSpin/>}
+{(!templateLoading || !responseLoading)&& ( <>
       <div className="header" style={{ padding: '16px',marginTop: '55px' }}>
 {!filling && (
   <>
@@ -448,9 +492,7 @@ const FillTableResponse = () => {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-        {!filling &&
-      <SetDetailsCard setData={setData} />
-        }
+
 
     <ShowPropertyComponent setPropertiesData={setPropertiesData}  propertiesData={propertiesData} templateData={templateData} responseData={responseData}  initialPropertiesData={initialPropertiesData} isEditing={isEditing} setIsEditing={setIsEditing} setId={setId}/>
 
@@ -477,6 +519,7 @@ const FillTableResponse = () => {
       Save Response
     </Button>
   </div>
+  </>)}
     </div>
 
   </NavigationGuard>

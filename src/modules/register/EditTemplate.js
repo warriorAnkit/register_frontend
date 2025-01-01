@@ -435,10 +435,10 @@ console.log("updatedFieldsSequence",updatedFields);
 
       setIsEditing(false);
       if(response.data.updateTemplate.message){
-        notification.success({
-          message: 'Register updated',
-          description: `The  Register is now updated and saved`,
-        });
+        // notification.success({
+        //   message: 'Register updated',
+        //   description: `The  Register is now updated and saved`,
+        // });
       }
       // eslint-disable-next-line no-shadow
     } catch (error) {
@@ -728,17 +728,17 @@ console.log(fieldNamesInFormula);
               newStatus,
             },
           });
-          notification.success({
-            message: 'Status Updated',
-            description: `The status is now ${newStatus}`,
-          });
+          // notification.success({
+          //   message: 'Status Updated',
+          //   description: `The status is now ${newStatus}`,
+          // });
         // eslint-disable-next-line no-shadow
         } catch (error) {
           console.error('Error changing status:', error.message);
-          notification.error({
-            message: 'Error',
-            description: 'There was an issue updating the status. Please try again.',
-          });
+          // notification.error({
+          //   message: 'Error',
+          //   description: 'There was an issue updating the status. Please try again.',
+          // });
         }
       },
       onCancel: () => {

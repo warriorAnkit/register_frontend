@@ -313,11 +313,11 @@ console.log("formattedFields",formattedFields);
         }
       }
     } catch (error) {
-      notification.error({
-        message: 'Failed to Save',
-        description: 'An error occurred while creating the template.',
-        duration: 3, // The notification will auto-close after 3 seconds
-      });
+      // notification.error({
+      //   message: 'Failed to Save',
+      //   description: 'An error occurred while creating the template.',
+      //   duration: 3, // The notification will auto-close after 3 seconds
+      // });
       console.error(error);
     }
   };

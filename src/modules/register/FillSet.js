@@ -132,14 +132,19 @@ console.log(property);
     }
   };
 
-  if (loading) {
-    return <CenteredSpin />;
-  }
+  // if (loading) {
+  //   return <CenteredSpin />;
+  // }
 
   return (
     <div className="fill-table">
       <Header name={data?.getTemplateById?.name} fillSet/>
+
+
+
       <div style={{marginTop: '80px ',paddingLeft:'10px '}}>
+      {loading && <CenteredSpin/>}
+      {!loading && (<>
       <div className="properties-section">
       <h2>Properties</h2>
         {Object.keys(propertiesData).length > 0 ? (
@@ -177,7 +182,10 @@ console.log(property);
       <div className="submit-section">
         <button type="button" onClick={handleSave}>Submit Response</button>
       </div>
+      </>
+      )}
     </div>
+
     </div>
   );
 };

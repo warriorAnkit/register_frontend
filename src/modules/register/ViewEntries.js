@@ -490,15 +490,13 @@ useEffect(() => {
   };
 }, []);
 
-if (templateLoading || responseLoading || entryResponseLoading) {
-  return <CenteredSpin/>;
-}
 return (
   <div className="tabs-page-container">
     <div className="header-container">
         <Header name={templateName} />
     </div>
-
+    {responseLoading && <CenteredSpin/> }
+    {entryResponseLoading && <CenteredSpin/> }
     <div className="tabs-container" style={{ padding: '20px' }}>
       {/* Tabs Section */}
       <Tabs
@@ -506,6 +504,10 @@ return (
         onChange={setActiveTab}
         className="tabs-container"
       >
+
+
+
+
         <TabPane tab="Sets" key="set">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
@@ -520,6 +522,9 @@ return (
             </Space>
 
 
+
+{!responseLoading && (
+  <>
   <div className="table-container" style={{ overflowX: 'auto' }}>
               <Table
                 columns={columns}
@@ -545,7 +550,11 @@ return (
                 pageSizeOptions={[10, 16, 25, 50]}
               />
             </div>
+            </>
+)}
           </div>
+
+
         </TabPane>
 
         <TabPane tab="Entries" key="entries">
@@ -559,6 +568,8 @@ return (
               </Dropdown>
             </Space>
 
+{!entryResponseLoading && (
+  <>
             <div className="table-container" style={{ overflowX: 'auto' }}>
               <Table
                 columns={EntriesColumns}
@@ -588,6 +599,8 @@ return (
                 pageSizeOptions={[10, 16, 25, 50]}
               />
             </div>
+            </>
+)}
           </div>
         </TabPane>
       </Tabs>

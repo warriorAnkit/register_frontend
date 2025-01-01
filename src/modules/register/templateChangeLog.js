@@ -124,18 +124,21 @@ const ChangeLogOfTemplatePage = () => {
   };
 
   const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  if (loading) {
-    return (
-     <CenteredSpin/>
+  // if (loading) {
+  //   return (
+  //    <CenteredSpin/>
 
-    );
-  }
+  //   );
+  // }
   return (
     <div>
       <Header name={templateName} templateId={templateId} templateLogs/>
     <div style={{ padding: '10px',marginTop: '60px'}}>
       <Title level={2}style={{ margin: '5px 0' }}>Change Log</Title>
       {error && <p>Error loading logs</p>}
+      {loading && <CenteredSpin/>}
+      {!loading && (
+        <>
       {logs.length === 0 ? (
         <div
           style={{
@@ -185,6 +188,8 @@ const ChangeLogOfTemplatePage = () => {
             }}
           />
         </>
+      )}
+      </>
       )}
     </div>
     </div>

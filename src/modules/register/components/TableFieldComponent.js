@@ -676,7 +676,7 @@ console.log('tableDatafirst:', tableData);
       title: 'Index',
       key: 'index',
       render: (text, record, index) => index + 1,
-      width: 15,
+       width: 70,
     },
     ...(Array.isArray(templateData?.getTemplateById?.fields)
       ? templateData?.getTemplateById?.fields.map((field) => ({
