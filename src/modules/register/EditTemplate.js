@@ -719,6 +719,14 @@ const TemplateView = () => {
       });
       return;
     }
+    if (!properties || properties.length === 0) {
+      notification.warning({
+        message: 'No properties Added',
+        description: 'Please add at least one property before making the Register Live.',
+        duration: 3,
+      });
+      return;
+    }
     Modal.confirm({
       title: 'Confirm Status Change',
       content: `Are you sure you want to save the changes of register and change the status from "${oldStatus}" to "${newStatus}"?`,

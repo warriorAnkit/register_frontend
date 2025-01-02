@@ -380,6 +380,14 @@ const CreateRegisterPage = () => {
       });
       return;
     }
+    if (!properties || properties.length === 0) {
+      notification.warning({
+        message: 'No property Added',
+        description: 'Please add at least one property before publishing the template.',
+        duration: 3,
+      });
+      return;
+    }
 
     // Show confirmation modal
     Modal.confirm({
