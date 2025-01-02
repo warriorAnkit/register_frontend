@@ -216,7 +216,7 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
             style={{
               width: '100%',
               maxWidth: '500px',
-              height: '30px', // Match the height
+              height: '28px', // Match the height
               borderRadius: '4px', // Add border radius for consistency
               boxSizing: 'border-box', // Match box sizing
             }}

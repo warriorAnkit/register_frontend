@@ -3,7 +3,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Dropdown, Menu, Space, Tabs, DatePicker,Pagination } from 'antd';
+import { Table, Input, Button, Dropdown, Menu, Space, Tabs, DatePicker,Pagination, message } from 'antd';
 import { SearchOutlined, ExportOutlined, DownOutlined,UploadOutlined ,FileImageOutlined,FilePdfOutlined} from '@ant-design/icons';
 import { useQuery, useApolloClient} from '@apollo/client';
 import './ViewEntry.less';
@@ -240,14 +240,15 @@ const ViewEntries = () => {
               <FileImageOutlined style={{ fontSize: 48, color: '#1890ff' }} />
             )}
                     <div>
-                      <a
-                        href={fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                      >
-                        Open File
-                      </a>
+                    <a
+                      href={fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: 'none', color: 'inherit', pointerEvents: 'auto' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Open File
+                    </a>
                     </div>
                   </div>
                 );
@@ -286,6 +287,10 @@ const ViewEntries = () => {
    const exportCSV = (column, data, fileName) => {
     try {
       // Create headers excluding 'Edit' and without adding '#'
+      if(data.length === 0) {
+        message.error('No data to export');
+        return;
+      }
       const headers = column
         .filter(col => col.title !== 'Edit' && col.title !== '#') // Exclude '#'
         .map(col => col.title);
@@ -374,6 +379,10 @@ const client = useApolloClient();
 const exportPDF = async (column, data, fileName) => {
   try {
     const tableData = data;
+    if(data.length === 0) {
+      message.error('No data to export');
+      return;
+    }
     const headerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerText = 'Digitize.Monitor.Improve'; // Center footer text
@@ -591,10 +600,10 @@ return (
         <TabPane tab="Sets" key="set">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
-              {/* <RangePicker onChange={handleDateChange}  disabledDate={disabledDate}
-                  defaultValue={[moment().startOf('month'), moment()]}
-                  /> */}
-                     <RangePicker />
+              <RangePicker onChange={handleDateChange}  disabledDate={disabledDate}
+                  // defaultValue={[moment().startOf('month'), moment()]}
+                  />
+
 
               <Dropdown overlay={exportMenu}>
                 <Button icon={<UploadOutlined/>} onClick={(e) => e.preventDefault()}>

@@ -10,6 +10,7 @@ import { useMutation } from '@apollo/client';
 import ImageUpload from './AttachmentUpload';
 import { FIELD_RESPONSE_SUBMIT } from '../graphql/Mutation';
 import { ROUTES } from '../../../common/constants';
+import './Component.less';
 // import ImageUpload from './ImageUpload'; // Import your custom image upload component
 
 const TableFieldComponent =forwardRef(({
@@ -224,12 +225,13 @@ const TableFieldComponent =forwardRef(({
           (value === undefined || value === null || isNaN(Number(value)))
         ) {
           errors[`${field.id}-${rowIndex}`] = 'Value must be a valid number.';
-        }
+
         const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
 
         if (!numericRegex.test(value)) {
           errors[`${field.id}-${rowIndex}`] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
         }
+      }
       });
     });
 
@@ -276,7 +278,7 @@ const TableFieldComponent =forwardRef(({
         } else {
           delete errors[errorKey];
         }
-      }
+
       const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
 
       if (!numericRegex.test(value)) {
@@ -284,6 +286,7 @@ const TableFieldComponent =forwardRef(({
       } else {
         delete errors[errorKey];
       }
+    }
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0; // Return true if there are no errors
@@ -392,6 +395,7 @@ const TableFieldComponent =forwardRef(({
 
         {fieldType === 'OPTIONS' && (
           <Select
+          className="custom-select"
            placeholder="Select an option"
             value={fieldValue}
             onChange={(value) => {
@@ -402,9 +406,9 @@ const TableFieldComponent =forwardRef(({
             style={{
               width: '100%',
               maxWidth: '500px',
-              borderRadius: '4px',
+               borderRadius: '4px',
               height: '30px',
-              boxSizing: 'border-box', // Ensure box-sizing is consistent
+             boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
 
             onFocus={() => setOpenedIndex(`${rowIndex}-${fieldName}`)} // Open dropdown for this index
@@ -502,119 +506,7 @@ const TableFieldComponent =forwardRef(({
   </div>
 )}
 
-        {/* {fieldType === 'CHECKBOXES' && (
-          <div style={{ marginTop: 8 }}>
-            {templateData.getTemplateById?.fields
-              .find((f) => f.id === fieldName)
-              ?.options.map((option, index) => (
 
-                <Checkbox
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={index}
-
-                  checked={
-                    tableData[rowIndex][fieldName]?.value?.includes(option) ||
-                    false
-                  } // Safely access value
-                  onChange={(e) => {
-                    const { checked } = e.target;
-                    setTableData((prevData) => {
-                      const updatedTableData = [...prevData];
-                      if (!updatedTableData[rowIndex]) {
-                        updatedTableData[rowIndex] = {};
-                      }
-                      if (!updatedTableData[rowIndex][fieldName]) {
-                        updatedTableData[rowIndex][fieldName] = { value: [] };
-                      }
-                      const updatedRow = updatedTableData[rowIndex] || {};
-                      // console.log(":jkii",updatedRow[fieldName]);
-                      // eslint-disable-next-line no-nested-ternary
-                      const currentValues = Array.isArray(updatedRow[fieldName].value)
-                      ? updatedRow[fieldName].value
-                      : typeof updatedRow[fieldName].value === 'string'
-                      ? updatedRow[fieldName].value.split(',')
-                      : [];
-
-                      const newValues = checked
-                        ? [...currentValues, option] // Add option if checked
-                        : currentValues.filter((item) => item !== option); // Remove option if unchecked
-
-
-                      updatedTableData[rowIndex] = {
-                        ...updatedRow,
-                        [fieldName]: { value: newValues }, // Ensure structure consistency
-                      };
-                      if (
-                        rowIndex === prevData.length - 1 &&
-                        Object.values(updatedTableData[rowIndex]).every(
-                          (val) => val !== '',
-                        )
-                      ) {
-                        updatedTableData.push({}); // Add a new empty row
-                      }
-                      return updatedTableData;
-                    });
-
-                    validateFields(fieldName, rowIndex, checked);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      // Prevent default action and toggle the checkbox on Enter
-                      e.preventDefault();
-                      const isChecked = tableData[rowIndex][
-                        fieldName
-                      ]?.value?.includes(option);
-                      const newChecked = !isChecked;
-
-                      setTableData((prevData) => {
-                        const updatedTableData = [...prevData];
-                        if (!updatedTableData[rowIndex]) {
-                          updatedTableData[rowIndex] = {};
-                        }
-                        if (!updatedTableData[rowIndex][fieldName]) {
-                          updatedTableData[rowIndex][fieldName] = { value: [] };
-                        }
-                        const updatedRow = updatedTableData[rowIndex] || {};
-
-                        // eslint-disable-next-line no-nested-ternary
-                        const currentValues = Array.isArray(updatedRow[fieldName].value)
-                          ? updatedRow[fieldName].value
-                          : typeof updatedRow[fieldName].value === 'string'
-                          ? updatedRow[fieldName].value.split(',')
-                          : [];
-
-                        const newValues = newChecked
-                          ? [...currentValues, option]
-                          : currentValues.filter((item) => item !== option);
-
-                        updatedTableData[rowIndex] = {
-                          ...updatedRow,
-                          [fieldName]: { value: newValues },
-                        };
-                        if (
-                          rowIndex === prevData.length - 1 &&
-                          Object.values(updatedTableData[rowIndex]).every(
-                            (val) => val !== '',
-                          )
-                        ) {
-                          updatedTableData.push({}); // Add a new empty row
-                        }
-                        return updatedTableData;
-                      });
-
-                      validateFields(fieldName, rowIndex, newChecked);
-                    }
-                  }}
-                  onBlur={() => {
-                    handleBlur(rowIndex);
-                  }}
-                  style={{ marginRight: 12 }}
-                >
-                  {option}
-                </Checkbox>
-              ))}
-          </div>
-        )} */}
         {fieldType === 'ATTACHMENT' && (
   <ImageUpload
     onUploadSuccess={(url) => {

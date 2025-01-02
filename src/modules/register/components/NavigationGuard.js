@@ -19,10 +19,26 @@ const NavigationGuard = ({
         event.returnValue = '';
       }
     };
+    const handlePopState = (event) => {
+      // eslint-disable-next-line no-alert
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
+      if (confirmLeave) {
+
+        window.history.back();  // Manually trigger the back navigation
+      } else {
+        // Prevent the navigation if user cancels
+        event.preventDefault();
+      }
+    };
+
+    // Add event listeners
+    window.history.pushState(null, document.title);
+    window.addEventListener('popstate', handlePopState);
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
+      window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [isLeaving]);

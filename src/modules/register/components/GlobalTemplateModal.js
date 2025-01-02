@@ -52,13 +52,10 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
   return (
     <Modal
       title="Global Templates"
+
       visible={visible}
       onCancel={onClose}
-      footer={[
-        <Button key="close" onClick={onClose}>
-          Close
-        </Button>,
-      ]}
+     footer={false}
       width={800}
     >
       {loading ? (
@@ -72,6 +69,7 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
             placeholder="Search templates by name"
             onChange={handleSearch}
             style={{ marginBottom: 16 }}
+            maxLength={100}
           />
           <Row gutter={[16, 16]}>
           {filteredTemplates.length > 0 ? (

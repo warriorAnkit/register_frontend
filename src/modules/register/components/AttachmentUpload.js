@@ -410,7 +410,7 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
         >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Upload Image or PDF</div>
+            <div style={{ marginTop: 8 }}>Upload Image or PDF (Max size: 5MB)</div>
           </div>
         </Upload>
       )}

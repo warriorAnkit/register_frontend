@@ -20,8 +20,8 @@ function getItem(label, key, icon, children, type) {
 
 const menuItems = [
   getItem(MODULES?.DASHBOARD, ROUTES?.MAIN, <HomeOutlined />),
-  getItem(MODULES?.MOVIES, ROUTES?.MOVIES, <VideoCameraOutlined />),
-  getItem(MODULES?.SAMPLE, ROUTES?.SAMPLE, <TeamOutlined />),
+  // getItem(MODULES?.MOVIES, ROUTES?.MOVIES, <VideoCameraOutlined />),
+  // getItem(MODULES?.SAMPLE, ROUTES?.SAMPLE, <TeamOutlined />),
 ];
 
 function Sidebar() {

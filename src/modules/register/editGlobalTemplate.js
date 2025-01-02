@@ -466,7 +466,7 @@ const GlobalTemplateView = () => {
       lineHeight: '1.5',
     }}
     placeholder="Template Name"
-    maxLength={50}
+    maxLength={100}
   />
 ) : (
   <Title level={4} style={{ textAlign: 'center', fontSize: '1.25rem' }}>
@@ -576,17 +576,20 @@ const GlobalTemplateView = () => {
       </Space> */}
       {/* Field Modal */}
       <Modal
+       closable={false}
         title={currentField ? 'Edit Field' : 'Add Field'}
         visible={isFieldModalVisible}
         onOk={handleFieldSave}
         onCancel={handleFieldCancel}
         okText="Save"
+
       >
         <Input
           placeholder="Field Name"
           value={fieldData.name}
           onChange={(e) => setFieldData({ ...fieldData, name: e.target.value })}
           style={{ marginBottom: '16px' }}
+          maxLength={50}
         />
         <Select
           value={fieldData.type}
@@ -623,6 +626,7 @@ const GlobalTemplateView = () => {
                     }
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
+                    maxLength={50}
                   />
                 </List.Item>
               )}
@@ -642,9 +646,11 @@ const GlobalTemplateView = () => {
       <Modal
         title={currentProperty ? 'Edit Property' : 'Add Property'}
         visible={isPropertyModalVisible}
+        closable={false}
         onOk={handlePropertySave}
         onCancel={handlePropertyCancel}
         okText="Save"
+
       >
         <Input
           placeholder="Property Name"
@@ -653,6 +659,7 @@ const GlobalTemplateView = () => {
             setPropertyData({ ...propertyData, name: e.target.value })
           }
           style={{ marginBottom: '16px' }}
+          maxLength={100}
         />
 
         <Select

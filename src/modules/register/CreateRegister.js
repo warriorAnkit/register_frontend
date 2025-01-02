@@ -6,7 +6,7 @@ import { CloseOutlined,DeleteOutlined,EditOutlined,PlusOutlined} from '@ant-desi
 import { useMutation, useQuery } from '@apollo/client';
 import { Button, Divider, Input, List, message, Modal, notification,Select,Space,Switch,Table,Typography} from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {  useLocation, useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import Jexl from 'jexl';
 import ReactDragListView from "react-drag-listview";
@@ -34,7 +34,6 @@ const CreateRegisterPage = () => {
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
   const navigate=useNavigate();
   const location=useLocation();
-
   const transformedData = location.state?.transformedData;
   useEffect(() => {
     if (transformedData) {
@@ -63,6 +62,7 @@ const CreateRegisterPage = () => {
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
+      console.log("event is clicked",e);
       // eslint-disable-next-line no-shadow
       const message = "You have unsaved changes. Are you sure you want to leave?";
       e.preventDefault();
@@ -70,15 +70,30 @@ const CreateRegisterPage = () => {
       return message; // For some older browsers
     };
 
+    const handlePopState = (event) => {
+      console.log("event is clicked", event);
+      // eslint-disable-next-line no-alert
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
+      if (confirmLeave) {
 
+        window.history.back();  // Manually trigger the back navigation
+      } else {
+        // Prevent the navigation if user cancels
+        event.preventDefault();
+      }
+    };
 
     // Add event listeners
+    window.history.pushState(null, document.title);
+    window.addEventListener('popstate', handlePopState);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
 
     // Ensure cleanup
     return () => {
+
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
 
     };
   }, []);
@@ -678,7 +693,7 @@ console.log("formattedFields",formattedFields);
             value={regName}
             onChange={(e) => setRegName(e.target.value)}
             style={{ width: '300px', textAlign: 'center' }}
-            maxLength={50}
+            maxLength={100}
 
           />
   </Title>
@@ -772,6 +787,7 @@ console.log("formattedFields",formattedFields);
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}
+        closable={false}
         visible={isFieldModalVisible}
         onOk={handleFieldSave}
         onCancel={handleFieldCancel}
@@ -825,6 +841,7 @@ console.log("formattedFields",formattedFields);
                     placeholder={`Option ${index + 1}`}
                     style={{ marginBottom: '8px' }}
                     onKeyDown={(e) => handleKeyDown(e, index)}
+                    maxLength={50}
                   />
                   <Button
         type="text"
@@ -963,6 +980,7 @@ console.log("formattedFields",formattedFields);
 
       <Modal
         title={currentProperty ? 'Edit Property' : 'Add Property'}
+        closable={false}
         visible={isPropertyModalVisible}
         onOk={handlePropertySave}
         onCancel={handlePropertyCancel}

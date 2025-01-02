@@ -102,23 +102,28 @@ const TemplateView = () => {
       }
     };
 
-    const handlePopState = () => {
-      if (isEditing) {
-        // eslint-disable-next-line no-alert
-        const userConfirmed = window.confirm("You have unsaved changes. Are you sure you want to leave?");
-        if (userConfirmed) {
-          // Allow navigation by not pushing any state
-          return;
-        }
-          // Push the state again to prevent navigating back
-           window.history.pushState(null, "", window.location.href);
+    const handlePopState = (event) => {
+      console.log("event is clicked", event);
+      if(isEditing){
+      // eslint-disable-next-line no-alert
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
+      if (confirmLeave) {
 
+        window.history.back();  // Manually trigger the back navigation
+      } else {
+        // Prevent the navigation if user cancels
+        event.preventDefault();
       }
+    }
+    else{
+      window.history.back();
+    }
     };
+    window.history.pushState(null, document.title);
+    window.addEventListener('popstate', handlePopState);
 
     // Add event listeners
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
 
     return () => {
 
@@ -802,7 +807,7 @@ console.log(fieldNamesInFormula);
       lineHeight: '1.5',
     }}
     placeholder="Register Name"
-    maxLength={50}
+    maxLength={100}
   />
 ) : (
   <Title level={4} style={{ textAlign: 'center', fontSize: '1.25rem' }}>
@@ -910,6 +915,7 @@ console.log(fieldNamesInFormula);
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}
         visible={isFieldModalVisible}
+        closable={false}
         onOk={handleFieldSave}
         onCancel={handleFieldCancel}
         okText="Save"
@@ -960,6 +966,7 @@ console.log(fieldNamesInFormula);
                   placeholder={`Option ${index + 1}`}
                   style={{ marginBottom: '8px' }}
                   onKeyDown={(e) => handleKeyDown(e, index)}
+                  maxLength={50}
                 />
                 <Button
       type="text"
@@ -1097,6 +1104,7 @@ console.log("formula",optionsAsString);
       <Modal
         title={currentProperty ? 'Edit Property' : 'Add Property'}
         visible={isPropertyModalVisible}
+        closable={false}
         onOk={handlePropertySave}
         onCancel={handlePropertyCancel}
         okText="Save"

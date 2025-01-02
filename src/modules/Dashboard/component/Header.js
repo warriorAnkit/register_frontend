@@ -95,6 +95,7 @@ const userMenu = (
       <Modal
         title="Register Name"
         visible={modalVisible}
+        closable={false}
         onOk={handleOk}
         onCancel={() => setModalVisible(false)}
       >
@@ -103,7 +104,7 @@ const userMenu = (
           value={registerName}
           onChange={(e) => setRegisterName(e.target.value)}
           placeholder="Register Name"
-          maxLength={50}
+          maxLength={100}
         />
       </Modal>
 

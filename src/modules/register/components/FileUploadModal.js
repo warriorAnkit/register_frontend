@@ -142,6 +142,7 @@ const FileUploadModal = ({ visible, onClose }) => {
     <Modal
       visible={visible}
       title="Upload CSV File for Register Import"
+      closable={false}
       onCancel={onClose}
       footer={[
         <Button key="back" onClick={onClose}>
@@ -164,6 +165,7 @@ const FileUploadModal = ({ visible, onClose }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           style={{ marginBottom: 20 }}
+          maxLength={100}
         />
       </div>
       <Upload

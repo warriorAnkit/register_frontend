@@ -61,52 +61,20 @@ const App = () => {
           ) : (
             <>
               <MobileLogoComponent className="mr-8" />
-              LOGICWIN
+              DIGIQC REGISTER
             </>
           )}
         </Link>
         <Sidebar />
       </Sider>
       <Layout className="site-layout">
-        <AppHeader>
-          <div className="header-wrapper">
-            {isDesktop ? (
-              <>
-                {collapsed ? (
-                  <MenuUnfoldOutlined
-                    className="trigger"
-                    onClick={() => setCollapsed(!collapsed)}
-                  />
-                ) : (
-                  <MenuFoldOutlined
-                    className="trigger"
-                    onClick={() => setCollapsed(!collapsed)}
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                <Button
-                  className="trigger"
-                  type="text"
-                  onClick={handleOverlay}
-                  icon={<MenuOutlined />}
-                  size="middle"
-                />
-                <div className="responsive-logo text-center">
-                  <MobileLogoComponent />
-                </div>
-              </>
-            )}
-            <UserProfile />
-          </div>
-        </AppHeader>
+
         <Content className="wrapper">
           <Outlet />
         </Content>
         <Footer>
           <div className="text-center">
-            Logicwind hhhh© {new Date().getFullYear()}
+           digiqc© {new Date().getFullYear()}
           </div>
         </Footer>
       </Layout>
