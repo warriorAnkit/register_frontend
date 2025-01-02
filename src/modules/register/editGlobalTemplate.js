@@ -546,6 +546,7 @@ const GlobalTemplateView = () => {
         pagination={false}
         bordered
         style={{ marginTop: '16px' }}
+        scroll={{ x: 'max-content' , y:"80px"}}
       />
 
 {/*

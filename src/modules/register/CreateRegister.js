@@ -761,7 +761,7 @@ const CreateRegisterPage = () => {
         dataSource={[{}]}
         pagination={false}
         bordered
-        scroll={{ x: 'max-content', y: 400 }} // Vertical scroll with fixed header
+        scroll={{ x: 'max-content',  y:"80px"}} // Vertical scroll with fixed header
         style={{ marginTop: '16px' }}
       />
    </ReactDragListView.DragColumn>

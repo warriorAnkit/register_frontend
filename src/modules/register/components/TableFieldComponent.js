@@ -289,7 +289,13 @@ const TableFieldComponent =forwardRef(({
     setFieldErrors(errors);
     return Object.keys(errors).length === 0; // Return true if there are no errors
   };
-
+  const handleOpenChange = (open,rowIndex,fieldName) => {
+    if (open) {
+      setOpenedIndex(`${rowIndex}-${fieldName}`)
+    } else {
+      setOpenedIndex(false);
+    }
+  };
   const renderField = (fieldType, fieldName, rowIndex) => {
     const errorMessage = fieldErrors[`${fieldName}-${rowIndex}`];
     const hasError = !!errorMessage;
@@ -402,7 +408,8 @@ const TableFieldComponent =forwardRef(({
               validateFields(fieldName, rowIndex, value);
               setOpenedIndex(null);
               // eslint-disable-next-line no-undef
-              document.activeElement.blur();
+              // document.activeElement.blur();
+              // handleBlur(rowIndex);
             }}
             style={{
               width: '100%',
@@ -417,6 +424,7 @@ const TableFieldComponent =forwardRef(({
               setOpenedIndex(null); // Close dropdown when focus is lost
               handleBlur(rowIndex);
             }}
+            onDropdownVisibleChange={(open) => handleOpenChange(open,rowIndex,fieldName)}
             open={openedIndex === `${rowIndex}-${fieldName}`}
           >
 

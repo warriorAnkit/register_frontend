@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react';
 import { Table, Typography,Empty,Pagination } from 'antd';
 import { useQuery } from '@apollo/client';
@@ -6,6 +7,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { GET_ACTIVITY_LOGS_BY_SET_ID } from './graphql/Queries';
 import Header from './components/Header';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
+
 
 const { Title } = Typography;
 
@@ -34,22 +36,44 @@ const { templateName, templateId } = location.state || {};
 
  const [currentPage, setCurrentPage] = useState(1);
  const [pageSize, setPageSize] = useState(10);
+ const [tableHeight, setTableHeight] = useState('100vh'); // Default height
+
+useEffect(() => {
+  const updateTableHeight = () => {
+    const availableHeight = window.innerHeight - 250;
+    setTableHeight(availableHeight);
+  };
+
+
+  updateTableHeight();
+
+  // Update height on screen resize
+  window.addEventListener('resize', updateTableHeight);
+
+  return () => {
+    window.removeEventListener('resize', updateTableHeight);
+  };
+}, []);
   // Table columns configuration
   const columns = [
     {
       title: 'Index',
       key: 'index',
       render: (text, record, index) => index + 1,  // Add 1 to the index to start from 1
+      width: 70,
+      fixed: 'left',
     },
     {
       title: 'Action Type',
       dataIndex: 'actionType',
       key: 'actionType',
+      width: 150,
     },
     {
       title: 'Entity Type',
       dataIndex: 'entityType',
       key: 'entityType',
+      width: 150,
     },
     // {
     //   title: 'Entity ID',
@@ -60,26 +84,31 @@ const { templateName, templateId } = location.state || {};
       title: 'Previous Value',
       key: 'previousValue',
       render: (record) => record.changes?.previousValue || '-',
+      width: 200,
     },
     {
       title: 'Updated Value',
       key: 'updatedValue',
       render: (record) => record.changes?.newValue || '-',
+      width: 200,
     },
     {
       title:'Row Number',
       dataIndex: 'rowNumber',
       key: 'rowNumber',
+      width: 150,
     },
     {
       title: 'Template Name',
       dataIndex: 'templateName',
       key: 'templateName',
+      width: 150,
     },
     {
       title: 'Edited By',
       dataIndex: 'editedBy',
       key: 'editedBy',
+      width: 150,
     },
     {
       title: 'Updated By',
@@ -92,6 +121,7 @@ const { templateName, templateId } = location.state || {};
       },
       render: (timestamp) =>
         moment(parseInt(timestamp, 10)).format('DD/MM/YYYY HH:mm:ss'),
+      width: 200,
     },
   ];
 
@@ -122,13 +152,13 @@ const { templateName, templateId } = location.state || {};
       </div>
       ) : (
         <>
-         <div style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto' }}>
+         <div style={{ maxHeight: 'calc(100vh - 150px)', overflow: 'auto' }}>
         <Table
           columns={columns}
           dataSource={paginatedLogs}
           rowKey={(record) => record.id}
-          pagination
-          ={false}
+          pagination={false}
+          scroll={{y:tableHeight,x: 'max-content' }} // Enable horizontal scroll
         />
         </div>
         <Pagination

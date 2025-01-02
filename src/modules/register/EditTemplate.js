@@ -907,7 +907,7 @@ const TemplateView = () => {
         dataSource={[{}]}
         pagination={false}
         bordered
-        scroll={{ x: 'max-content' }}
+        scroll={{ y:"80px",x: 'max-content' }}
         style={{ marginTop: '16px' ,marginBottom:'20px'}}
       />
       </ReactDragListView.DragColumn>

@@ -560,7 +560,7 @@ const exportPDF = async (column, data, fileName) => {
 
 useEffect(() => {
   const updateTableHeight = () => {
-    const availableHeight = window.innerHeight - 360;
+    const availableHeight = window.innerHeight - 340;
     setTableHeight(availableHeight);
   };
 
