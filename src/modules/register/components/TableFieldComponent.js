@@ -593,10 +593,10 @@ const TableFieldComponent =forwardRef(({
             });
 
             if (response.data.fieldResponseSubmit.success) {
-              notification.success({
-                message: 'Row Deleted',
-                description: `Row ${row.rowNumber} deleted successfully!`,
-              });
+              // notification.success({
+              //   message: 'Row Deleted',
+              //   description: `Row ${row.rowNumber} deleted successfully!`,
+              // });
             } else {
               notification.error({
                 message: 'Delete Error',
