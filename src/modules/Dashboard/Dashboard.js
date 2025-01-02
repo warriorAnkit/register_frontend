@@ -188,7 +188,8 @@ console.log("ps",pageSize);
   };
 
   const handleCardClick = (templateId) => {
-    navigate(`/register/template-view/${templateId}`);
+    navigate(ROUTES.REGISTER_TEMPLATE_VIEW.replace(':templateId', templateId));
+    // navigate(`/register/template-view/${templateId}`);
   };
 
   const handleFillEntryButtonClick = (templateId) => {
@@ -196,7 +197,8 @@ console.log("ps",pageSize);
     navigate(fillSetRoute);
   };
   const handleViewEntryButtonClick = (templateId) => {
-    navigate(`/register/view-entries/${templateId}`);
+    navigate(ROUTES.VIEW_ENTRIES.replace(':templateId', templateId));
+    // navigate(`/register/view-entries/${templateId}`);
   };
   const handleDeleteButtonClick = async (templateId) => {
     // Show confirmation dialog

@@ -182,7 +182,7 @@ console.log(paginatedTemplates);
   };
 
   const handleCardClick = (templateId) => {
-    navigate(`/register/template-view/${templateId}`);
+    navigate(ROUTES.REGISTER_TEMPLATE_VIEW.replace(':templateId', templateId));
   };
 
   const handleFillEntryButtonClick = (templateId) => {

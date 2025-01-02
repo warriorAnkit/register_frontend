@@ -21,7 +21,7 @@ export const ROUTES = {
   LOGS:'/logs',
   VIEW_ENTRIES:'/register/view-entries/:templateId',
   EDIT_ENTRIES:'/register/edit-entries/:templateId/:setId',
-  GLOBAL_TEMPLATE_VIEW:'/register/global-template-view/:globalTemplateId',
+  GLOBAL_TEMPLATE_VIEW:'/register/create-from-global/:globalTemplateId',
   PREVIEW_REGISTER:'/register/preview',
   VIEW_SET_CHANGE_LOG:'/register/response-change-log/:setId',
   VIEW_TEMPLATE_CHANGE_LOG:'/register/register-change-log/:templateId',

@@ -2,8 +2,8 @@
 /* eslint-disable no-console */
 /* eslint-disable react/no-array-index-key */
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { Form, Input, Select, Checkbox, notification, Modal, Button, Table } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Form, Input, Select, notification, Modal, Button, Table } from 'antd';
+import { DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import { evaluate } from 'mathjs'; // Ensure the mathjs library is installed
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
@@ -397,11 +397,14 @@ const TableFieldComponent =forwardRef(({
           <Select
           className="custom-select"
            placeholder="Select an option"
+           suffixIcon={<DownOutlined style={{ fontSize: '14px' }} />}
             value={fieldValue}
             onChange={(value) => {
               handleInputChange(rowIndex, fieldName, value);
               validateFields(fieldName, rowIndex, value);
               setOpenedIndex(null);
+              // eslint-disable-next-line no-undef
+              document.activeElement.blur();
             }}
             style={{
               width: '100%',
@@ -410,7 +413,7 @@ const TableFieldComponent =forwardRef(({
               height: '30px',
              boxSizing: 'border-box', // Ensure box-sizing is consistent
             }}
-
+            // onClick={() => setOpenedIndex(`${rowIndex}-${fieldName}`)} // Open dropdown for this index
             onFocus={() => setOpenedIndex(`${rowIndex}-${fieldName}`)} // Open dropdown for this index
             onBlur={() => {
               setOpenedIndex(null); // Close dropdown when focus is lost
@@ -457,6 +460,7 @@ const TableFieldComponent =forwardRef(({
     <Select
       mode="multiple"
       placeholder="Select multiple options"
+      suffixIcon={<DownOutlined style={{ fontSize: '14px' }} />}
       value={
         Array.isArray(tableData[rowIndex][fieldName]?.value)
           ? tableData[rowIndex][fieldName]?.value
@@ -502,6 +506,7 @@ const TableFieldComponent =forwardRef(({
             {option}
           </Select.Option>
         ))}
+
     </Select>
   </div>
 )}
