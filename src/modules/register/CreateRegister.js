@@ -62,7 +62,7 @@ const CreateRegisterPage = () => {
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      console.log("event is clicked",e);
+
       // eslint-disable-next-line no-shadow
       const message = "You have unsaved changes. Are you sure you want to leave?";
       e.preventDefault();
@@ -71,7 +71,7 @@ const CreateRegisterPage = () => {
     };
 
     const handlePopState = (event) => {
-      console.log("event is clicked", event);
+
       // eslint-disable-next-line no-alert
       const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
       if (confirmLeave) {
@@ -134,7 +134,7 @@ const CreateRegisterPage = () => {
   const validateFormula = async (formula) => {
     try {
       // Attempt to compile the formula
-      console.log(formula);
+
       await Jexl.compile(formula);
       return true; // Formula is valid
     } catch (e) {
@@ -311,7 +311,7 @@ const CreateRegisterPage = () => {
       isRequired: field.isRequired,
       options: field.options,
     }));
-console.log("formattedFields",formattedFields);
+
     const formattedProperties = properties.map((property) => ({
       propertyName: property.propertyName,
       propertyFieldType: property.propertyFieldType,
@@ -366,7 +366,7 @@ console.log("formattedFields",formattedFields);
       cancelText: 'No',
       onOk: handleSave,
       onCancel: () => {
-        console.log('Save canceled');
+        console.log('Save canceled.');
       },
     });
   };
@@ -657,14 +657,14 @@ console.log("formattedFields",formattedFields);
   };
   const dragProps = {
     onDragEnd: (fromIndex, toIndex) => {
-      console.log("indec ",fromIndex, toIndex);
+
       if (columns[fromIndex]?.key === 'addField' || columns[toIndex]?.key === 'addField') {
         return;
       }
       const newFields = [...fields];
       const fieldItem = newFields.splice(fromIndex, 1)[0];
       newFields.splice(toIndex, 0, fieldItem);
-      console.log("after fields:", newFields);
+
       setFields(newFields);
 
     },

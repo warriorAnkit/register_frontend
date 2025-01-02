@@ -43,15 +43,12 @@ const Dashboard = () => {
   const [templates, setTemplates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [registerName, setRegisterName] = useState('');
-  console.log("cp",parseInt(sessionStorage.getItem('currentPage'), 10));
   const [currentPage, setCurrentPage] = useState(
     isBrowser ? parseInt(sessionStorage.getItem('currentPage'), 10) || 1: 1,
   );
   const [pageSize, setPageSize] = useState(
     isBrowser ? parseInt(sessionStorage.getItem('pageSize'), 10) || 10 : 10,
   );
-console.log("cps",currentPage);
-console.log("ps",pageSize);
   const [userRole, setUserRole] = useState(null);
   const [isGlobalModalVisible, setGlobalModalVisible] = useState(false);
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
@@ -131,9 +128,6 @@ console.log("ps",pageSize);
     //  setCurrentPage(1);
   }, [activeFilter, searchText]);
 
-  useEffect(() => {
-    console.log('Search text changed:', searchText);
-  }, [searchText]);
   const handleSearchInputChange = (e) => {
     setSearchText(e.target.value);
     setCurrentPage(1); // Reset page to the first one on search
@@ -141,11 +135,10 @@ console.log("ps",pageSize);
 
   useEffect(() => {
     if (isBrowser) {
-      console.log("ps2",pageSize);
-      console.log("cp2",currentPage);
+
       sessionStorage.setItem('pageSize', pageSize);
       sessionStorage.setItem('currentPage', currentPage);
-      console.log("cp3",currentPage);
+
     }
   }, [pageSize, currentPage]);
 
@@ -226,7 +219,7 @@ console.log("ps",pageSize);
     setActiveFilter(newFilter); // Update activeFilter state
     setCurrentPage(1); // Reset page to the first one on filter change
   };
-console.log(paginatedTemplates);
+
 
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative' }}>

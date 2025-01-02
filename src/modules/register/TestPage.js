@@ -67,8 +67,6 @@ const TestPage = () => {
     data: dataProject,
   } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
-  console.log('id:,', projectId);
-console.log(projectId)
 
   const { data:templateData, loading:templateLoading, error:templateError, refetch } = useQuery(GET_ALL_TEMPLATES, {
     variables: {
@@ -116,7 +114,7 @@ console.log(projectId)
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter]);
-console.log(templateData);
+
   // const filteredTemplates = templates
   // .filter((template) =>
   //    userRole === 'USER'
@@ -132,25 +130,25 @@ console.log(templateData);
   //   currentPage * pageSize,
   // );
   const paginatedTemplates = templateData?.getAllTemplates?.templates || [];
-console.log(paginatedTemplates);
+
   // Filter dropdown menu
   useEffect(() => {
     if (isBrowser) {
       sessionStorage.setItem('selectedFilter', activeFilter);
       sessionStorage.setItem('searchText', searchText);
-      console.log(searchText,"ghd");
+
     }
   }, [activeFilter, searchText]);
 
   const handleTabChange = (key) => {
     // eslint-disable-next-line no-console
-    console.log(key, '1');
+
     if (key === 'template') {
-      console.log('hiii ankit');
+
       navigate(ROUTES.TEST_PAGE);
     } else if (key === 'log') {
       // eslint-disable-next-line no-console
-      console.log('2 i am called');
+
       navigate(ROUTES.LOGS);
     }
   };

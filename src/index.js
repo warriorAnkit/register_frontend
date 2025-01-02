@@ -22,8 +22,7 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-// eslint-disable-next-line no-console
-console.log('APP_VERSION', app?.version);
+
 
 // use this variable from envs so that we can active connection mode feature in app.
 const connectionMode = process.env.REACT_APP_CONNECTION_MODE_ENABLE;

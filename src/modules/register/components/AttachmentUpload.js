@@ -399,7 +399,7 @@ const ImageUpload = ({ onUploadSuccess, errorMessage, existingFileUrls }) => {
           maxCount={3 - uploadedFileUrls.split(',').length}
           onChange={(info) => {
             const { fileList } = info;
-            console.log("gg",fileList);
+
             if (fileList.length > 3) {
               // Display an error message if more than 3 files are selected
               message.error("You can only upload up to 3 files.");

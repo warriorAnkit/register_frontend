@@ -87,12 +87,10 @@ const TableFieldComponent =forwardRef(({
       return value !== null && value !== undefined && value !== '';
     });
 
-    console.log('isRowComplete:', isRowComplete);
     if (isRowComplete) {
       try {
 
-        console.log('row completed',rowIndex);
-        console.log('row:', row);
+
 
         // Prepare data for API
         const rowEntries = Object.entries(row)
@@ -104,9 +102,9 @@ const TableFieldComponent =forwardRef(({
             isNewRow: row.isNewRow||false,
           }))
           .filter((entry) => entry.fieldId !== 'rowNumber' && entry.fieldId !== 'id'&&entry.fieldId !== 'isNewRow');
-   console.log('rowEntries:', rowEntries);
+
  const rowEntries2D = [rowEntries];
- console.log('filling:', filling);
+
         const response = await editResponse({
           variables: {
             setId,
@@ -114,7 +112,7 @@ const TableFieldComponent =forwardRef(({
             filling,
           },
         });
-        console.log('response:', response);
+
         if (response.data.fieldResponseSubmit.success) {
           const updatedResponses = response.data.fieldResponseSubmit.updatedOrCreatedResponses;
 
@@ -131,7 +129,7 @@ const TableFieldComponent =forwardRef(({
             return updatedData;
           });
 
-          console.log('tABLE dATA:', tableData);
+
         }
 
 //         } else {
@@ -164,7 +162,7 @@ const TableFieldComponent =forwardRef(({
     }
   }, [tableData,attachmentUpdated]);
   const handleInputChange = (index, fieldName, value,fieldType) => {
-    console.log(value);
+
         setTableData((prevData) => {
           const updatedData = prevData.map((row, i) =>
             i === index
@@ -182,7 +180,7 @@ const TableFieldComponent =forwardRef(({
           }
           return updatedData;
         });
-        console.log('tableDatac:', tableData);
+
         if (fieldType === 'ATTACHMENT') {
           setAttachmentUpdated(index);  // Store the row index
         } else {
@@ -564,7 +562,7 @@ const TableFieldComponent =forwardRef(({
   };
   const handleDeleteRow = (rowIndex) => {
     const row = tableData[rowIndex];
-   console.log('row:', row);
+
     // Check if the row to be deleted is the last one
     if (rowIndex === tableData.length - 1) {
       notification.error({
@@ -586,7 +584,7 @@ const TableFieldComponent =forwardRef(({
         try {
           if (row.rowNumber) {
 
-             console.log('row:', row.rowNumber);
+
             const response = await editResponse({
               variables: {
                 rowNumberDelete: row.rowNumber,
@@ -672,8 +670,7 @@ const TableFieldComponent =forwardRef(({
       return;
     }
     try {
-      console.log('final',tableData);
-    console.log("clicked");
+
     notification.success({
       message: 'Success',
       description: 'Your response has been successfully submitted!',

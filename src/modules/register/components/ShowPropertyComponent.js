@@ -61,7 +61,7 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
     if (property.propertyFieldType === 'NUMERIC') {
       const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
 // eslint-disable-next-line no-console
-   console.log("numericRegex",numericRegex.test(value));
+
       if (!numericRegex.test(value)) {
         errors[property.propertyName] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
       } else {
@@ -131,16 +131,15 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
             responseId: responseId || null,
           };
         });
-        // eslint-disable-next-line no-console
-        console.log('propertiesData:', propertyValues);
+
+
         const response = editSet({
           variables: {
             setId,
             propertyValues,
         },
       });
-        // eslint-disable-next-line no-console
-        console.log('Mutation response:', response);
+
         setIsEditing((prev) => !prev);
       } else {
         // eslint-disable-next-line no-console

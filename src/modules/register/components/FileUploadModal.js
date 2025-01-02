@@ -79,7 +79,7 @@ const FileUploadModal = ({ visible, onClose }) => {
     }
 
     setLoading(true);
-    console.log("Starting file upload...");
+
 
     // Parse the CSV or JSON file
     // eslint-disable-next-line no-undef

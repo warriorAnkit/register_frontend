@@ -62,7 +62,7 @@ const FillTable = () => {
   }, [data]);
 
   const handleInputChange = (index, fieldName, value) => {
-    console.log("njgkfh",fieldName +  value);
+
     setTableData((prevData) => {
       const updatedData = prevData.map((row, i) =>
         i === index ? { ...row, [fieldName]: value } : row,
@@ -453,7 +453,7 @@ value=String(value);
       const fieldOptions = data.getTemplateById?.fields.find(f => f.fieldName === fieldName)?.options;
       if (!fieldOptions || fieldOptions.length === 0) return '';
       const formula = fieldOptions[0];
-      console.log(formula);
+
       if (!formula) return '';
       try {
         const formulaWithValues = formula.replace(/\b\d+\b/g, (match) => {
@@ -681,7 +681,7 @@ value=String(value);
   };
   const handleDeleteRow = (rowIndex) => {
     // Check if the row to be deleted is the last one
-    console.log(tableData);
+
     if (rowIndex === tableData.length - 1) {
       notification.error({
         message: 'Cannot Delete Last Row',
@@ -700,7 +700,7 @@ value=String(value);
       icon: <DeleteOutlined style={{ color: 'red' }} />,
       onOk: () => {
         const newData = tableData.filter((_, index) => index !== rowIndex);
-        console.log("Updated Data:", newData);
+
         setTableData(newData);
       },
     });

@@ -103,7 +103,7 @@ const TemplateView = () => {
     };
 
     const handlePopState = (event) => {
-      console.log("event is clicked", event);
+
       if(isEditing){
       // eslint-disable-next-line no-alert
       const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
@@ -182,7 +182,7 @@ const TemplateView = () => {
       const formulaAsString = Array.isArray(formula)
       ? formula.join(' ') // Join array elements with a space
       : formula;
-      console.log("formula",formulaAsString);
+
       await Jexl.compile(formulaAsString);
       // console.log(formulaAsString);
       return true; // Formula is valid
@@ -236,7 +236,7 @@ const TemplateView = () => {
       return;
     }
     if (fieldData.type === 'CALCULATION') {
-      console.log("forumk",fieldData.options);
+
       const isValid = await validateFormula(fieldData.options);
       if (!isValid) {
         notification.error({
@@ -411,7 +411,7 @@ const TemplateView = () => {
       }
       return updatedField; // Return non-calculation fields as they are
     });
-console.log("updatedFieldsSequence",updatedFields);
+
     const transformedfields = updatedFields.map(item => {
 
       if (item.tempId) {
@@ -590,7 +590,7 @@ console.log("updatedFieldsSequence",updatedFields);
     const convertedFormula = replaceFieldIdsWithNames(formula);
     const unconvertedIds = convertedFormula.replace(/"([^"]*)"/g, ''); // Remove strings inside quotes
     const remainingIds = unconvertedIds.match(/\b\d+\b/g);
-console.log(remainingIds);
+
     if (remainingIds && remainingIds.length > 0) {
       return {
         isValid: false,
@@ -600,7 +600,7 @@ console.log(remainingIds);
 
     // Extract field names from the converted formula
     const fieldNamesInFormula = convertedFormula.match(/"([^"]*)"/g)?.map((name) => name.replace(/"/g, '')) || [];
-console.log(fieldNamesInFormula);
+
     // Check if the extracted field names exist in numericFields
     const invalidFields = fieldNamesInFormula.filter(
       (fieldName) => !numericFields.some((field) => field.fieldName === fieldName),
@@ -764,14 +764,14 @@ console.log(fieldNamesInFormula);
   };
   const dragProps = {
     onDragEnd: (fromIndex, toIndex) => {
-      console.log("indec ",fromIndex, toIndex);
+
       if (columns[fromIndex]?.key === 'addField' || columns[toIndex]?.key === 'addField') {
         return; // Do nothing if the drag involves 'Add Field'
       }
       const newFields = [...fields];
       const fieldItem = newFields.splice(fromIndex, 1)[0];
       newFields.splice(toIndex, 0, fieldItem);
-      console.log("after fields:", newFields);
+
       setFields(newFields);
 
     },
@@ -1068,7 +1068,7 @@ console.log(fieldNamesInFormula);
             const optionsAsString = Array.isArray(fieldData.options)
         ? fieldData.options.join(' ') // Join array elements with a space
         : fieldData.options;
-console.log("formula",optionsAsString);
+
           const updatedFormula = optionsAsString.trim();
             // const updatedFormula = fieldData.options.trim();
 

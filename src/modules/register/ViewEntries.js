@@ -68,7 +68,7 @@ const ViewEntries = () => {
   useEffect(() => {
     if (responseData && templateData) {
       const { properties } = templateData.getTemplateById;
-   console.log("responseData",responseData);
+
       const rows = responseData.getAllPropertyResponsesForTemplate.propertyResponses.map((set) => {
         const row = {
           setId: set.setId,
@@ -386,8 +386,7 @@ const exportPDF = async (column, data, fileName) => {
     const headerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerText = 'Digitize.Monitor.Improve'; // Center footer text
-    console.log("columns",column);
-    console.log("data",data);
+
     const filteredColumns = column.filter(col => col.title !== 'Edit');
     const headers = filteredColumns.map(col => col.title);
     const doc = new jsPDF({
@@ -456,7 +455,7 @@ const exportPDF = async (column, data, fileName) => {
       didParseCell: (data) => {
         const columnIndex = data.column.index;
         const field = column[columnIndex];
-        console.log("field",field);
+
         if (field?.fieldType === 'ATTACHMENT' && data.row.section === 'body') {
           // eslint-disable-next-line no-param-reassign
           data.cell.text = [];
@@ -466,14 +465,11 @@ const exportPDF = async (column, data, fileName) => {
       didDrawCell: (data) => {
         const columnIndex = data.column.index;
         const rowIndex = data.row.index;
-        console.log("rowIndex",rowIndex);
+
         const field = column[columnIndex];
-        console.log("field",field);
-        console.log("tableData",data.table.body[rowIndex].raw[columnIndex]);
+
        const fieldValue = data.table.body[rowIndex].raw[columnIndex];
-         console.log("fieldValue",fieldValue);
-        // eslint-disable-next-line no-param-reassign
-        console.log("data",data);
+
         if (data.row.section === 'head') {
           return data.cell.text; // Exit if it's a header cell
         }

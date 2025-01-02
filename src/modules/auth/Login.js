@@ -13,17 +13,7 @@ import './auth.less';
 import { LOGIN } from './graphql/Mutations';
 
 const { required, email } = formValidatorRules;
-const logLocalStorage = () => {
-  console.log("Local Storage Contents:");
-  // eslint-disable-next-line no-undef, no-plusplus
-  for (let i = 0; i < localStorage.length; i++) {
-    // eslint-disable-next-line no-undef
-    const key = localStorage.key(i);
-    // eslint-disable-next-line no-undef
-    const value = localStorage.getItem(key);
-    console.log(`${key}: ${value}`);
-  }
-};
+
 
 // Call the function to log local storage contents
 
@@ -55,11 +45,7 @@ const Login = () => {
       const response = await loginMutate({
         variables: { email: formValues.email, password: formValues.password },
       });
-      // eslint-disable-next-line no-console
-      console.log("hiii",response.data.loginUser);
 
-      // eslint-disable-next-line no-console
-      console.log("hrr",response);
       if (response?.data) {
         const accessToken = response?.data?.loginUser?.accessToken;
         const userData = response?.data?.loginUser?.data;
@@ -70,8 +56,6 @@ const Login = () => {
 
         if (successCallback) {
           successCallback(accessToken, userData, tokenRefresh);
-          logLocalStorage();
-
         }
       } else {
         form?.setFieldsValue(values);

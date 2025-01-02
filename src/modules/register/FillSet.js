@@ -36,7 +36,7 @@ const FillSet = () => {
     }
   }, [data]);
 
-  console.log(data);
+
   // console.log(propertiesData);
   const finalValidateProperties = () => {
     const errors = {};
@@ -71,7 +71,7 @@ const FillSet = () => {
   const validateProperties = (propertyName, value) => {
     const errors = { ...propertyErrors };
     const property = data.getTemplateById?.properties.find(f => f.propertyName === propertyName);
-console.log(property);
+
     if ( property.isRequired &&
       (!value ||
         (typeof value === 'string' && value.trim() === '') ||

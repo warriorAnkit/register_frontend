@@ -18,8 +18,7 @@ const ChangeLogOfTemplatePage = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-// eslint-disable-next-line no-console
-console.log("data",data);
+
   const [logs, setLogs] = useState([]);
   const [templateName, setTemplateName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,8 +37,7 @@ console.log("data",data);
   const renderValue = (record, type) => {
     const value = record.changes?.[`${type}Value`] || 'N/A';
     if (record.actionType === 'UPDATE_TEMPLATE') {
-      // eslint-disable-next-line no-console
-      console.log("fcvdgff",record.entityType);
+
       return (
         <>
           <div><strong>{type === 'previous' ? 'Old' : 'New'}  Name: </strong>{value.fieldName ||value.propertyName ||'N/A'}</div>

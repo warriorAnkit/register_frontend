@@ -190,7 +190,7 @@ const EditEntry = () => {
         const value = row[field.fieldName];
         return value === null || value === undefined || (typeof value === 'string' && value.trim() === '');
       });
-      console.log(`Row ${rowIndex} is blank:`, isRowBlank);
+
       if (isLastRow && isRowBlank) return;
 
       templateData.getTemplateById?.fields.forEach((field) => {
@@ -477,7 +477,7 @@ const EditEntry = () => {
     const property = templateData.getTemplateById?.properties.find(
       (f) => f.propertyName === propertyName,
     );
-    console.log(property);
+
     if (
       property.isRequired &&
       (!value ||
@@ -759,7 +759,7 @@ const EditEntry = () => {
   };
 
   const handleInputChange = (index, fieldName, value) => {
-    console.log(value);
+
     setTableData((prevData) => {
       const updatedData = prevData.map((row, i) =>
         i === index
@@ -785,7 +785,7 @@ const EditEntry = () => {
       tableData && tableData[rowIndex][fieldName]
         ? tableData[rowIndex][fieldName].value
         : '';
-        console.log('fieldValue:', fieldValue);
+
     const calculateFieldValue = () => {
       const fieldData = tableData[rowIndex];
       const fieldOptions = templateData.getTemplateById?.fields.find(
@@ -793,16 +793,16 @@ const EditEntry = () => {
       )?.options;
       if (!fieldOptions || fieldOptions.length === 0) return '';
       const formula = fieldOptions[0];
-      console.log(formula);
+
       if (!formula) return '';
       try {
         const formulaWithValues = formula.replace(/\b\d+\b/g, (match) => {
           const values = fieldData[match].value;
-          console.log(values);
+
           return values !== undefined ? values : 0;
         });
 
-        console.log(formulaWithValues);
+
 
         const result = evaluate(formulaWithValues);
         // tableData[rowIndex][fieldName].value=result;
@@ -810,7 +810,7 @@ const EditEntry = () => {
         if (rowIndex < tableData.length - 1) {
           // eslint-disable-next-line no-restricted-globals
           if (result !== undefined && !isNaN(result) && fieldValue !== result) {
-            console.log('ff');
+
             handleInputChange(rowIndex, fieldName, result); // Update value only if it's different
           }
         }
@@ -949,7 +949,7 @@ const EditEntry = () => {
                         updatedTableData[rowIndex][fieldName] = { value: [] };
                       }
                       const updatedRow = updatedTableData[rowIndex] || {};
-                      // console.log(":jkii",updatedRow[fieldName]);
+
                       const currentValues = Array.isArray(updatedRow[fieldName].value)
                       ? updatedRow[fieldName].value
                       : typeof updatedRow[fieldName].value === 'string'
@@ -1164,7 +1164,7 @@ const EditEntry = () => {
           responseId: responseId || null,
         };
       });
-      console.log('prop vla', propertyValues);
+
       const tableEntries = tableData.map(
         (row) =>
           Object.entries(row)
@@ -1181,7 +1181,7 @@ const EditEntry = () => {
             })
             .filter((entry) => entry !== null), // Filter out null entries
       );
-console.log(tableEntries);
+
       const response = await editResponse({
         variables: {
           setId,

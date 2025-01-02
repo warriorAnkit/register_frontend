@@ -17,8 +17,8 @@ const LogHeaderComponent = ({
   userNames,
 }) => {
   const [currentTab, setCurrentTab] = useState('log');
-// eslint-disable-next-line no-console
-console.log("text",searchText,projectId);
+
+
   const exportCSV = () => {
     try {
       const mappedLogs = logs.map(log => ({

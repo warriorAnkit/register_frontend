@@ -49,8 +49,7 @@ const LogsPage = () => {
   };
   const { data: projectData } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = projectData ? projectData.getProjectIdForUser : null;
-// eslint-disable-next-line no-console
-console.log(projectId);
+
   const { data: allTemplatesData, loading, error ,refetch} = useQuery(GET_ALL_SETS_FOR_ALL_TEMPLATES, {
     variables: { projectId,
       page:currentPage,
@@ -60,8 +59,7 @@ console.log(projectId);
     fetchPolicy: 'cache-and-network',
     skip: !projectId,
   });
-// eslint-disable-next-line no-console
-console.log("dtat",allTemplatesData);
+
 
   useEffect(() => {
     if (allTemplatesData && allTemplatesData.getAllSetsForAllTemplates) {

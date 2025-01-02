@@ -234,7 +234,7 @@ const FillTableResponse = () => {
       .forEach((field) => {
         const fieldId = field.id;
         let fieldValue = row[fieldId]?.value || '-';
-      console.log("fieldType",field.fieldType);
+
       if (field.fieldType === 'ATTACHMENT' && fieldValue !== '-') {
         const constantValue = 'https://storage.googleapis.com/digiqc_register/';
         fieldValue = fieldValue
@@ -371,8 +371,7 @@ const FillTableResponse = () => {
         const rowIndex = data.row.index;
         const field = templateData?.getTemplateById?.fields[columnIndex];
         const fieldValue = tableDatas[rowIndex][columnIndex];
-        // eslint-disable-next-line no-param-reassign
-        console.log("data",data);
+
         if (data.row.section === 'head') {
           return data.cell.text; // Exit if it's a header cell
         }
