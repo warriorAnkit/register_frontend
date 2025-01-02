@@ -22,6 +22,7 @@ const TableFieldComponent =forwardRef(({
   responseError,
   setId,
   filling,
+  setIsAllRowsComplete,
 },ref) => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [openedIndex, setOpenedIndex] = useState(null);
@@ -29,14 +30,54 @@ const TableFieldComponent =forwardRef(({
   const navigate = useNavigate();
   const [editResponse] = useMutation(FIELD_RESPONSE_SUBMIT);
   const [attachmentUpdated, setAttachmentUpdated] = useState(null);
+  const [rowCompletionStatus, setRowCompletionStatus] = useState([]); // Track row completion status
 
 
-console.log('tableDatafirst:', tableData);
+
+
+  // Function to check if all rows are complete
+  const checkRowCompletionStatus = () => {
+    let allRowsComplete = true; // Assume all rows are complete initially
+    const eachRowCompletionStatus = []; // Array to track completion status of each row
+
+    // Iterate over each row to check if it's incomplete
+    tableData.forEach((row, rowIndex) => {
+      if (rowIndex === tableData.length - 1) {
+        eachRowCompletionStatus[rowIndex] = true; // Assume the last row is complete
+        return; // Skip further checks for the last row
+      }
+      const isRowComplete = templateData.getTemplateById?.fields
+      .filter((field) => field.isRequired) // Check only required fields
+      .every((field) => {
+        const value = row[field.id]?.value;
+        return value !== null && value !== undefined && value !== '';
+      });
+      // If the row is blank, mark it as incomplete
+      if (!isRowComplete) {
+        eachRowCompletionStatus[rowIndex] = false; // Mark as incomplete
+        allRowsComplete = false; // At least one row is incomplete
+      } else {
+        eachRowCompletionStatus[rowIndex] = true; // Row is complete
+      }
+    });
+    setRowCompletionStatus(eachRowCompletionStatus);
+    setIsAllRowsComplete(allRowsComplete); // Set the flag for all rows completion status
+  };
+  useEffect(() => {
+    checkRowCompletionStatus(); // Check row completion status on tableData changes
+  }, [tableData]);
   const handleRowCompletion = async (rowIndex) => {
-    console.log('tableDataSecond:', tableData);
     const row = tableData[rowIndex];
+     const rowErrors = Object.keys(fieldErrors).filter((key) => {
+      const [,rowNumber] = key.split('-');
+      return rowNumber === String(rowIndex);
+    });
 
-     console.log('row:', row);
+    // If there are errors for the current row, prevent completion
+    if (rowErrors.length > 0) {
+      console.log('Row has field errors:', rowErrors);
+      return; // Exit if there are field errors
+    }
     // Focus on the row before checking completion
     const isRowComplete = templateData.getTemplateById?.fields
     .filter((field) => field.isRequired) // Check only required fields
@@ -184,6 +225,11 @@ console.log('tableDatafirst:', tableData);
         ) {
           errors[`${field.id}-${rowIndex}`] = 'Value must be a valid number.';
         }
+        const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
+
+        if (!numericRegex.test(value)) {
+          errors[`${field.id}-${rowIndex}`] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
+        }
       });
     });
 
@@ -230,6 +276,13 @@ console.log('tableDatafirst:', tableData);
         } else {
           delete errors[errorKey];
         }
+      }
+      const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
+
+      if (!numericRegex.test(value)) {
+        errors[errorKey] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
+      } else {
+        delete errors[errorKey];
       }
     }
     setFieldErrors(errors);
@@ -595,6 +648,7 @@ console.log('tableDatafirst:', tableData);
               handleInputChange(rowIndex, fieldName, e.target.value);
               validateFields(fieldName, rowIndex);
             }}
+            onClick={(e) => e.target.showPicker()}
             style={{
               width: '100%',
               maxWidth: '500px',

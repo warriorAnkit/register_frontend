@@ -61,7 +61,7 @@ const userMenu = (
 
   };
   const clearSearch = () => {
-    setSearchText('');
+    setSearchText({ target: { value: '' } });
   };
   useEffect(() => {
 
@@ -141,7 +141,7 @@ const userMenu = (
           />
         )
       }
-      onChange={(e) => setSearchText(e.target.value)}
+      onChange={setSearchText}
       style={{ width: 200, height: 33, minWidth: '100px' }}
     />
           </Col>

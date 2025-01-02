@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react';
 import { Table, Typography, Empty, Pagination } from 'antd';
 import { useQuery } from '@apollo/client';
@@ -17,6 +18,8 @@ const ChangeLogOfTemplatePage = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+// eslint-disable-next-line no-console
+console.log("data",data);
   const [logs, setLogs] = useState([]);
   const [templateName, setTemplateName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,9 +28,7 @@ const ChangeLogOfTemplatePage = () => {
 
   useEffect(() => {
     if (data?.getTemplateActivityLogsBytemplateId) {
-      const filteredLogs = data.getTemplateActivityLogsBytemplateId.filter(
-        (log) => log.actionType !== 'CREATE_TEMPLATE',
-      );
+      const filteredLogs = data.getTemplateActivityLogsBytemplateId;
       setLogs(filteredLogs);
       if (filteredLogs.length > 0) {
         setTemplateName(filteredLogs[0].templateName || 'Unknown Template');
@@ -52,6 +53,30 @@ const ChangeLogOfTemplatePage = () => {
      </>
       );
     }
+    if (record.actionType === 'CREATE_TEMPLATE') {
+  return (
+    <>
+    {type === 'previous' ? '-':(
+     <div>
+  <strong>{type === 'previous' ? '' : 'Name: '}</strong>
+  {type === 'previous' ? '' : value.fieldName || value.propertyName || 'N/A'}
+</div>
+    )}
+      <div>
+  <strong>{type === 'previous' ? '' : 'Type: '}</strong>
+  {type === 'previous' ? '' : value.fieldType || value.propertyFieldType || 'N/A'}
+</div>
+      {record.entityType !== 'PROPERTY' && (
+         <div>
+         <strong>{type === 'previous' ? '' : 'Sequence: '}</strong>
+         {type === 'previous' ? '' : value.sequence !== undefined ? value.sequence + 1 : 'N/A'}
+       </div>
+
+      )}
+    </>
+  );
+}
+
     return JSON.stringify(value);
   };
 

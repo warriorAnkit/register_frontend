@@ -54,6 +54,7 @@ const FillTableResponse = () => {
   const navigate = useNavigate();
   const [tableHeight, setTableHeight] = useState('100vh');
   const [initialPropertiesData, setInitialPropertiesData] = useState({});
+  const [isAllRowsComplete, setIsAllRowsComplete] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
     const updateTableHeight = () => {
@@ -328,7 +329,7 @@ const FillTableResponse = () => {
 
     const startY = 30; // Position below the header
     const contentLines = doc.splitTextToSize(
-      `${setDetailsContent}\n     Properties-${propertiesContent}`,
+      `${setDetailsContent}\n     Properties:${propertiesContent}`,
       doc.internal.pageSize.width - 20,
     );
     doc.text(contentLines, 10, startY);
@@ -470,6 +471,7 @@ const FillTableResponse = () => {
         templateId={templateId}
         location={window.location.href}
         setData={setData}
+        isAllRowsComplete={isAllRowsComplete}
       />
       {(templateLoading||responseLoading)&&
       <CenteredSpin/>}
@@ -497,7 +499,7 @@ const FillTableResponse = () => {
     <ShowPropertyComponent setPropertiesData={setPropertiesData}  propertiesData={propertiesData} templateData={templateData} responseData={responseData}  initialPropertiesData={initialPropertiesData} isEditing={isEditing} setIsEditing={setIsEditing} setId={setId}/>
 
         <div style={{ marginBottom: 16 }}>
-<TableFieldComponent ref={tableFieldRef} templateId={templateId} tableData={tableData} setTableData={setTableData} templateData={templateData} tableHeight={tableHeight} templateError={templateError} responseError={responseError} setId={setId} filling={filling}/>
+<TableFieldComponent ref={tableFieldRef} templateId={templateId} tableData={tableData} setTableData={setTableData} templateData={templateData} tableHeight={tableHeight} templateError={templateError} responseError={responseError} setId={setId} filling={filling} setIsAllRowsComplete={setIsAllRowsComplete}/>
         </div>
 
       </div>

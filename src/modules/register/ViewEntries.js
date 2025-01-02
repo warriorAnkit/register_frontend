@@ -39,7 +39,7 @@ const ViewEntries = () => {
     setCurrentPage(page);
     setPageSize(pageSize);
   };
-
+// console.log(entriesFilteredDatabyDate);
   // eslint-disable-next-line no-shadow
   const handleEntriesPageChange = (page,pageSize) => {
     setEntriesCurrentPage(page);
@@ -68,7 +68,7 @@ const ViewEntries = () => {
   useEffect(() => {
     if (responseData && templateData) {
       const { properties } = templateData.getTemplateById;
-
+   console.log("responseData",responseData);
       const rows = responseData.getAllPropertyResponsesForTemplate.propertyResponses.map((set) => {
         const row = {
           setId: set.setId,
@@ -134,9 +134,9 @@ const ViewEntries = () => {
       const startDate = istDates[0];
       const endDate = istDates[1];
       const filteredEntries = entriesFilteredData.filter((row) => {
-        console.log(row);
+
         const createdAt =moment(parseInt(row.createdAt, 10));
-        console.log(createdAt);
+
         return createdAt.isBetween(startDate, endDate, 'day', '[]');
       });
       setEntriesFilterDataByDate(filteredEntries);
@@ -301,6 +301,18 @@ const ViewEntries = () => {
                 : 'Invalid Date';
               return time;
             }
+            if(col.fieldType === 'ATTACHMENT' && row[col.dataIndex]) {
+              const constantValue = 'https://storage.googleapis.com/digiqc_register/';
+              let value = row[col.dataIndex];
+
+        value = value
+          .split(',')
+          .map((item) => `${constantValue}${item.trim()}`)
+          .join(', ');
+
+          value = `"${value}"`;
+          return value;
+            }
             return row[col.dataIndex] || '';
           });
 
@@ -334,7 +346,10 @@ const ViewEntries = () => {
       console.error('Error exporting CSV:', error);
     }
   };
-  const navigate=useNavigate();
+
+
+
+const navigate=useNavigate();
 
 const getFullNameById = async (userId, client) => {
   try {
@@ -358,10 +373,12 @@ const client = useApolloClient();
 
 const exportPDF = async (column, data, fileName) => {
   try {
+    const tableData = data;
     const headerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerLogo = 'https://i.imgur.com/ag6OZGW.png';
     const footerText = 'Digitize.Monitor.Improve'; // Center footer text
-
+    console.log("columns",column);
+    console.log("data",data);
     const filteredColumns = column.filter(col => col.title !== 'Edit');
     const headers = filteredColumns.map(col => col.title);
     const doc = new jsPDF({
@@ -383,9 +400,8 @@ const exportPDF = async (column, data, fileName) => {
           const fullName = await getFullNameById(row.createdById, client);
           return fullName;
         }
-        // console.log("columns",col);
 
-        return row[col.dataIndex] || '';
+        return row[col.dataIndex] || '-';
       }));
       return rowData;
     }));
@@ -427,6 +443,70 @@ const exportPDF = async (column, data, fileName) => {
       },
       margin: { bottom: 50 },
       pageBreak: 'auto',
+      // eslint-disable-next-line no-shadow
+      didParseCell: (data) => {
+        const columnIndex = data.column.index;
+        const field = column[columnIndex];
+        console.log("field",field);
+        if (field?.fieldType === 'ATTACHMENT' && data.row.section === 'body') {
+          // eslint-disable-next-line no-param-reassign
+          data.cell.text = [];
+        }
+      },
+      // eslint-disable-next-line no-shadow
+      didDrawCell: (data) => {
+        const columnIndex = data.column.index;
+        const rowIndex = data.row.index;
+        console.log("rowIndex",rowIndex);
+        const field = column[columnIndex];
+        console.log("field",field);
+        console.log("tableData",data.table.body[rowIndex].raw[columnIndex]);
+       const fieldValue = data.table.body[rowIndex].raw[columnIndex];
+         console.log("fieldValue",fieldValue);
+        // eslint-disable-next-line no-param-reassign
+        console.log("data",data);
+        if (data.row.section === 'head') {
+          return data.cell.text; // Exit if it's a header cell
+        }
+       // Check if the field type is ATTACHMENT and fieldValue exists
+        if (field?.fieldType === 'ATTACHMENT' && fieldValue) {
+          const fileLinks = fieldValue.split(',').map((imageName) => {
+            const fileUrl = `https://storage.googleapis.com/digiqc_register/${imageName.trim()}`;
+            return fileUrl;
+          });
+          // eslint-disable-next-line no-param-reassign
+          data.cell.text = [];
+          // const linkX = data.cell.x + 2; // Padding inside the cell
+          // const linkY = data.cell.y + data.cell.height / 2; // Center the link vertically
+
+          const iconSize = 5;
+          fileLinks.forEach((fileUrl, index) => {
+            // const linkX = data.cell.x + 2 + index *19; // Adjust horizontal spacing (50 is just an example, you can change it)
+            // const linkY = data.cell.y + data.cell.height / 2; // Center vertically
+            const linkX = data.cell.x + 2 + index * 10; // Adjust horizontal spacing
+            const linkY = data.cell.y + (data.cell.height - iconSize) / 2; // Center vertically
+
+            // Add the image icon in the cell
+            // doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+            // doc.addImage(, 'PNG', linkX, linkY, 10, 10);
+            // doc.imageWithLink(fileUrl, linkX, linkY, iconSize, iconSize, {    url: fileUrl});
+            // doc.textWithLink(
+            //   ``, // Display text
+            //   linkX,
+            //   linkY, // Add spacing for multiple links
+            //   { url: fileUrl },
+            // );
+            doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+
+            // Create a clickable link over the image area
+            doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+          });
+
+          // Clear the default content in the cell
+          // eslint-disable-next-line no-param-reassign
+
+        }
+      },
       // eslint-disable-next-line no-shadow
       didDrawPage: (data) => {
           const currentPageHeight = doc.internal.pageSize.height;
@@ -511,9 +591,11 @@ return (
         <TabPane tab="Sets" key="set">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
-              <RangePicker onChange={handleDateChange}  disabledDate={disabledDate}
+              {/* <RangePicker onChange={handleDateChange}  disabledDate={disabledDate}
+                  defaultValue={[moment().startOf('month'), moment()]}
+                  /> */}
+                     <RangePicker />
 
-                  />
               <Dropdown overlay={exportMenu}>
                 <Button icon={<UploadOutlined/>} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />

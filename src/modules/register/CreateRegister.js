@@ -61,6 +61,28 @@ const CreateRegisterPage = () => {
   });
 
 
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // eslint-disable-next-line no-shadow
+      const message = "You have unsaved changes. Are you sure you want to leave?";
+      e.preventDefault();
+      e.returnValue = message; // Standard for most browsers
+      return message; // For some older browsers
+    };
+
+
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+
+    // Ensure cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+
+    };
+  }, []);
+
 
   const {
     loading: loadingProject,
@@ -644,7 +666,7 @@ console.log("formattedFields",formattedFields);
   }
   return (
     <div >
-       <Header name={regName}/>
+       <Header name={regName} location={window.location.href}/>
     <div style={{ padding: '15px',marginTop: '40px'}}>
 
 
@@ -662,7 +684,22 @@ console.log("formattedFields",formattedFields);
   </Title>
 
 </div>
-
+<Space style={{ marginTop: '16px', float: 'right' }}>
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={confirmSave}
+          >
+            Save as Draft
+          </Button>
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={handlePublish}
+          >
+            Publish
+          </Button>
+      </Space>
       <Title level={4}>Properties</Title>
       <div style={{ marginBottom: '24px' }}>
         {properties.map((property) => (
@@ -713,7 +750,7 @@ console.log("formattedFields",formattedFields);
         style={{ marginTop: '16px' }}
       />
    </ReactDragListView.DragColumn>
-<Space style={{ marginTop: '16px', float: 'right' }}>
+{/* <Space style={{ marginTop: '16px', float: 'right' }}>
 
 
           <Button
@@ -731,7 +768,7 @@ console.log("formattedFields",formattedFields);
             Publish
           </Button>
 
-      </Space>
+      </Space> */}
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}

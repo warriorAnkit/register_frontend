@@ -43,9 +43,15 @@ const Dashboard = () => {
   const [templates, setTemplates] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [registerName, setRegisterName] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
+  console.log("cp",parseInt(sessionStorage.getItem('currentPage'), 10));
+  const [currentPage, setCurrentPage] = useState(
+    isBrowser ? parseInt(sessionStorage.getItem('currentPage'), 10) || 1: 1,
+  );
+  const [pageSize, setPageSize] = useState(
+    isBrowser ? parseInt(sessionStorage.getItem('pageSize'), 10) || 10 : 10,
+  );
+console.log("cps",currentPage);
+console.log("ps",pageSize);
   const [userRole, setUserRole] = useState(null);
   const [isGlobalModalVisible, setGlobalModalVisible] = useState(false);
   const [isUploadModalVisible, setUploadModalVisible] = useState(false);
@@ -66,8 +72,7 @@ const Dashboard = () => {
     data: dataProject,
   } = useQuery(GET_PROJECT_ID_FOR_USER);
   const projectId = dataProject ? dataProject.getProjectIdForUser : null;
-  console.log('id:,', projectId);
-console.log(projectId)
+
 
   const { data:templateData, loading:templateLoading, error:templateError, refetch } = useQuery(GET_ALL_TEMPLATES, {
     variables: {
@@ -112,32 +117,46 @@ console.log(projectId)
   }
   }, [searchText, activeFilter, pageSize, currentPage, refetch]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeFilter]);
 
 
   const paginatedTemplates = templateData?.getAllTemplates?.templates || [];
-  console.log(paginatedTemplates);
+
   // Filter dropdown menu
   useEffect(() => {
     if (isBrowser) {
       sessionStorage.setItem('selectedFilter', activeFilter);
       sessionStorage.setItem('searchText', searchText);
-      console.log(searchText,"ghd");
+
     }
-    setCurrentPage(1);
+    //  setCurrentPage(1);
   }, [activeFilter, searchText]);
 
+  useEffect(() => {
+    console.log('Search text changed:', searchText);
+  }, [searchText]);
+  const handleSearchInputChange = (e) => {
+    setSearchText(e.target.value);
+    setCurrentPage(1); // Reset page to the first one on search
+  };
+
+  useEffect(() => {
+    if (isBrowser) {
+      console.log("ps2",pageSize);
+      console.log("cp2",currentPage);
+      sessionStorage.setItem('pageSize', pageSize);
+      sessionStorage.setItem('currentPage', currentPage);
+      console.log("cp3",currentPage);
+    }
+  }, [pageSize, currentPage]);
+
   const handleTabChange = (key) => {
-    // eslint-disable-next-line no-console
-    console.log(key, '1');
+
     if (key === 'template') {
-      console.log('hiii ankit');
+
       navigate(ROUTES.MAIN);
     } else if (key === 'log') {
-      // eslint-disable-next-line no-console
-      console.log('2 i am called');
+
+
       navigate(ROUTES.LOGS);
     }
   };
@@ -185,25 +204,17 @@ console.log(projectId)
       Modal.confirm({
         title: 'Are you sure you want to delete this template?',
         onOk: () => resolve(true),
+        okType: 'danger',
         onCancel: () => resolve(false),
       });
     });
 
     if (isConfirmed) {
       try {
-
-        await deleteTemplate({
+       const response= await deleteTemplate({
           variables: { id: templateId },
         });
         await refetch();
-
-        notification.success({
-          message: 'Template Deleted',
-          description: 'The template has been deleted successfully.',
-          placement: 'topRight',
-        });
-
-        console.log('Template deleted successfully');
       } catch (err) {
         console.error('Error deleting template:', err.message);
       }
@@ -213,7 +224,7 @@ console.log(projectId)
     setActiveFilter(newFilter); // Update activeFilter state
     setCurrentPage(1); // Reset page to the first one on filter change
   };
-
+console.log(paginatedTemplates);
 
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative' }}>
@@ -228,7 +239,7 @@ console.log(projectId)
         setRegisterName={setRegisterName}
         handleOk={handleOk}
         handleTabChange={handleTabChange}
-        setSearchText={setSearchText}
+        setSearchText={handleSearchInputChange}
         searchText={searchText}
         handleFilterChange={handleFilterChange}
         userRole={userRole}
@@ -397,7 +408,7 @@ console.log(projectId)
           ) : (
             <Col span={24}>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-                {(templateLoading) && (
+                {(!templateLoading) && (
                   <Empty description="No templates found." />
                 )}
               </div>

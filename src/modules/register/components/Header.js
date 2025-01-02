@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { FolderOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Typography, Modal, Popover } from "antd";
 import React from "react";
@@ -7,13 +8,17 @@ import SetDetailsCard from "./SetDetailsCard";
 
 const { Title } = Typography;
 
-const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,location,setData}) =>{
+const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,location,setData,editTemplate,isAllRowsComplete}) =>{
   const navigate = useNavigate(); // Initialize the navigate function
 // eslint-disable-next-line no-console
-
-const isFillTablePage = location?.includes("/register/fill-table");
+let isFillTablePage = false;
+console.log(isAllRowsComplete);
+if(isAllRowsComplete!==undefined){
+ isFillTablePage = !(isAllRowsComplete);
+}
+const createRegisterPage = location?.includes("register/new");
 const handleIconClick = () => {
-  if (isFillTablePage) {
+  if (isFillTablePage||editTemplate||createRegisterPage) {
     // Show a confirmation modal before navigation
     Modal.confirm({
       title: "Unsaved Changes",

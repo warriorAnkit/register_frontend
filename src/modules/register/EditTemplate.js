@@ -118,7 +118,7 @@ const TemplateView = () => {
 
     // Add event listeners
     window.addEventListener('beforeunload', handleBeforeUnload);
-
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
 
@@ -781,7 +781,7 @@ console.log(fieldNamesInFormula);
 
   return (
     <div >
-       <Header name={templateName}/>
+       <Header name={templateName} editTemplate={isEditing}/>
 
     <div style={{ padding: '24px',marginTop: '60px' }}>
 

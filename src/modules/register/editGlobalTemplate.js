@@ -475,6 +475,31 @@ const GlobalTemplateView = () => {
 )}
 </div>
 
+<Space style={{ marginTop: '16px', float: 'right' }}>
+        <Button
+          type="primary"
+          style={{ backgroundColor: 'red' }}
+           onClick={handleStatusChange}
+        >
+          Publish
+        </Button>
+        <Button
+          type="primary"
+          style={{ backgroundColor: 'red' }}
+          onClick={toggleEditMode}
+        >
+          {isEditing ? 'Discard' : 'Edit'}
+        </Button>
+
+          <Button
+            type="primary"
+            style={{ backgroundColor: 'red' }}
+            onClick={confirmSave}
+          >
+            Save As Draft
+          </Button>
+
+      </Space>
       <Title level={4}>Properties</Title>
       <div style={{ marginBottom: '24px' }}>
         {properties.map((property) => (
@@ -523,7 +548,7 @@ const GlobalTemplateView = () => {
         style={{ marginTop: '16px' }}
       />
 
-
+{/*
 <Space style={{ marginTop: '16px', float: 'right' }}>
         <Button
           type="primary"
@@ -548,7 +573,7 @@ const GlobalTemplateView = () => {
             Save As Draft
           </Button>
 
-      </Space>
+      </Space> */}
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}

@@ -154,7 +154,10 @@ export const EDIT_RESPONSE_MUTATION = gql`
 `;
 export const DELETE_TEMPLATE = gql`
   mutation DeleteTemplate($id: ID!) {
-    deleteTemplate(id: $id)
+    deleteTemplate(id: $id){
+      success
+      message
+    }
   }
 `;
 export const CREATE_GLOBAL_TEMPLATE_MUTATION = gql`

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Input, Select, Checkbox, Form, Button } from 'antd';
+import { Card, Input, Select, Checkbox, Form, Button, DatePicker } from 'antd';
 import { useMutation } from '@apollo/client';
 import { format } from 'date-fns';
 import moment from 'moment';
@@ -39,18 +39,35 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
     if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
       errors[property.propertyName] = 'Text must be less than 100 characters';
     }
-
+    else {
+      delete errors[property.propertyName];
+    }
     if (
       property.propertyFieldType === 'MULTI_LINE_TEXT' &&
       value?.length > 750
     ) {
       errors[property.propertyName] = 'Text must be less than 750 characters';
     }
+    else {
+      delete errors[property.propertyName];
+    }
     // eslint-disable-next-line no-restricted-globals
     if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
       errors[property.propertyName] = 'Value must be a valid number';
     }
-
+    else {
+      delete errors[property.propertyName];
+    }
+    if (property.propertyFieldType === 'NUMERIC') {
+      const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
+// eslint-disable-next-line no-console
+   console.log("numericRegex",numericRegex.test(value));
+      if (!numericRegex.test(value)) {
+        errors[property.propertyName] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
+      } else {
+        delete errors[property.propertyName];
+      }
+    }
     setPropertyErrors(errors);
     return Object.keys(errors).length === 0; // Return whether there are no errors
   };
@@ -83,6 +100,12 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
       // eslint-disable-next-line no-restricted-globals
       if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
         errors[property.propertyName] = 'Value must be a valid number';
+      }
+      if (property.propertyFieldType === 'NUMERIC') {
+        const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
+        if (!numericRegex.test(value)) {
+          errors[property.propertyName] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
+        }
       }
     });
 
@@ -190,7 +213,13 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
               validateProperties(propertyName, value);
               setOpenedIndex(false);
             }}
-            style={{ width: '100%', maxWidth: '500px' }}
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              height: '30px', // Match the height
+              borderRadius: '4px', // Add border radius for consistency
+              boxSizing: 'border-box', // Match box sizing
+            }}
             open={openedIndex === `0-${propertyName}`}
             onFocus={() => setOpenedIndex(`0-${propertyName}`)}
             onBlur={() => setOpenedIndex(false)}
@@ -279,6 +308,7 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
     style={{ width: '100%', maxWidth: '500px', padding: '8px', height: '30px' }}
     type="date"
     value={propertiesData[propertyName] || ''}
+    onClick={(e) => e.target.showPicker()}
     onChange={(e) => {
       const { value } = e.target;
       setPropertiesData((prev) => ({
