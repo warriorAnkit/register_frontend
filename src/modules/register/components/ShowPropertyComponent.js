@@ -120,7 +120,9 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
           const propertyId = templateData.getTemplateById.properties.find(
             (prop) => prop.propertyName === propertyName,
           )?.id;
-
+        if(!propertyId){
+          return;
+           }
           const responseId = responseData.getAllResponsesForSet.propertyResponses?.find(
             (propResponse) => propResponse.propertyId === propertyId,
           )?.id;
@@ -130,8 +132,10 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
             value: String(propertiesData[propertyName]),
             responseId: responseId || null,
           };
-        });
-
+        })
+        .filter(Boolean);
+// eslint-disable-next-line no-console
+console.log(propertyValues);
 
         const response = editSet({
           variables: {
@@ -335,14 +339,16 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
               const isRequired = property?.isRequired;
               return (
                 <div key={propertyName} style={{ marginBottom: 8 }}>
+                  {property && (<>
                   <strong>
                     {propertyName}
                     {isRequired && <span style={{ color: 'red' }}> *</span>}
                   </strong>
-                  {renderPropertyField(
+                  { renderPropertyField(
                     property.propertyFieldType,
                     propertyName,
                   )}
+                  </>)}
                 </div>
               );
             })}

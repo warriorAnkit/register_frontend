@@ -108,7 +108,7 @@ const FillTableResponse = () => {
       });
       setPropertiesData(initialProperties);
     }
-
+console.log("templateData",templateData);
     if (responseData) {
       const { setDetails } = responseData.getAllResponsesForSet;
       const fetchCreatedByName = async () => {
