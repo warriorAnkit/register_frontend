@@ -268,7 +268,7 @@ const TemplateView = () => {
     if (fieldData.type === 'CALCULATION') {
 
       const isValid = await validateFormula(fieldData.options);
-      if (!isValid) {
+      if (!isValid||fieldData.options.length===0) {
         notification.error({
           message: 'Invalid Formula',
           description: 'The formula syntax is invalid. Please correct it.',

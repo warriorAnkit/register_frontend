@@ -402,7 +402,7 @@ const TableFieldComponent =forwardRef(({
           className="custom-select"
            placeholder="Select an option"
            suffixIcon={<DownOutlined style={{ fontSize: '14px' }} />}
-            value={fieldValue}
+            value={fieldValue||undefined}
             onChange={(value) => {
               handleInputChange(rowIndex, fieldName, value);
               validateFields(fieldName, rowIndex, value);
@@ -472,6 +472,7 @@ const TableFieldComponent =forwardRef(({
           ? tableData[rowIndex][fieldName]?.value
           : (tableData[rowIndex][fieldName]?.value || "").split(",").filter(Boolean)
       }
+
       onChange={(selectedValues) => {
         setTableData((prevData) => {
           const updatedTableData = [...prevData];
@@ -500,9 +501,12 @@ const TableFieldComponent =forwardRef(({
 
         validateFields(fieldName, rowIndex, selectedValues);
       }}
+      onFocus={() => setOpenedIndex(`${rowIndex}-${fieldName}`)}
       onBlur={() => {
+        setOpenedIndex(null);
         handleBlur(rowIndex);
       }}
+      open={openedIndex === `${rowIndex}-${fieldName}`}
       style={{ width: '100%' }}
     >
       {templateData.getTemplateById?.fields

@@ -195,8 +195,9 @@ const CreateRegisterPage = () => {
     }
   }
     if (fieldData.type === 'CALCULATION') {
+
       const isValid = await validateFormula(fieldData.options);
-      if (!isValid) {
+      if (!isValid||fieldData.options.length===0) {
         notification.error({
           message: 'Invalid Formula',
           description: 'The formula syntax is invalid. Please correct it.',
@@ -339,7 +340,8 @@ const CreateRegisterPage = () => {
             properties: formattedProperties,
           },
         });
-        if (response.data.createTemplate.message==='Template Created succesfully') {
+
+        if (response.data.createTemplate.message==='Register Created succesfully') {
           navigate(ROUTES.MAIN); // Navigate to the main route after success
         }
       } else {
@@ -354,7 +356,7 @@ const CreateRegisterPage = () => {
           },
         });
 
-        if (response.data.createTemplate.message==='Template Created succesfully') {
+        if (response.data.createTemplate.message==='Register Created succesfully') {
           navigate(ROUTES.MAIN); // Navigate to the main route after success
         }
       }

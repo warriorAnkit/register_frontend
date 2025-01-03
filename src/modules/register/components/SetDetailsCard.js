@@ -20,7 +20,7 @@ const SetDetailsCard = ({ setData }) => {
         <span>
           {createdAt
             ? moment(createdAt, 'x').isValid()
-              ? moment(createdAt, 'x').format('YYYY-MM-DD HH:mm:ss')
+              ? moment(createdAt, 'x').format('DD-MM-YYYY HH:mm:ss')
               : 'Invalid Date'
             : '-'}
         </span>
@@ -33,7 +33,7 @@ const SetDetailsCard = ({ setData }) => {
         <strong>Updated At: </strong>
         {updatedAt
           ? moment(updatedAt, 'x').isValid()
-            ? moment(updatedAt, 'x').format('YYYY-MM-DD HH:mm:ss')
+            ? moment(updatedAt, 'x').format('DD-MM-YYYY HH:mm:ss')
             : 'Invalid Date'
           : '-'}
       </div>

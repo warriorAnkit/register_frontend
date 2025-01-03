@@ -137,6 +137,9 @@ const SetPropertyField = ({
             }));
             validateProperties(propertyName, selectedOptions.length > 0);
           }}
+          open={openedIndex === `0-${propertyName}`}
+          onFocus={() => setOpenedIndex(`0-${propertyName}`)}
+          onBlur={() => setOpenedIndex(false)}
         >
           {data?.getTemplateById?.properties
             .find((p) => p.propertyName === propertyName)
@@ -162,8 +165,10 @@ const SetPropertyField = ({
                 ...prev,
                 [propertyName]: value,
               }));
+
               validateProperties(propertyName, value);
             }}
+            onClick={(e) => e.target.showPicker()}
           />
         );
       default:
