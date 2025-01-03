@@ -25,7 +25,7 @@ import { useNavigate, useParams} from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_GLOBAL_TEMPLATE_BY_ID } from './graphql/Queries';
 import { CHANGE_TEMPLATE_STATUS, CREATE_TEMPLATE } from './graphql/Mutation';
-
+import ReactDragListView from "react-drag-listview";
 import './register.less';
 import FieldIcon from './components/FieldIcon';
 import { GET_PROJECT_ID_FOR_USER } from '../Dashboard/graphql/Queries';
@@ -445,6 +445,22 @@ const GlobalTemplateView = () => {
       },
     });
   };
+  const dragProps = {
+    onDragEnd: (fromIndex, toIndex) => {
+
+      if (columns[fromIndex]?.key === 'addField' || columns[toIndex]?.key === 'addField') {
+        return;
+      }
+      const newFields = [...fields];
+      const fieldItem = newFields.splice(fromIndex, 1)[0];
+      newFields.splice(toIndex, 0, fieldItem);
+
+      setFields(newFields);
+
+    },
+    nodeSelector: "th", // Dragging happens on <th> elements
+  };
+
 
 
   return (
@@ -540,6 +556,7 @@ const GlobalTemplateView = () => {
       <Divider />
 
       <Title level={4}>Table</Title>
+      <ReactDragListView.DragColumn {...dragProps}>
       <Table
         columns={columns}
         dataSource={[{}]} // You may want to populate this correctly
@@ -548,6 +565,7 @@ const GlobalTemplateView = () => {
         style={{ marginTop: '16px' }}
         scroll={{ x: 'max-content' , y:"80px"}}
       />
+        </ReactDragListView.DragColumn>
 
 {/*
 <Space style={{ marginTop: '16px', float: 'right' }}>
