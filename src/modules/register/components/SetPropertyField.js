@@ -51,6 +51,7 @@ const SetPropertyField = ({
               }));
               validateProperties(propertyName, value);
             }}
+            placeholder='Input text'
           />
         );
       case 'MULTI_LINE_TEXT':
@@ -67,15 +68,16 @@ const SetPropertyField = ({
               }));
               validateProperties(propertyName, value);
             }}
+            placeholder='Input multi line text'
           />
         );
       case 'OPTIONS':
         return (
           <Select
-            style={{ ...inputStyle, borderRadius: '4px', border: 'none',boxSizing: 'unset' }}
+            style={{ ...inputStyle, borderRadius: '0px', border: 'none',boxSizing: 'unset',marginLeft: '0px'}}
             ref={selectRef}
             placeholder="Select options"
-            value={propertiesData[propertyName] || '-'}
+            value={propertiesData[propertyName]|| undefined}
             onChange={(value) => {
               setPropertiesData((prev) => ({
                 ...prev,
@@ -103,6 +105,7 @@ const SetPropertyField = ({
           <Input
             style={inputStyle}
             value={propertiesData[propertyName] || ''}
+            placeholder='Input number'
             onChange={(e) => {
               const { value } = e.target;
               setPropertiesData((prev) => ({
@@ -121,7 +124,7 @@ const SetPropertyField = ({
           style={{ ...inputStyle, borderRadius: '4px', border: 'none',boxSizing: 'unset',
             height: 'auto',
             overflow: 'auto'}}
-          placeholder="Select options"
+          placeholder="Select Multiple options"
           value={
             Array.isArray(propertiesData[propertyName])
               ? propertiesData[propertyName]

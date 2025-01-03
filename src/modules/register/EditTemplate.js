@@ -991,8 +991,14 @@ const TemplateView = () => {
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
           <Select.Option value="CALCULATION">Calculation</Select.Option>
         </Select>
-          <div style={{ marginBottom: '16px' }}>
-            data.getGlobalTemplateById.properties.map(cleanData),
+        <div style={{ marginBottom: '16px' }}>
+          <span>Required: </span>
+          <Switch
+            checked={fieldData.required}
+            onChange={(checked) =>
+              setFieldData({ ...fieldData, required: checked })
+            }
+          />
         </div>
         {(fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') && (
           <div style={{ marginTop: '16px' }}>

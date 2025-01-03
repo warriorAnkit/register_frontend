@@ -634,7 +634,7 @@ return (
                 total={filteredData.length}
                 onChange={handlePageChange}
                 showSizeChanger
-                pageSizeOptions={[10, 16, 25, 50]}
+                pageSizeOptions={[10, 15, 25, 50]}
               />
             </div>
             </>
@@ -683,7 +683,7 @@ return (
                 onChange={handleEntriesPageChange}
 
                 showSizeChanger
-                pageSizeOptions={[10, 16, 25, 50]}
+                pageSizeOptions={[10, 15, 25, 50]}
               />
             </div>
             </>

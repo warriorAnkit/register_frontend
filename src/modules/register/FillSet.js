@@ -98,8 +98,6 @@ const FillSet = () => {
     const isPropertyValid = finalValidateProperties();
 
     if (!isPropertyValid) {
-      // eslint-disable-next-line no-alert, no-undef
-      alert('Please fix the errors before submitting.');
       return;
     }
 

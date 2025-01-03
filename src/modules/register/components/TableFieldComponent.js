@@ -671,10 +671,10 @@ const TableFieldComponent =forwardRef(({
 
     if (!isFieldValid) {
       // eslint-disable-next-line no-undef
-      notification.error({
-        message: 'Validation Error',
-        description: 'Please fix the errors before submitting.',
-      });
+      // notification.error({
+      //   message: 'Validation Error',
+      //   description: 'Please fix the errors before submitting.',
+      // });
       return;
     }
     try {

@@ -246,7 +246,7 @@ const LogsPage = () => {
         onChange={(page) => setCurrentPage(page)}
         onShowSizeChange={(current, size) => setPageSize(size)}
         showSizeChanger
-
+        pageSizeOptions={['10', '15', '25', '50']}
         style={{
           position: 'fixed',
           bottom: 0,

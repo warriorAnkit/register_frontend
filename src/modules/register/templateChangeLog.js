@@ -195,7 +195,7 @@ const ChangeLogOfTemplatePage = () => {
             pageSize={pageSize}
             total={logs.length}
             showSizeChanger
-            pageSizeOptions={['10', '16', '25', '50']}
+            pageSizeOptions={['10', '15', '25', '50']}
             onChange={(page, size) => {
               setCurrentPage(page);
               setPageSize(size);
