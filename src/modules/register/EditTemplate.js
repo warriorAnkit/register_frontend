@@ -56,6 +56,10 @@ const TemplateView = () => {
   const [currentProperty, setCurrentProperty] = useState(null);
   const [templateName, setTemplateName] = useState('');
   const [templateStatus, setTemplateStatus] = useState('');
+  const [initialProperties, setInitialProperties] = useState([]);
+  const [initialFields, setInitialFields] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
+
   const navigate=useNavigate();
   const [fieldData, setFieldData] = useState({
     name: '',
@@ -70,6 +74,9 @@ const TemplateView = () => {
     options: [],
   });
   const inputRefs = useRef([]);
+  const deepEqual = (obj1, obj2) =>
+     JSON.stringify(obj1) === JSON.stringify(obj2) // Deep comparison of the objects
+  ;
   useEffect(() => {
     if (data) {
       setTemplateName(data.getTemplateById.name);
@@ -84,7 +91,16 @@ const TemplateView = () => {
           .filter((field) => !field.deletedAt)
           .map(cleanData),
       );
+
+      setInitialFields(
+        data.getTemplateById.fields
+          .filter((field) => !field.deletedAt)
+          .map(cleanData),
+      );
       setProperties(
+        data.getTemplateById.properties.map(cleanData),
+      );
+      setInitialProperties(
         data.getTemplateById.properties.map(cleanData),
       );
     }
@@ -93,6 +109,12 @@ const TemplateView = () => {
     const filteredFields = fields.filter((field) => field.fieldType === 'NUMERIC');
     setNumericFields(filteredFields);
   }, [fields]);
+  useEffect(() => {
+    // Check if properties have changed from their initial state using deep comparison
+    const isPropertiesChanged = !deepEqual(properties, initialProperties);
+    const isFieldChanged = !deepEqual(fields, initialFields);
+    setHasChanges(isPropertiesChanged || isFieldChanged);
+  }, [properties,fields]);
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isEditing) {
@@ -144,8 +166,8 @@ const TemplateView = () => {
         cancelText: 'No, keep editing',
         onOk: () => {
 
-          setProperties((prevProperties) => prevProperties.filter((property) => property.id));
-          setFields((prevFields) => prevFields.filter((field) => field.id));
+          setProperties(initialProperties);
+          setFields(initialFields);
           setIsEditing(false);
         },
       });
@@ -849,6 +871,8 @@ const TemplateView = () => {
             type="primary"
             style={{ backgroundColor: 'red' }}
             onClick={toggleEditMode}
+            disabled={isEditing&&!hasChanges}
+            className="custom-disabled-button"
           >
             {isEditing ? 'Discard' : 'Edit'}
           </Button>
@@ -857,6 +881,8 @@ const TemplateView = () => {
               type="primary"
               style={{ backgroundColor: 'red' }}
               onClick={confirmSave}
+              disabled={!hasChanges}
+              className="custom-disabled-button"
             >
               Save
             </Button>
@@ -933,6 +959,7 @@ const TemplateView = () => {
           value={fieldData.name}
           onChange={(e) => setFieldData({ ...fieldData, name: e.target.value })}
           style={{ marginBottom: '16px' }}
+          maxLength={50}
         />
         <Select
           value={fieldData.type}
@@ -949,13 +976,7 @@ const TemplateView = () => {
           <Select.Option value="CALCULATION">Calculation</Select.Option>
         </Select>
           <div style={{ marginBottom: '16px' }}>
-          <span>Required: </span>
-          <Switch
-            checked={fieldData.required}
-            onChange={(checked) =>
-              setFieldData({ ...fieldData, required: checked })
-            }
-          />
+            data.getGlobalTemplateById.properties.map(cleanData),
         </div>
         {(fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') && (
           <div style={{ marginTop: '16px' }}>
@@ -1124,6 +1145,7 @@ const TemplateView = () => {
             setPropertyData({ ...propertyData, name: e.target.value })
           }
           style={{ marginBottom: '16px' }}
+          maxLength={100}
         />
 
         <Select
@@ -1173,6 +1195,7 @@ const TemplateView = () => {
                         handleAddPropertyOption(); // Trigger adding an option on Enter key press
                       }
                     }}
+                    maxLength={50}
                   />
                    <Button
         type="text"

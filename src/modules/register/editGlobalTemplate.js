@@ -64,7 +64,15 @@ const GlobalTemplateView = () => {
   const [currentProperty, setCurrentProperty] = useState(null);
   const [templateName, setTemplateName] = useState('');
   const [templateStatus, setTemplateStatus] = useState('');
+  const [initialProperties, setInitialProperties] = useState([]);
+  const [initialFields, setInitialFields] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
   const navigate=useNavigate();
+
+  const deepEqual = (obj1, obj2) =>
+    JSON.stringify(obj1) === JSON.stringify(obj2) // Deep comparison of the objects
+ ;
+
   const [fieldData, setFieldData] = useState({
     name: '',
     type: 'TEXT',
@@ -93,8 +101,16 @@ const GlobalTemplateView = () => {
           .filter((field) => !field.deletedAt) // Keep fields where deletedAt is falsy
           .map(cleanData), // Apply cleanData to fields
       );
+      setInitialFields(
+        data.getGlobalTemplateById.fields
+        .filter((field) => !field.deletedAt) // Keep fields where deletedAt is falsy
+        .map(cleanData),
+      );
       setProperties(
         data.getGlobalTemplateById.properties.map(cleanData), // Apply cleanData to properties
+      );
+      setInitialProperties(
+        data.getGlobalTemplateById.properties.map(cleanData),
       );
     }
   }, [data]);
@@ -108,31 +124,40 @@ const GlobalTemplateView = () => {
       }
     };
 
-    // const handlePopState = () => {
-    //   if (isEditing) {
-    //     // eslint-disable-next-line no-alert
-    //     const userConfirmed = window.confirm("You have unsaved changes. Are you sure you want to leave?");
-    //     if (userConfirmed) {
-    //       // Allow navigation by not pushing any state
-    //       return;
-    //     }
-    //       // Push the state again to prevent navigating back
-    //        window.history.pushState(null, "", window.location.href);
+    const handlePopState = (event) => {
 
-    //   }
-    // };
+      if(isEditing){
+      // eslint-disable-next-line no-alert
+      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
+      if (confirmLeave) {
 
-    // Add event listeners
+        window.history.back();  // Manually trigger the back navigation
+      } else {
+        // Prevent the navigation if user cancels
+        event.preventDefault();
+      }
+    }
+    else{
+      window.history.back();
+    }
+    };
+    window.history.pushState(null, document.title);
+    window.addEventListener('popstate', handlePopState);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
 
     return () => {
 
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      // window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [isEditing]);
+  useEffect(() => {
 
+    const isPropertiesChanged = !deepEqual(properties, initialProperties);
+    const isFieldChanged = !deepEqual(fields, initialFields);
+    setHasChanges(isPropertiesChanged || isFieldChanged);
+  }, [properties,fields]);
 
   if (loading||loadingProject) return <CenteredSpin/>;
   if (error) return <p>Error: {error.message}</p>;
@@ -503,6 +528,8 @@ const GlobalTemplateView = () => {
           type="primary"
           style={{ backgroundColor: 'red' }}
           onClick={toggleEditMode}
+            disabled={isEditing&&!hasChanges}
+            className="custom-disabled-button"
         >
           {isEditing ? 'Discard' : 'Edit'}
         </Button>
@@ -623,14 +650,16 @@ const GlobalTemplateView = () => {
           <Select.Option value="DATE">Date</Select.Option>
           <Select.Option value="ATTACHMENT">Attachment</Select.Option>
         </Select>
-        <Switch
-          checked={fieldData.required}
-          onChange={(checked) =>
-            setFieldData({ ...fieldData, required: checked })
-          }
-          checkedChildren="Required"
-          unCheckedChildren="Optional"
-        />
+        <div style={{ marginBottom: '16px' }}>
+          <span>Required: </span>
+          <Switch
+            checked={propertyData.required}
+            onChange={(checked) =>
+              setPropertyData({ ...propertyData, required: checked })
+            }
+          />
+        </div>
+
         {(fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') && (
           <div style={{ marginTop: '16px' }}>
             <Title level={5}>Options</Title>

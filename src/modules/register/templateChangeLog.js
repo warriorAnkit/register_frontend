@@ -51,29 +51,31 @@ const ChangeLogOfTemplatePage = () => {
      </>
       );
     }
-    if (record.actionType === 'CREATE_TEMPLATE') {
-  return (
-    <>
-    {type === 'previous' ? '-':(
-     <div>
-  <strong>{type === 'previous' ? '' : 'Name: '}</strong>
-  {type === 'previous' ? '' : value.fieldName || value.propertyName || 'N/A'}
-</div>
-    )}
-      <div>
-  <strong>{type === 'previous' ? '' : 'Type: '}</strong>
-  {type === 'previous' ? '' : value.fieldType || value.propertyFieldType || 'N/A'}
-</div>
-      {record.entityType !== 'PROPERTY' && (
-         <div>
-         <strong>{type === 'previous' ? '' : 'Sequence: '}</strong>
-         {type === 'previous' ? '' : value.sequence !== undefined ? value.sequence + 1 : 'N/A'}
-       </div>
 
-      )}
-    </>
-  );
-}
+    if (record.actionType === 'CREATE_TEMPLATE') {
+      return (
+        <>
+          {record.entityType === 'TEMPLATE' ? '-' : (
+            <>
+              <div>
+                <strong>{type === 'previous' ? '' : 'Name: '}</strong>
+                {type === 'previous' ? '' : value.fieldName || value.propertyName || 'N/A'}
+              </div>
+              <div>
+                <strong>{type === 'previous' ? '' : 'Type: '}</strong>
+                {type === 'previous' ? '' : value.fieldType || value.propertyFieldType || 'N/A'}
+              </div>
+              {record.entityType !== 'PROPERTY' && (
+                <div>
+                  <strong>{type === 'previous' ? '' : 'Sequence: '}</strong>
+                  {type === 'previous' ? '' : value.sequence !== undefined ? value.sequence + 1 : 'N/A'}
+                </div>
+              )}
+            </>
+          )}
+        </>
+      );
+    }
 
     return JSON.stringify(value);
   };

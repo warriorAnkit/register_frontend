@@ -12,7 +12,7 @@ const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,locat
   const navigate = useNavigate(); // Initialize the navigate function
 // eslint-disable-next-line no-console
 let isFillTablePage = false;
-
+console.log(templateId,templateLogs);
 if(isAllRowsComplete!==undefined){
  isFillTablePage = !(isAllRowsComplete);
 }
