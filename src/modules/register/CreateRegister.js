@@ -186,6 +186,14 @@ const CreateRegisterPage = () => {
       });
       return;
     }
+    if (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES'){
+      const trimmedOptions = fieldData.options.map((option) => option.trim());
+      console.log(trimmedOptions);
+    if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+      message.error('Duplicate options are not allowed.');
+      return;
+    }
+  }
     if (fieldData.type === 'CALCULATION') {
       const isValid = await validateFormula(fieldData.options);
       if (!isValid) {
@@ -281,6 +289,7 @@ const CreateRegisterPage = () => {
       return;
     }
     const trimmedOptions = propertyData.options.map((option) => option.trim());
+    console.log(trimmedOptions);
   if (new Set(trimmedOptions).size !== trimmedOptions.length) {
     message.error('Duplicate options are not allowed.');
     return;
@@ -524,6 +533,14 @@ const CreateRegisterPage = () => {
       });
       return;
     }
+    if (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES'){
+    const trimmedOptions = propertyData.options.map((option) => option.trim());
+    console.log(trimmedOptions);
+  if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+    message.error('Duplicate options are not allowed.');
+    return;
+  }
+}
     if (
       (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES') &&
       propertyData.options.length === 0
@@ -547,6 +564,7 @@ const CreateRegisterPage = () => {
       });
       return;
     }
+
     if (currentProperty) {
       setProperties((prevProperties) =>
         prevProperties.map((p) =>
@@ -689,7 +707,7 @@ const CreateRegisterPage = () => {
   }
   return (
     <div >
-       <Header name={regName} location={window.location.href}/>
+       <Header name={regName} location={window.location.href} />
     <div style={{ padding: '15px',marginTop: '40px'}}>
 
 

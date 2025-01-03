@@ -16,7 +16,7 @@ console.log(templateId,templateLogs);
 if(isAllRowsComplete!==undefined){
  isFillTablePage = !(isAllRowsComplete);
 }
-const createRegisterPage = location?.includes("register/new");
+const createRegisterPage = location?.includes("new-register");
 const handleIconClick = () => {
   if (isFillTablePage||editTemplate||createRegisterPage) {
     // Show a confirmation modal before navigation

@@ -1,11 +1,14 @@
+/* eslint-disable no-console */
 /* eslint-disable no-nested-ternary */
+import { useQuery,useLazyQuery } from '@apollo/client';
+import { Alert, Card, Col, Empty, Input, message, Modal, Row, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Modal, Card, Input, Button, Typography, Spin, Alert, Row, Col ,Empty} from 'antd';
-import { useQuery } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
-import { LIST_GLOBAL_TEMPLATES } from '../graphql/Queries';
+import { v4 as uuidv4 } from 'uuid';
 import { ROUTES } from '../../../common/constants';
 import CenteredSpin from '../../Dashboard/component/CentredSpin';
+import { GET_GLOBAL_TEMPLATE_BY_ID, LIST_GLOBAL_TEMPLATES } from '../graphql/Queries';
+
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -14,13 +17,16 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
   const [globalTemplates, setGlobalTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoadingTemplates,setIsLoadingTemplate] = useState(false);
   const [filteredTemplates, setFilteredTemplates] = useState([]);
 
   // Query to fetch global templates
   const { loading: loadingGlobal, error: errorGlobal, data: dataGlobal } = useQuery(
     LIST_GLOBAL_TEMPLATES,
   );
-
+  const [getGlobalTemplateById, { loading:globalTemplateLoading, data:globalTemplateData, error:globalTemplateError }] = useLazyQuery(GET_GLOBAL_TEMPLATE_BY_ID, {
+    fetchPolicy: 'cache-and-network',
+  });
   useEffect(() => {
     if (dataGlobal) {
       setGlobalTemplates(dataGlobal.getAllGlobalTemplate);
@@ -35,10 +41,44 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
   }, [dataGlobal, errorGlobal]);
 
   const navigate = useNavigate();
+  // const handleTemplateSelect = async (templateId) => {
+ const handleTemplateSelect = async (templateId) => {
+  setIsLoadingTemplate(true);
+  try {
+    const { data } = await getGlobalTemplateById({ variables: { id: templateId } });
 
-  const handleTemplateSelect = (templateId) => {
-    onClose();
-    navigate(ROUTES.GLOBAL_TEMPLATE_VIEW.replace(':globalTemplateId', templateId));
+    if (!data) {
+      message.error('No data found for the selected template.');
+      return;
+    }
+
+    // Extract and clean data
+    const templateName = data.getGlobalTemplateById.name;
+    const cleanData = (obj) => {
+      const { __typename, id, deletedAt, ...rest } = obj;
+      return { tempId: uuidv4(), ...rest };
+    };
+
+    const fields = data.getGlobalTemplateById.fields
+      .filter((field) => !field.deletedAt)
+      .map(cleanData);
+
+    const properties = data.getGlobalTemplateById.properties.map(cleanData);
+
+    const transformedData = { fields, properties };
+
+    onClose(); // Close any modal or overlay
+    navigate(
+      ROUTES.NEW_REGISTER.replace(':registerName', templateName),
+      { state: { transformedData } },
+    );
+  // eslint-disable-next-line no-shadow
+  } catch (error) {
+    console.error('Error fetching or processing template data:', error);
+    message.error('An error occurred while fetching the template.');
+  } finally {
+    setIsLoadingTemplate(false); // Hide loader
+  }
   };
 
   const handleSearch = (event) => {
@@ -114,6 +154,7 @@ const GlobalTemplateModal = ({ visible, onClose }) => {
     </Col>
   )}
           </Row>
+          {isLoadingTemplates && <CenteredSpin />}
         </div>
       )}
     </Modal>

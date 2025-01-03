@@ -200,8 +200,85 @@ const GlobalTemplateView = () => {
     );
     setIsFieldModalVisible(true);
   };
+  const validateFormula = async (formula) => {
+    try {
+      // Attempt to compile the formula
+      const formulaAsString = Array.isArray(formula)
+      ? formula.join(' ') // Join array elements with a space
+      : formula;
 
-  const handleFieldSave = () => {
+      await Jexl.compile(formulaAsString);
+      // console.log(formulaAsString);
+      return true; // Formula is valid
+    } catch (e) {
+      return false; // Formula is invalid
+    }
+  };
+  const handleFieldSave = async() => {
+    if (!fieldData.name || fieldData.name.trim() === '') {
+      message.error('Field Name is required.');
+      return;
+    }
+    if (fieldData.name.length > 50) {
+      message.error('Field Name cannot exceed 50 characters.');
+      return;
+    }
+    if (
+      fields.some(
+        (f) => f.fieldName === fieldData.name && (f.tempId !== currentField?.tempId||f.id !== currentField?.id),
+      )
+    )
+     {
+      notification.error({
+        message: 'Duplicate Field Name',
+        description: `The field name "${fieldData.name}" already exists as a field.`,
+        duration: 3,
+      });
+      return;
+    }
+    if (
+      (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
+      fieldData.options.length === 0
+    ) {
+
+      notification.error({
+        message: 'Failed to add',
+        description: 'Please add at least one option.',
+        duration: 3,
+      });
+      return; // Prevent further action if no options are provided
+    }
+    if (
+      (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES') &&
+      fieldData.options.some((option) => !option.trim())
+    ) {
+      notification.error({
+        message: 'Invalid Options',
+        description: 'Blank options are not allowed.',
+        duration: 3,
+      });
+      return;
+    }
+    if (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES'){
+      const trimmedOptions = fieldData.options.map((option) => option.trim());
+      console.log(trimmedOptions);
+    if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+      message.error('Duplicate options are not allowed.');
+      return;
+    }
+  }
+    if (fieldData.type === 'CALCULATION') {
+
+      const isValid = await validateFormula(fieldData.options);
+      if (!isValid) {
+        notification.error({
+          message: 'Invalid Formula',
+          description: 'The formula syntax is invalid. Please correct it.',
+          duration: 3,
+        });
+        return;
+      }
+    }
     if (currentField) {
       setFields((prevFields) =>
         prevFields.map((f) =>

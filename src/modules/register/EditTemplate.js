@@ -257,6 +257,14 @@ const TemplateView = () => {
       });
       return;
     }
+    if (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES'){
+      const trimmedOptions = fieldData.options.map((option) => option.trim());
+      console.log(trimmedOptions);
+    if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+      message.error('Duplicate options are not allowed.');
+      return;
+    }
+  }
     if (fieldData.type === 'CALCULATION') {
 
       const isValid = await validateFormula(fieldData.options);
@@ -557,6 +565,14 @@ const TemplateView = () => {
       });
       return;
     }
+    if (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES'){
+      const trimmedOptions = propertyData.options.map((option) => option.trim());
+      console.log(trimmedOptions);
+    if (new Set(trimmedOptions).size !== trimmedOptions.length) {
+      message.error('Duplicate options are not allowed.');
+      return;
+    }
+  }
     if(currentProperty){
     if (currentProperty.id) {
       setProperties((prevProperties) =>

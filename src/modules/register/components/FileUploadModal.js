@@ -5,6 +5,7 @@ import { Modal, Upload, Button, message, Input } from 'antd';
 import { DownloadOutlined} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse'; // Import Papa Parse
+import { v4 as uuidv4 } from 'uuid';
 import { ROUTES } from '../../../common/constants';
 
 const sampleFormat = ["Type", "Field Name", "Field Type", "Is Required", "Options"]; // Define the expected headers
@@ -21,6 +22,7 @@ const transformData = (parsedData) => {
     .filter(item => item.Type === "Field")
     .map(item => {
       const field = {
+        tempId: uuidv4(),
         fieldName: item["Field Name"],
         fieldType: item["Field Type"].toUpperCase().replace(/_/g, " "),
         isRequired: item["Is Required"].toLowerCase() === "yes",
@@ -39,6 +41,7 @@ const transformData = (parsedData) => {
     .filter(item => item.Type === "Property")
     .map(item => {
       const property = {
+        tempId: uuidv4(),
         propertyName: item["Field Name"],
         propertyFieldType: item["Field Type"].toUpperCase().replace(/_/g, " "),
         isRequired: item["Is Required"].toLowerCase() === "yes",
