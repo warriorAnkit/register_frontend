@@ -55,6 +55,7 @@ const TemplateView = () => {
   const [currentField, setCurrentField] = useState(null);
   const [currentProperty, setCurrentProperty] = useState(null);
   const [templateName, setTemplateName] = useState('');
+  const [initialTemplateName, setInitialTemplateName] = useState('');
   const [templateStatus, setTemplateStatus] = useState('');
   const [initialProperties, setInitialProperties] = useState([]);
   const [initialFields, setInitialFields] = useState([]);
@@ -80,6 +81,7 @@ const TemplateView = () => {
   useEffect(() => {
     if (data) {
       setTemplateName(data.getTemplateById.name);
+      setInitialTemplateName(data.getTemplateById.name);
       setTemplateStatus(data.getTemplateById.status);
       const cleanData = (obj) => {
         const { __typename, deletedAt, ...rest } = obj;
@@ -113,8 +115,10 @@ const TemplateView = () => {
     // Check if properties have changed from their initial state using deep comparison
     const isPropertiesChanged = !deepEqual(properties, initialProperties);
     const isFieldChanged = !deepEqual(fields, initialFields);
-    setHasChanges(isPropertiesChanged || isFieldChanged);
-  }, [properties,fields]);
+    const isNameChanged = templateName !== initialTemplateName;
+    console.log(isNameChanged,templateName,initialTemplateName);
+    setHasChanges(isPropertiesChanged || isFieldChanged||isNameChanged);
+  }, [properties,fields,templateName]);
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isEditing) {

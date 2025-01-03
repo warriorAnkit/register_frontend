@@ -63,6 +63,15 @@ const FillSet = () => {
       if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
         errors[property.propertyName] = 'Value must be a valid number';
       }
+      if (property.propertyFieldType === 'NUMERIC') {
+        const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
+
+        if (!numericRegex.test(value)) {
+          errors[property.propertyName] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
+        } else {
+          delete errors[property.propertyName];
+        }
+      }
     });
 
     setPropertyErrors(errors);
@@ -81,7 +90,15 @@ const FillSet = () => {
     } else {
       delete errors[property.propertyName];
     }
+    if (property.propertyFieldType === 'NUMERIC') {
+      const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
 
+      if (!numericRegex.test(value)) {
+        errors[property.propertyName] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
+      } else {
+        delete errors[property.propertyName];
+      }
+    }
     if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
       errors[property.propertyName] = 'Text must be less than 100 characters';
     } else if (property.propertyFieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
