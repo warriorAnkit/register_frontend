@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable react/no-this-in-sfc */
 /* eslint-disable no-console */
 /* eslint-disable no-undef */
@@ -17,6 +18,7 @@ import Header from './components/Header';
 import {CHANGE_TEMPLATE_STATUS,CREATE_GLOBAL_TEMPLATE_MUTATION,CREATE_TEMPLATE} from './graphql/Mutation';
 import './register.less';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
+import NavigationGuard from './components/NavigationGuard';
 
 const { Title, Text } = Typography;
 const CreateRegisterPage = () => {
@@ -60,43 +62,7 @@ const CreateRegisterPage = () => {
   });
 
 
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
 
-      // eslint-disable-next-line no-shadow
-      const message = "You have unsaved changes. Are you sure you want to leave?";
-      e.preventDefault();
-      e.returnValue = message; // Standard for most browsers
-      return message; // For some older browsers
-    };
-
-    const handlePopState = (event) => {
-
-      // eslint-disable-next-line no-alert
-      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
-      if (confirmLeave) {
-
-        window.history.back();  // Manually trigger the back navigation
-      } else {
-        // Prevent the navigation if user cancels
-        event.preventDefault();
-      }
-    };
-
-    // Add event listeners
-    window.history.pushState(null, document.title);
-    window.addEventListener('popstate', handlePopState);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-
-    // Ensure cleanup
-    return () => {
-
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
-
-    };
-  }, []);
 
 
   const {
@@ -120,16 +86,28 @@ const CreateRegisterPage = () => {
     );
     setIsFieldModalVisible(true);
   };
+
   const inputRefs = useRef([]);
-  const focusLastInput = () => {
-    if (inputRefs.current.length > 0) {
-      const lastInput = inputRefs.current[inputRefs.current.length - 1];
-      lastInput?.focus();
-    }
-  };
   useEffect(() => {
-    focusLastInput();
+    if (fieldData.options.length > 0) {
+      const fieldName = fieldData.tempId;
+      const lastIndex = fieldData.options.length - 1;
+      const lastInput = inputRefs.current[fieldName]?.[lastIndex];
+      if (lastInput) {
+        lastInput.focus();
+      }
+    }
   }, [fieldData.options]);
+  useEffect(() => {
+    if (propertyData.options.length > 0) {
+      const fieldName = propertyData.tempId;
+      const lastIndex = propertyData.options.length - 1;
+      const lastInput = inputRefs.current[fieldName]?.[lastIndex];
+      if (lastInput) {
+        lastInput.focus();
+      }
+    }
+  }, [propertyData.options]);
 
   const validateFormula = async (formula) => {
     try {
@@ -263,8 +241,13 @@ const CreateRegisterPage = () => {
     message.error('Duplicate options are not allowed.');
     return;
   }
+  const fieldName = fieldData.tempId;
+  console.log("fnmae",fieldName);
+  if (!inputRefs.current[fieldName]) {
+    inputRefs.current[fieldName] = []; // Initialize the sub-array for the field
+  }
+  inputRefs.current[fieldName].push(null); // Add a ref for the new option
     setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
-    setTimeout(() => focusLastInput(), 0);
   };
   const handleRemoveFieldOption = (indexToRemove) => {
     if (fieldData.options.length > 1) {
@@ -273,11 +256,14 @@ const CreateRegisterPage = () => {
       );
       setFieldData({ ...fieldData, options: updatedOptions });
 
-      // Update input refs to keep them in sync
-      inputRefs.current.splice(indexToRemove, 1);
+      const fieldName =fieldData.tempId; // Assuming 'name' is unique for the field
 
-      // Focus on the last input after removing an option
-      setTimeout(() => focusLastInput(), 0);
+      if (inputRefs.current[fieldName]) {
+        // Remove the ref for the selected option
+        inputRefs.current[fieldName].splice(indexToRemove, 1);
+      }
+
+
     }
   };
   const handleAddPropertyOption = () => {
@@ -295,11 +281,17 @@ const CreateRegisterPage = () => {
     message.error('Duplicate options are not allowed.');
     return;
   }
+  const propertyName = propertyData.tempId;
+  console.log("pname",propertyName);
+  if (!inputRefs.current[propertyName]) {
+    inputRefs.current[propertyName] = []; // Initialize the sub-array for the field
+  }
+  inputRefs.current[propertyName].push(null); // Add a ref for the new option
     setPropertyData({
       ...propertyData,
       options: [...propertyData.options, ''],
     });
-    setTimeout(() => focusLastInput(), 0);
+
   };
   const handleRemovePropertyOption = (indexToRemove) => {
     if (propertyData.options.length > 1) {
@@ -307,8 +299,14 @@ const CreateRegisterPage = () => {
         (_, index) => index !== indexToRemove,
       );
       setPropertyData({ ...propertyData, options: updatedOptions });
-      inputRefs.current.splice(indexToRemove, 1);
-      setTimeout(() => focusLastInput(), 0);
+      const fieldName = propertyData.tempId; // Assuming 'name' is unique for the field
+
+      if (inputRefs.current[fieldName]) {
+        // Remove the ref for the selected option
+        inputRefs.current[fieldName].splice(indexToRemove, 1);
+      }
+
+
     }
   };
 
@@ -679,6 +677,7 @@ const CreateRegisterPage = () => {
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
+
       e.preventDefault();
       handleAddFieldOption();
     }
@@ -708,6 +707,10 @@ const CreateRegisterPage = () => {
     return <p>Error loading project data</p>;
   }
   return (
+    <NavigationGuard
+    confirmationMessage="You have unsaved changes. Are you sure you want to leave this page?"
+    isAllRowsComplete={false}
+  >
     <div >
        <Header name={regName} location={window.location.href} />
     <div style={{ padding: '15px',marginTop: '40px'}}>
@@ -860,8 +863,12 @@ const CreateRegisterPage = () => {
               renderItem={(option, index) => (
                 <List.Item>
                   <Input
+                  id={`field-${fieldData.fieldName}-${index}`}
                    // eslint-disable-next-line no-return-assign
-                   ref={(el) => inputRefs.current[index] = el}
+                   ref={(el) => {
+                    const fieldName = fieldData.tempId;
+                    inputRefs.current[fieldName][index] = el; // Set ref dynamically
+                  }}
                     value={option}
                     onChange={(e) =>
                       handleFieldOptionChange(e.target.value, index)
@@ -1059,7 +1066,10 @@ const CreateRegisterPage = () => {
                 <List.Item>
                   <Input
                     // eslint-disable-next-line no-return-assign
-                    ref={(el) => (inputRefs.current[index] = el)}
+                    ref={(el) => {
+                      const propertyName = propertyData.tempId;
+                      inputRefs.current[propertyName][index] = el; // Set ref dynamically
+                    }}
                     value={option}
                     onChange={(e) =>
                       handlePropertyOptionChange(e.target.value, index)
@@ -1101,6 +1111,7 @@ const CreateRegisterPage = () => {
       </Modal>
     </div>
     </div>
+    </NavigationGuard>
   );
 };
 
