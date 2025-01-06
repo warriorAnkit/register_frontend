@@ -29,7 +29,8 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
 
     if (
       property.isRequired &&
-      (!value ||
+      (value === undefined ||
+        value === null ||
         (typeof value === 'string' && value.trim() === '') ||
         (Array.isArray(value) && value.length === 0))
     ) {
@@ -80,18 +81,19 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
 
       if (
         property.isRequired &&
-        (!value ||
+        (value === undefined ||
+          value === null ||
           (typeof value === 'string' && value.trim() === '') ||
           (Array.isArray(value) && value.length === 0))
-      ) {
+      ){
         errors[property.propertyName] = 'This field is required.';
       }
 
-      if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
+      if (property.isRequired && property.propertyFieldType === 'TEXT' && value?.length > 100) {
         errors[property.propertyName] = 'Text must be less than 100 characters';
       }
 
-      if (
+      if (property.isRequired &&
         property.propertyFieldType === 'MULTI_LINE_TEXT' &&
         value?.length > 750
       ) {
@@ -99,10 +101,10 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
       }
 
       // eslint-disable-next-line no-restricted-globals
-      if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
+      if (property.isRequired && property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
         errors[property.propertyName] = 'Value must be a valid number';
       }
-      if (property.propertyFieldType === 'NUMERIC') {
+      if (property.isRequired && property.propertyFieldType === 'NUMERIC') {
         const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
         if (!numericRegex.test(value)) {
           errors[property.propertyName] = 'Value must be a valid number with up to 15 digits before the decimal and up to 2 digits after.';
@@ -179,6 +181,7 @@ console.log(propertyValues);
               validateProperties(propertyName, value);
             }}
             style={{ width: '100%', maxWidth: '500px', padding: '8px', height: '30px' }}
+            placeholder='input text'
           />
         )}
 
@@ -199,6 +202,7 @@ console.log(propertyValues);
                 validateProperties(propertyName, value);
               }
             }}
+            placeholder='input multiline text'
             style={{ width: '100%', maxWidth: '500px', padding: '8px', borderRadius: '4px' }}
           />
         )}
@@ -227,6 +231,7 @@ console.log(propertyValues);
             open={openedIndex === `0-${propertyName}`}
             onFocus={() => setOpenedIndex(`0-${propertyName}`)}
             onBlur={() => setOpenedIndex(false)}
+          placeholder='select an option'
           >
             {templateData?.getTemplateById.properties
               .find((p) => p.propertyName === propertyName)
@@ -235,6 +240,7 @@ console.log(propertyValues);
                   {option}
                 </Select.Option>
               ))}
+
           </Select>
         )}
 
@@ -253,6 +259,7 @@ console.log(propertyValues);
               validateProperties(propertyName, value);
             }}
             style={{ width: '100%', maxWidth: '500px', padding: '8px', height: '30px' }}
+            placeholder='input number'
           />
         )}
 

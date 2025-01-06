@@ -45,26 +45,27 @@ const FillSet = () => {
       const value = propertiesData[property.propertyName];
 
       if (property.isRequired &&
-        (!value ||
-         (typeof value === 'string' && value.trim() === '') ||
-         (Array.isArray(value) && value.length === 0))
-      ) {
+        (value === undefined ||
+          value === null ||
+          (typeof value === 'string' && value.trim() === '') ||
+          (Array.isArray(value) && value.length === 0))
+      ){
         errors[property.propertyName] = 'This field is required.';
       }
 
-      if (property.propertyFieldType === 'TEXT' && value?.length > 100) {
+      if (property.isRequired  && property.propertyFieldType === 'TEXT' && value?.length > 100) {
         errors[property.propertyName] = 'Text must be less than 100 characters';
       }
 
-      if (property.propertyFieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
+      if ( property.isRequired && property.propertyFieldType === 'MULTI_LINE_TEXT' && value?.length > 750) {
         errors[property.propertyName] = 'Text must be less than 750 characters';
       }
 
       // eslint-disable-next-line no-restricted-globals
-      if (property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
+      if (property.isRequired && property.propertyFieldType === 'NUMERIC' && isNaN(value)) {
         errors[property.propertyName] = 'Value must be a valid number';
       }
-      if (property.propertyFieldType === 'NUMERIC') {
+      if (property.isRequired  && property.propertyFieldType === 'NUMERIC') {
         const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
 
         if (!numericRegex.test(value)) {
@@ -83,7 +84,8 @@ const FillSet = () => {
     const property = data.getTemplateById?.properties.find(f => f.propertyName === propertyName);
 
     if ( property.isRequired &&
-      (!value ||
+      (value === undefined ||
+        value === null ||
         (typeof value === 'string' && value.trim() === '') ||
         (Array.isArray(value) && value.length === 0))
     ) {

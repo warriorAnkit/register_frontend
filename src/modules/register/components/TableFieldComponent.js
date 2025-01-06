@@ -205,19 +205,22 @@ const TableFieldComponent =forwardRef(({
         const { value } = row[field.id] || {};
         if (
           field.isRequired &&
-          (!value ||
+          (value === undefined ||
+            value === null ||
             (typeof value === 'string' && value.trim() === '') ||
             (Array.isArray(value) && value.length === 0))
         ) {
+          console.log("val", value);
           errors[`${field.id}-${rowIndex}`] = 'This field is required.';
+          console.log(field);
         }
 
-        if (field.fieldType === 'TEXT' && value?.length > 100) {
+        if (field.isRequired && field.fieldType === 'TEXT' && value?.length > 100) {
           errors[`${field.id}-${rowIndex}`] =
             'Text must be less than 100 characters.';
         }
         // eslint-disable-next-line no-restricted-globals
-        if (
+        if (field.isRequired &&
           field.fieldType === 'NUMERIC' &&
           // eslint-disable-next-line no-restricted-globals
           (value === undefined || value === null || isNaN(Number(value)))
@@ -247,7 +250,7 @@ const TableFieldComponent =forwardRef(({
     if (field) {
       const errorKey = `${fieldName}-${rowIndex}`;
       if (field.isRequired && (!value || value.trim() === '')) {
-        // errors[errorKey] = `${field.fieldName} is required`;
+        //  errors[errorKey] = `${field.fieldName} is required`;
       } else {
         // eslint-disable-next-line no-console
         delete errors[errorKey];
@@ -672,7 +675,7 @@ const TableFieldComponent =forwardRef(({
   const handleSave = async () => {
 
    const isFieldValid = finalValidateFields();
-
+console.log(isFieldValid);
     if (!isFieldValid) {
       // eslint-disable-next-line no-undef
       // notification.error({
