@@ -164,7 +164,15 @@ const ViewEntries = () => {
       title: property.propertyName,
       dataIndex: property.id,
       width: 120,
-      render: (text) => text || '-',
+      render: (text) => {
+        if (property.propertyFieldType === 'DATE' && text) {
+          const formattedDate = moment(text, 'YYYY-MM-DD').isValid()
+            ? moment(text, 'YYYY-MM-DD').format('DD-MM-YYYY')
+            : 'Invalid Date';
+          return formattedDate;
+        }
+        return text || '-';
+      },
     })) || []),
     {
       title: 'Created By',
@@ -214,7 +222,15 @@ const ViewEntries = () => {
       dataIndex: property.id,
       width: 120,
 
-      render: (text) => text || '-',
+      render: (text) => {
+        if (property.propertyFieldType === 'DATE' && text) {
+          const formattedDate = moment(text, 'YYYY-MM-DD').isValid()
+            ? moment(text, 'YYYY-MM-DD').format('DD-MM-YYYY')
+            : 'Invalid Date';
+          return formattedDate;
+        }
+        return text || '-';
+      },
     })) || []),
     ...(templateData?.getTemplateById?.fields.map((field) => ({
       title: field.fieldName,
@@ -257,6 +273,12 @@ const ViewEntries = () => {
           ) : (
             '-'
           );
+        }
+        if (field.fieldType === 'DATE' && text) {
+          const formattedDate = moment(text, 'YYYY-MM-DD').isValid()
+            ? moment(text, 'YYYY-MM-DD').format('DD-MM-YYYY')
+            : 'Invalid Date';
+          return formattedDate;
         }
         return text || '-';
       },
