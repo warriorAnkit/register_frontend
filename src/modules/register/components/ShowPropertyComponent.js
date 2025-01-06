@@ -19,6 +19,7 @@ const ShowPropertyComponent = ({ templateData, propertiesData, setPropertiesData
   const handleDiscardClick = () => {
     setPropertiesData(initialPropertiesData);
     setIsEditing(false);
+    setPropertyErrors({});
   };
   const validateProperties = (propertyName, value) => {
     const errors = { ...propertyErrors };

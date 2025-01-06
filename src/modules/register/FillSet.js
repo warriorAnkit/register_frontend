@@ -12,6 +12,7 @@ import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './FillSet.less';
 import SetPropertyField from './components/SetPropertyField';
 import { ROUTES } from '../../common/constants';
+import NavigationGuard from './components/NavigationGuard';
 
 const FillSet = () => {
   const { templateId } = useParams();
@@ -150,8 +151,10 @@ const FillSet = () => {
   // if (loading) {
   //   return <CenteredSpin />;
   // }
-
   return (
+    <NavigationGuard
+    confirmationMessage="You have unsaved changes. Are you sure you want to leave this page?"
+  >
     <div className="fill-table">
       <Header name={data?.getTemplateById?.name} fillSet/>
 
@@ -202,6 +205,7 @@ const FillSet = () => {
     </div>
 
     </div>
+    </NavigationGuard>
   );
 };
 

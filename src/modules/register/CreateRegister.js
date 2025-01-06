@@ -187,8 +187,8 @@ const CreateRegisterPage = () => {
       return;
     }
     if (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES'){
-      const trimmedOptions = fieldData.options.map((option) => option.trim());
-      console.log(trimmedOptions);
+      const trimmedOptions = fieldData.options.map((option) => option.trim().toUpperCase());
+
     if (new Set(trimmedOptions).size !== trimmedOptions.length) {
       message.error('Duplicate options are not allowed.');
       return;
@@ -258,7 +258,7 @@ const CreateRegisterPage = () => {
       message.error('Please fill the previous option before adding a new one.');
       return;
     }
-    const trimmedOptions = fieldData.options.map((option) => option.trim());
+    const trimmedOptions = fieldData.options.map((option) => option.trim().toUpperCase());
   if (new Set(trimmedOptions).size !== trimmedOptions.length) {
     message.error('Duplicate options are not allowed.');
     return;
@@ -289,7 +289,7 @@ const CreateRegisterPage = () => {
       message.error('Please fill the previous option before adding a new one.');
       return;
     }
-    const trimmedOptions = propertyData.options.map((option) => option.trim());
+    const trimmedOptions = propertyData.options.map((option) => option.trim().toUpperCase());
     console.log(trimmedOptions);
   if (new Set(trimmedOptions).size !== trimmedOptions.length) {
     message.error('Duplicate options are not allowed.');
@@ -536,7 +536,7 @@ const CreateRegisterPage = () => {
       return;
     }
     if (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES'){
-    const trimmedOptions = propertyData.options.map((option) => option.trim());
+    const trimmedOptions = propertyData.options.map((option) => option.trim().toUpperCase());
     console.log(trimmedOptions);
   if (new Set(trimmedOptions).size !== trimmedOptions.length) {
     message.error('Duplicate options are not allowed.');
@@ -1071,6 +1071,7 @@ const CreateRegisterPage = () => {
                         handleAddPropertyOption(); // Trigger adding an option on Enter key press
                       }
                     }}
+                    maxLength={50}
                   />
 
                    <Button

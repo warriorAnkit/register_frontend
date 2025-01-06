@@ -262,7 +262,7 @@ const TemplateView = () => {
       return;
     }
     if (fieldData.type === 'OPTIONS' || fieldData.type === 'CHECKBOXES'){
-      const trimmedOptions = fieldData.options.map((option) => option.trim());
+      const trimmedOptions = fieldData.options.map((option) => option.trim().toUpperCase());
       console.log(trimmedOptions);
     if (new Set(trimmedOptions).size !== trimmedOptions.length) {
       message.error('Duplicate options are not allowed.');
@@ -351,7 +351,7 @@ const TemplateView = () => {
       message.error('Please fill the previous option before adding a new one.');
       return;
     }
-    const trimmedOptions = fieldData.options.map((option) => option.trim());
+    const trimmedOptions = fieldData.options.map((option) => option.trim().toUpperCase());
   if (new Set(trimmedOptions).size !== trimmedOptions.length) {
     message.error('Duplicate options are not allowed.');
     return;
@@ -383,7 +383,7 @@ const TemplateView = () => {
       message.error('Please fill the previous option before adding a new one.');
       return;
     }
-    const trimmedOptions = propertyData.options.map((option) => option.trim());
+    const trimmedOptions = propertyData.options.map((option) => option.trim().toUpperCase());
   if (new Set(trimmedOptions).size !== trimmedOptions.length) {
     message.error('Duplicate options are not allowed.');
     return;
@@ -570,7 +570,7 @@ const TemplateView = () => {
       return;
     }
     if (propertyData.type === 'OPTIONS' || propertyData.type === 'CHECKBOXES'){
-      const trimmedOptions = propertyData.options.map((option) => option.trim());
+      const trimmedOptions = propertyData.options.map((option) => option.trim().toUpperCase());
       console.log(trimmedOptions);
     if (new Set(trimmedOptions).size !== trimmedOptions.length) {
       message.error('Duplicate options are not allowed.');
@@ -783,10 +783,7 @@ const TemplateView = () => {
               newStatus,
             },
           });
-          // notification.success({
-          //   message: 'Status Updated',
-          //   description: `The status is now ${newStatus}`,
-          // });
+
         // eslint-disable-next-line no-shadow
         } catch (error) {
           console.error('Error changing status:', error.message);
@@ -910,7 +907,13 @@ const TemplateView = () => {
         </Space>
         <div style={{ marginTop: '16px', textAlign: 'left' }}>
           <Text strong>Register Status: </Text>
-          <Text style={{ color: templateStatus === 'LIVE' ? 'green' : 'gray' }}>
+          <Text  style={{
+     color: 'white',
+    // eslint-disable-next-line no-nested-ternary
+    backgroundColor: templateStatus === 'LIVE' ? '#52c41a' : templateStatus === 'DRAFT' ? '#1677ff' : 'gray',
+    padding: 5, // Add some padding for better visibility
+    borderRadius: 5, // Round corners for a tag-like appearance
+  }}>
             {templateStatus}
           </Text>
         </div>

@@ -18,7 +18,7 @@ if(isAllRowsComplete!==undefined){
 }
 const createRegisterPage = location?.includes("new-register");
 const handleIconClick = () => {
-  if (isFillTablePage||editTemplate||createRegisterPage) {
+  if (isFillTablePage||editTemplate||createRegisterPage||fillSet) {
     // Show a confirmation modal before navigation
     Modal.confirm({
       title: "Unsaved Changes",
