@@ -462,6 +462,7 @@ console.log("templateData",templateData);
   return (
    <NavigationGuard
     confirmationMessage="You have unsaved changes. Are you sure you want to leave this page?"
+    isAllRowsComplete={isAllRowsComplete}
   >
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
