@@ -45,7 +45,6 @@ export const GET_ALL_RESPONSES_FOR_SET = gql`
         id
         fieldId
         value
-
       }
       propertyResponses {
       id

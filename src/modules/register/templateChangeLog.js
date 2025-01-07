@@ -76,7 +76,11 @@ const ChangeLogOfTemplatePage = () => {
         </>
       );
     }
-
+    if (record.actionType === 'DELETE_TEMPLATE') {
+      return type !== 'previous'
+        ? '-'
+        : `Name: ${value.fieldName || value.propertyName || '-'}, type: ${value.fieldType || value.propertyFieldType || '-'}`;
+    }
     return JSON.stringify(value);
   };
 
@@ -91,7 +95,21 @@ const ChangeLogOfTemplatePage = () => {
       title: 'Action Type',
       dataIndex: 'actionType',
       key: 'actionType',
-      width: '15%', // Min width as percentage
+      width: '15%',
+      render: (actionType) => {
+        switch (actionType) {
+          case 'DELETE_TEMPLATE':
+            return 'DELETE';
+          case 'UPDATE_TEMPLATE':
+            return 'UPDATE';
+          case 'CREATE_TEMPLATE':
+            return 'CREATE';
+          case 'CHANGE_STATUS':
+            return 'STATUS CHANGE';
+          default:
+            return actionType; // Fallback to the original value if not matched
+        }
+      },
     },
     {
       title: 'Entity Type',

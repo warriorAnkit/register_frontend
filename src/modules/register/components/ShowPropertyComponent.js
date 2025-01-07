@@ -232,6 +232,10 @@ console.log(propertyValues);
             onFocus={() => setOpenedIndex(`0-${propertyName}`)}
             onBlur={() => setOpenedIndex(false)}
           placeholder='select an option'
+          showSearch
+          filterOption={(input, option) =>
+            option?.children.toLowerCase().includes(input.toLowerCase()) // Custom filter logic
+           }
           >
             {templateData?.getTemplateById.properties
               .find((p) => p.propertyName === propertyName)

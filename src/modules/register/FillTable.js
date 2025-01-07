@@ -5,28 +5,18 @@
 /* eslint-disable no-alert */
 /* eslint-disable no-console */
 import {
-  DeleteOutlined,
   DownOutlined,
   UploadOutlined,
-  FileImageOutlined,
 } from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   Button,
-  Card,
-  Checkbox,
   Dropdown,
-  Form,
-  Input,
   Menu,
-  Modal,
   notification,
-  Select,
-  Table,
 } from 'antd';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { evaluate } from 'mathjs';
 import { utils, writeFile } from 'xlsx';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -41,7 +31,6 @@ import {
 import './headerButton.less';
 import './register.less';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
-import SetDetailsCard from './components/SetDetailsCard';
 import ShowPropertyComponent from './components/ShowPropertyComponent';
 import TableFieldComponent from './components/TableFieldComponent';
 import NavigationGuard from './components/NavigationGuard';
@@ -108,7 +97,7 @@ const FillTableResponse = () => {
       });
       setPropertiesData(initialProperties);
     }
-console.log("templateData",templateData);
+
     if (responseData) {
       const { setDetails } = responseData.getAllResponsesForSet;
       const fetchCreatedByName = async () => {
@@ -194,14 +183,14 @@ console.log("templateData",templateData);
   };
 
   const handleCsvExport = () => {
-    // Prepare the data for export
+
     const templateName =
       templateData?.getTemplateById?.name || 'Unknown Template';
     const projectId =
       templateData?.getTemplateById?.projectId || 'Unknown Project';
     const properties = propertiesData;
 
-    // Get additional details like created and updated information
+
     const setCreatedBy = setData?.createdBy || 'Unknown User';
     const setCreatedAt = setData?.createdAt
       ? moment(Number(setData.createdAt))
@@ -215,18 +204,16 @@ console.log("templateData",templateData);
           .format('DD/MM/YYYY HH:mm')
       : 'N/A';
 
-    // Prepare the table data with property names and values
+
     const exportData = tableData.slice(0, -1).map((row) => {
       const rowData = {};
 
       rowData['Register Name'] = templateName;
       rowData['Project ID'] = projectId;
 
-      // Add additional information
 
-      // Add property names and values to the row
       Object.entries(properties).forEach(([propertyName, propertyValue]) => {
-        rowData[propertyName] = propertyValue;
+        rowData[`Property: ${propertyName}`] = propertyValue;
       });
 
       // Add field names and values to the row
@@ -274,7 +261,7 @@ console.log("templateData",templateData);
       templateData?.getTemplateById?.projectId || 'Unknown Project';
     const properties = propertiesData;
 
-    // Set details
+
     const setCreatedBy = setData?.createdBy || 'Unknown User';
     const setCreatedAt = setData?.createdAt
       ? moment(Number(setData.createdAt))
@@ -295,15 +282,7 @@ console.log("templateData",templateData);
 
     // Add header logos
     doc.addImage(headerLogo, 'PNG', 10, 5, 30, 10); // Left logo
-    doc.addImage(
-      headerLogo,
-      'PNG',
-      doc.internal.pageSize.width - 40,
-      5,
-      30,
-      10,
-    ); // Right logo
-
+    doc.addImage( headerLogo,  'PNG', doc.internal.pageSize.width - 40, 5, 30, 10 );
     // Header content
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
@@ -392,20 +371,26 @@ console.log("templateData",templateData);
             const linkX = data.cell.x + 2 + index * 10; // Adjust horizontal spacing
             const linkY = data.cell.y + (data.cell.height - iconSize) / 2; // Center vertically
 
-            // Add the image icon in the cell
-            // doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
-            // doc.addImage(, 'PNG', linkX, linkY, 10, 10);
-            // doc.imageWithLink(fileUrl, linkX, linkY, iconSize, iconSize, {    url: fileUrl});
-            // doc.textWithLink(
-            //   ``, // Display text
-            //   linkX,
-            //   linkY, // Add spacing for multiple links
-            //   { url: fileUrl },
-            // );
-            doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+            const dummyPdfImage = 'https://storage.googleapis.com/digiqc_register/uploads/1736246021236_icons8-pdf-52.png';
+
+
+            if (fileUrl.endsWith('.pdf')) {
+              // Add a dummy PDF image
+
+              doc.addImage(dummyPdfImage, 'PNG', linkX, linkY, iconSize, iconSize);
+
+
+              doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+            } else {
+              // Display the actual image
+              doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+
+
+              doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+            }
 
             // Create a clickable link over the image area
-            doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+            // doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
           });
 
           // Clear the default content in the cell
@@ -452,12 +437,6 @@ console.log("templateData",templateData);
       </Menu.Item>
     </Menu>
   );
-
-  // if (templateLoading && responseLoading) {
-  //   return (
-  //     <CenteredSpin/>
-  //   );
-  // }
 
   return (
    <NavigationGuard

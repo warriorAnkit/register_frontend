@@ -27,14 +27,10 @@ const TableFieldComponent =forwardRef(({
 },ref) => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [openedIndex, setOpenedIndex] = useState(null);
-  const [focusedRowIndex, setFocusedRowIndex] = useState(null);
   const navigate = useNavigate();
   const [editResponse] = useMutation(FIELD_RESPONSE_SUBMIT);
   const [attachmentUpdated, setAttachmentUpdated] = useState(null);
   const [rowCompletionStatus, setRowCompletionStatus] = useState([]); // Track row completion status
-
-
-
 
   // Function to check if all rows are complete
   const checkRowCompletionStatus = () => {
@@ -76,7 +72,7 @@ const TableFieldComponent =forwardRef(({
 
     // If there are errors for the current row, prevent completion
     if (rowErrors.length > 0) {
-      console.log('Row has field errors:', rowErrors);
+
       return; // Exit if there are field errors
     }
     // Focus on the row before checking completion
@@ -162,6 +158,7 @@ const TableFieldComponent =forwardRef(({
     }
   }, [tableData,attachmentUpdated]);
   const handleInputChange = (index, fieldName, value,fieldType) => {
+    // eslint-disable-next-line no-use-before-define
 
         setTableData((prevData) => {
           const updatedData = prevData.map((row, i) =>
@@ -198,7 +195,7 @@ const TableFieldComponent =forwardRef(({
         const value = row[field.fieldName];
         return value === null || value === undefined || (typeof value === 'string' && value.trim() === '');
       });
-      // console.log(`Row ${rowIndex} is blank:`, isRowBlank);
+
       if (isLastRow && isRowBlank) return;
 
       templateData.getTemplateById?.fields.forEach((field) => {
@@ -210,9 +207,9 @@ const TableFieldComponent =forwardRef(({
             (typeof value === 'string' && value.trim() === '') ||
             (Array.isArray(value) && value.length === 0))
         ) {
-          console.log("val", value);
+
           errors[`${field.id}-${rowIndex}`] = 'This field is required.';
-          console.log(field);
+
         }
 
         if (field.isRequired && field.fieldType === 'TEXT' && value?.length > 100) {
@@ -240,6 +237,7 @@ const TableFieldComponent =forwardRef(({
     return Object.keys(errors).length === 0; // Return true if no errors
   };
   const validateFields = (fieldName, rowIndex, value) => {
+
     const errors = { ...fieldErrors };
     // const row = tableData[rowIndex];
     const field = templateData.getTemplateById?.fields.find(
@@ -247,13 +245,17 @@ const TableFieldComponent =forwardRef(({
     );
     // eslint-disable-next-line no-param-reassign
     value = String(value);
+
     if (field) {
       const errorKey = `${fieldName}-${rowIndex}`;
       if (field.isRequired && (!value || value.trim() === '')) {
-        //  errors[errorKey] = `${field.fieldName} is required`;
+
+        // errors[errorKey] = `${field.fieldName} is required`;
       } else {
         // eslint-disable-next-line no-console
+
         delete errors[errorKey];
+
       }
       // TEXT field validation
       if (field.fieldType === 'TEXT') {
@@ -272,14 +274,14 @@ const TableFieldComponent =forwardRef(({
         }
       }
       // NUMERIC field validation
-      if (field.fieldType === 'NUMERIC') {
+      if (field.fieldType === 'NUMERIC' && value) {
         // eslint-disable-next-line no-restricted-globals
         if (isNaN(value)) {
           errors[errorKey] = 'Value must be a valid number';
         } else {
           delete errors[errorKey];
         }
-
+  console.log("val",value);
       const numericRegex = /^\d{1,15}(\.\d{1,2})?$/; // Matches up to 15 digits before the decimal and up to 2 digits after
 
       if (!numericRegex.test(value)) {
@@ -306,7 +308,7 @@ const TableFieldComponent =forwardRef(({
       tableData && tableData[rowIndex][fieldName]
         ? tableData[rowIndex][fieldName].value
         : '';
-        // console.log('fieldValue:', fieldValue);
+
     const calculateFieldValue = () => {
       const fieldData = tableData[rowIndex];
       const fieldOptions = templateData.getTemplateById?.fields.find(
@@ -314,16 +316,16 @@ const TableFieldComponent =forwardRef(({
       )?.options;
       if (!fieldOptions || fieldOptions.length === 0) return '';
       const formula = fieldOptions[0];
-      // console.log(formula);
+
       if (!formula) return '';
       try {
         const formulaWithValues = formula.replace(/\b\d+\b/g, (match) => {
           const values = fieldData[match].value;
-          // console.log(values);
+
           return values !== undefined ? values : 0;
         });
 
-        // console.log(formulaWithValues);
+
 
         const result = evaluate(formulaWithValues);
         // tableData[rowIndex][fieldName].value=result;
@@ -331,8 +333,10 @@ const TableFieldComponent =forwardRef(({
         if (rowIndex < tableData.length - 1) {
           // eslint-disable-next-line no-restricted-globals
           if (result !== undefined && !isNaN(result) && fieldValue !== result) {
-            // console.log('ff');
+
             handleInputChange(rowIndex, fieldName, result); // Update value only if it's different
+
+            validateFields(fieldName,rowIndex,result);
           }
         }
         return result;
@@ -414,6 +418,11 @@ const TableFieldComponent =forwardRef(({
               // document.activeElement.blur();
               // handleBlur(rowIndex);
             }}
+            allowClear // Allows users to clear the selection
+             showSearch // Enables search functionality
+             filterOption={(input, option) =>
+              option?.children.toLowerCase().includes(input.toLowerCase()) // Custom filter logic
+             }
             style={{
               width: '100%',
               maxWidth: '500px',
@@ -529,6 +538,7 @@ const TableFieldComponent =forwardRef(({
   <ImageUpload
     onUploadSuccess={(url) => {
       handleInputChange(rowIndex, fieldName, url,fieldType);
+      validateFields(fieldName, rowIndex, url);
     }}
     errorMessage={errorMessage}
     existingFileUrls={fieldValue||''}
@@ -536,7 +546,7 @@ const TableFieldComponent =forwardRef(({
 )}
         {fieldType === 'CALCULATION' && (
           <Input
-            value={rowIndex < tableData.length - 1 ? calculateFieldValue() : ''}
+            value={rowIndex <= tableData.length - 1 ? calculateFieldValue() : ''}
             disabled
             style={{
               width: '100%',
@@ -675,7 +685,7 @@ const TableFieldComponent =forwardRef(({
   const handleSave = async () => {
 
    const isFieldValid = finalValidateFields();
-console.log(isFieldValid);
+
     if (!isFieldValid) {
       // eslint-disable-next-line no-undef
       // notification.error({
@@ -707,7 +717,7 @@ console.log(isFieldValid);
   }));
   return (
     <>
-    <div style={{ minHeight: '300px', overflowY: 'auto' }}>
+    <div style={{ minHeight: '300px', overflow: 'auto' }}>
     <Table
       dataSource={tableData}
       columns={columns}

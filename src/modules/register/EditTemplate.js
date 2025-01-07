@@ -61,7 +61,7 @@ const TemplateView = () => {
   const [initialProperties, setInitialProperties] = useState([]);
   const [initialFields, setInitialFields] = useState([]);
   const [hasChanges, setHasChanges] = useState(false);
-
+  const [isConfirmModalOpen,setIsConfirmModalOpen]=useState(false);
   const navigate=useNavigate();
   const [fieldData, setFieldData] = useState({
     name: '',
@@ -125,16 +125,24 @@ const TemplateView = () => {
 
   const toggleEditMode = () => {
     if (isEditing) {
+      if (isConfirmModalOpen) {
+        return;
+      }
+      setIsConfirmModalOpen(true);
       Modal.confirm({
         title: 'Are you sure you want to discard unsaved changes?',
         content: 'All newly added properties and fields will be removed.',
         okText: 'Yes, discard',
         cancelText: 'No, keep editing',
         onOk: () => {
-
+          setTemplateName(initialTemplateName);
           setProperties(initialProperties);
           setFields(initialFields);
           setIsEditing(false);
+          setIsConfirmModalOpen(false);
+        },
+        onCancel:()=>{
+          setIsConfirmModalOpen(false);
         },
       });
     } else {
@@ -158,7 +166,11 @@ const TemplateView = () => {
   };
 
 
-  const focusLastInput = () => {
+  const focusLastInput = (index,id) => {
+    console.log("gg");
+    console.log(index);
+    console.log(id);
+    console.log("refs",inputRefs.current);
     if (inputRefs.current.length > 0) {
       const lastInput = inputRefs.current[inputRefs.current.length - 1];
       lastInput?.focus();
@@ -304,7 +316,7 @@ const TemplateView = () => {
     });
   };
 
-  const handleAddFieldOption = () => {
+  const handleAddFieldOption = (index) => {
     if (fieldData.options.length >= 20) {
       message.warning('You can only add up to 20 options.');
       return;
@@ -318,9 +330,9 @@ const TemplateView = () => {
     message.error('Duplicate options are not allowed.');
     return;
   }
-
+const id=fieldData.id||fieldData.tempId;
     setFieldData({ ...fieldData, options: [...fieldData.options, ''] });
-    setTimeout(() => focusLastInput(), 0);
+    setTimeout(() => focusLastInput(index,id), 0);
   };
   const handleRemoveFieldOption = (indexToRemove) => {
     if (fieldData.options.length > 1) {
@@ -367,14 +379,21 @@ const TemplateView = () => {
     }
   };
   const confirmSave = () => {
+    if (isConfirmModalOpen) {
+      return;
+    }
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Are you sure?',
       content: 'Are you sure you want to save the changes of register?',
       okText: 'Yes',
       cancelText: 'No',
-      onOk: handleSaveAll,
+      onOk: ()=>{
+        setIsConfirmModalOpen(false);
+        handleSaveAll();
+      },
       onCancel: () => {
-        console.log('Save canceled');
+        setIsConfirmModalOpen(false);
       },
     });
   };
@@ -455,6 +474,10 @@ const TemplateView = () => {
     setFieldData({ ...fieldData, options: newOptions });
   };
   const handleFieldDelete = (fieldName) => {
+    if (isConfirmModalOpen) {
+      return;
+    }
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Are you sure you want to delete this field?',
       content: `This will permanently delete the field "${fieldName}".`,
@@ -462,9 +485,13 @@ const TemplateView = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
+        setIsConfirmModalOpen(false);
         setFields((prevFields) =>
           prevFields.filter((field) => field.fieldName !== fieldName),
         );
+      },
+      onCancel:()=>{
+        setIsConfirmModalOpen(false);
       },
     });
   };
@@ -623,6 +650,10 @@ const TemplateView = () => {
     setPropertyData({ ...propertyData, type });
   };
   const handlePropertyDelete = (propertyName) => {
+    if (isConfirmModalOpen) {
+      return;
+    }
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Are you sure you want to delete this property?',
       content: `This will permanently delete the property "${propertyName}".`,
@@ -630,10 +661,13 @@ const TemplateView = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
-
+setIsConfirmModalOpen(false);
         setProperties((prevProperties) =>
           prevProperties.filter((property) => property.propertyName !== propertyName),
         );
+      },
+      onCancel:()=>{
+        setIsConfirmModalOpen(false);
       },
     });
   };
@@ -731,12 +765,17 @@ const TemplateView = () => {
       });
       return;
     }
+    if (isConfirmModalOpen) {
+      return;
+    }
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Confirm Status Change',
       content: `Are you sure you want to save the changes of register and change the status from "${oldStatus}" to "${newStatus}"?`,
       okText: 'Yes',
       cancelText: 'No',
       onOk: async () => {
+        setIsConfirmModalOpen(false);
         try {
           await handleSaveAll();
           await changeTemplateStatus({
@@ -749,13 +788,10 @@ const TemplateView = () => {
         // eslint-disable-next-line no-shadow
         } catch (error) {
           console.error('Error changing status:', error.message);
-          // notification.error({
-          //   message: 'Error',
-          //   description: 'There was an issue updating the status. Please try again.',
-          // });
         }
       },
       onCancel: () => {
+        setIsConfirmModalOpen(false);
         console.log('Status change canceled.');
       },
     });
@@ -768,7 +804,7 @@ const TemplateView = () => {
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleAddFieldOption();
+      handleAddFieldOption(index);
     }
   };
   const dragProps = {
@@ -801,7 +837,7 @@ const TemplateView = () => {
   >
 
     <div >
-       <Header name={templateName} editTemplate={isEditing}/>
+       <Header name={templateName} editTemplate={hasChanges}/>
 
     <div style={{ padding: '24px',marginTop: '60px' }}>
 
@@ -984,7 +1020,9 @@ const TemplateView = () => {
                 <List.Item>
                 <Input
                  // eslint-disable-next-line no-return-assign
-                 ref={(el) => (inputRefs.current[index] = el)}
+                 ref={(el) => {
+                  const uniqueKey = `${fieldData.id||fieldData.tempId}_${index}`;
+                  inputRefs.current[uniqueKey] = el}}
                   value={option}
                   onChange={(e) =>
                     handleFieldOptionChange(e.target.value, index)
@@ -1055,19 +1093,26 @@ const TemplateView = () => {
 
     <div style={{ marginTop: '16px' }}>
       <div>
-        {/* Display numeric fields as buttons */}
-        {numericFields.map((field) => (
-          <Button
-            key={field.id}
-            onClick={() => setFieldData({
-              ...fieldData,
-               options: `${fieldData.options ? fieldData.options : ''}"${field.fieldName}" `, // Add '|' separator here
-            })}
-            style={{ marginRight: '8px' }}
-          >
-            {field.fieldName}
-          </Button>
-        ))}
+      {numericFields.length > 0 ? (
+    // Display numeric fields as buttons
+    numericFields.map((field) => (
+      <Button
+        key={field.id}
+        onClick={() =>
+          setFieldData({
+            ...fieldData,
+            options: `${fieldData.options ? fieldData.options : ''}"${field.fieldName}"`,
+          })
+        }
+        style={{ marginRight: '8px' }}
+      >
+        {field.fieldName}
+      </Button>
+    ))
+  ) : (
+
+    <p style={{ color: 'red' }}>Please add numeric fields to set the formula.</p>
+  )}
       </div>
 
       <div style={{ marginTop: '8px' }}>
@@ -1180,7 +1225,10 @@ const TemplateView = () => {
                 <List.Item>
                   <Input
                     // eslint-disable-next-line no-return-assign
-                    ref={(el) => (inputRefs.current[index] = el)}
+                    ref={(el) => {
+                      console.log("pe",propertyData);
+                      const uniqueKey = `${propertyData.id||propertyData.tempId}_${index}`;
+                      inputRefs.current[uniqueKey] = el}}
                     value={option}
                     onChange={(e) =>
                       handlePropertyOptionChange(e.target.value, index)

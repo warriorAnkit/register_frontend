@@ -34,6 +34,7 @@ const CreateRegisterPage = () => {
   const [createTemplate] = useMutation(CREATE_TEMPLATE);
   const [createGlobalTemplate] = useMutation(CREATE_GLOBAL_TEMPLATE_MUTATION);
   const [changeTemplateStatus] = useMutation(CHANGE_TEMPLATE_STATUS);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const navigate=useNavigate();
   const location=useLocation();
   const transformedData = location.state?.transformedData;
@@ -111,12 +112,10 @@ const CreateRegisterPage = () => {
 
   const validateFormula = async (formula) => {
     try {
-      // Attempt to compile the formula
-
       await Jexl.compile(formula);
-      return true; // Formula is valid
+      return true;
     } catch (e) {
-      return false; // Formula is invalid
+      return false;
     }
   };
   const handleFieldSave = async() => {
@@ -311,7 +310,7 @@ const CreateRegisterPage = () => {
   };
 
   const handleSave = async () => {
-
+setIsConfirmModalOpen(false);
     const formattedFields = fields.map((field,index) => ({
       sequence: index,
       fieldName: field.fieldName,
@@ -368,6 +367,11 @@ const CreateRegisterPage = () => {
     }
   };
   const confirmSave = () => {
+    if (isConfirmModalOpen) {
+      return;
+    }
+
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Are you sure?',
       content: 'Are you sure you want to save the register as Draft?',
@@ -375,7 +379,8 @@ const CreateRegisterPage = () => {
       cancelText: 'No',
       onOk: handleSave,
       onCancel: () => {
-        console.log('Save canceled.');
+        setIsConfirmModalOpen(false);
+        // console.log('Save canceled.');
       },
     });
   };
@@ -397,7 +402,11 @@ const CreateRegisterPage = () => {
       });
       return;
     }
+    if (isConfirmModalOpen) {
+      return;
+    }
 
+    setIsConfirmModalOpen(true);
     // Show confirmation modal
     Modal.confirm({
       title: 'Are you sure you want to publish this Register?',
@@ -419,7 +428,7 @@ const CreateRegisterPage = () => {
           isRequired: property.isRequired,
           options: property.options,
         }));
-
+        setIsConfirmModalOpen(false);
         try {
           // eslint-disable-next-line eqeqeq
           if (projectId === '60') {
@@ -468,6 +477,7 @@ const CreateRegisterPage = () => {
         }
       },
       onCancel() {
+        setIsConfirmModalOpen(false);
         console.log('Publishing canceled.');
       },
     });
@@ -478,6 +488,11 @@ const CreateRegisterPage = () => {
     setFieldData({ ...fieldData, options: newOptions });
   };
   const handleFieldDelete = (fieldName) => {
+    if (isConfirmModalOpen) {
+      return; // Prevent multiple modals
+    }
+
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Are you sure you want to delete this field?',
       content: `This will permanently delete the field "${fieldName}".`,
@@ -488,6 +503,10 @@ const CreateRegisterPage = () => {
         setFields((prevFields) =>
           prevFields.filter((field) => field.fieldName !== fieldName),
         );
+        setIsConfirmModalOpen(false);
+      },
+      onCancel: () => {
+        setIsConfirmModalOpen(false);
       },
     });
   };
@@ -602,6 +621,11 @@ const CreateRegisterPage = () => {
     setPropertyData({ ...propertyData, type });
   };
   const handlePropertyDelete = (propertyName) => {
+    if (isConfirmModalOpen) {
+      return;
+    }
+
+    setIsConfirmModalOpen(true);
     Modal.confirm({
       title: 'Are you sure you want to delete this property?',
       content: `This will permanently delete the property "${propertyName}".`,
@@ -609,10 +633,13 @@ const CreateRegisterPage = () => {
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: () => {
-
         setProperties((prevProperties) =>
           prevProperties.filter((property) => property.propertyName !== propertyName),
         );
+        setIsConfirmModalOpen(false);
+      },
+      onCancel: () => {
+        setIsConfirmModalOpen(false);
       },
     });
   };
@@ -796,25 +823,6 @@ const CreateRegisterPage = () => {
         style={{ marginTop: '16px' }}
       />
    </ReactDragListView.DragColumn>
-{/* <Space style={{ marginTop: '16px', float: 'right' }}>
-
-
-          <Button
-            type="primary"
-            style={{ backgroundColor: 'red' }}
-            onClick={confirmSave}
-          >
-            Save as Draft
-          </Button>
-          <Button
-            type="primary"
-            style={{ backgroundColor: 'red' }}
-            onClick={handlePublish}
-          >
-            Publish
-          </Button>
-
-      </Space> */}
       {/* Field Modal */}
       <Modal
         title={currentField ? 'Edit Field' : 'Add Field'}
@@ -942,19 +950,25 @@ const CreateRegisterPage = () => {
 
     <div style={{ marginTop: '16px' }}>
       <div>
-        {/* Display numeric fields as buttons */}
-        {numericFields.map((field) => (
-          <Button
-            key={field.id}
-            onClick={() => setFieldData({
-              ...fieldData,
-               options: `${fieldData.options ? fieldData.options : ''}"${field.fieldName}" `, // Add '|' separator here
-            })}
-            style={{ marginRight: '8px' }}
-          >
-            {field.fieldName}
-          </Button>
-        ))}
+      {numericFields.length > 0 ? (
+    numericFields.map((field) => (
+      <Button
+        key={field.id}
+        onClick={() =>
+          setFieldData({
+            ...fieldData,
+            options: `${fieldData.options ? fieldData.options : ''}"${field.fieldName}"`,
+          })
+        }
+        style={{ marginRight: '8px' }}
+      >
+        {field.fieldName}
+      </Button>
+    ))
+  ) : (
+
+    <p style={{ color: 'red' }}>Please add numeric fields to set the formula.</p>
+  )}
       </div>
 
       <div style={{ marginTop: '8px' }}>
@@ -964,7 +978,7 @@ const CreateRegisterPage = () => {
             key={operator}
             onClick={() => setFieldData({
               ...fieldData,
-              options: `${fieldData.options} ${operator} `,  // Add '|' separator here
+              options: `${fieldData.options} ${operator} `,
             })}
             style={{ marginRight: '8px' }}
           >

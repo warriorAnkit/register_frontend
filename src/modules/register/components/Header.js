@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { FolderOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Typography, Modal, Popover } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../common/constants";
 import SetDetailsCard from "./SetDetailsCard";
@@ -10,6 +10,7 @@ const { Title } = Typography;
 
 const Header = ({ name ,setId,templateId,responseLogs,templateLogs,fillSet,location,setData,editTemplate,isAllRowsComplete}) =>{
   const navigate = useNavigate(); // Initialize the navigate function
+  const [isModalOpen,setIsModalOpen]=useState(false);
 // eslint-disable-next-line no-console
 let isFillTablePage = false;
 console.log(templateId,templateLogs);
@@ -20,14 +21,20 @@ const createRegisterPage = location?.includes("new-register");
 const handleIconClick = () => {
   if (isFillTablePage||editTemplate||createRegisterPage||fillSet) {
     // Show a confirmation modal before navigation
+    if(isModalOpen){
+      return;
+    }
+    setIsModalOpen(true);
     Modal.confirm({
       title: "Unsaved Changes",
       content: "You may have unsaved changes. Do you want to navigate away?",
       onOk: () => {
+        setIsModalOpen(false);
         navigate(ROUTES.MAIN);
+
       },
       onCancel: () => {
-        // Do nothing if the user cancels
+        setIsModalOpen(false);
       },
     });
   } else {

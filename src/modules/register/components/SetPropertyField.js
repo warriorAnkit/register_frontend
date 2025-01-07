@@ -90,6 +90,9 @@ const SetPropertyField = ({
             onFocus={() => setOpenedIndex(`0-${propertyName}`)}
             onBlur={() => setOpenedIndex(false)}
             onDropdownVisibleChange={handleOpenChange}
+            showSearch
+            filterOption={(input, option) =>
+              option?.children.toLowerCase().includes(input.toLowerCase())}
           >
             {data?.getTemplateById?.properties
               .find((p) => p.propertyName === propertyName)

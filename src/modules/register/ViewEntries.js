@@ -513,20 +513,15 @@ const exportPDF = async (column, data, fileName) => {
             const linkX = data.cell.x + 2 + index * 10; // Adjust horizontal spacing
             const linkY = data.cell.y + (data.cell.height - iconSize) / 2; // Center vertically
 
-            // Add the image icon in the cell
-            // doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
-            // doc.addImage(, 'PNG', linkX, linkY, 10, 10);
-            // doc.imageWithLink(fileUrl, linkX, linkY, iconSize, iconSize, {    url: fileUrl});
-            // doc.textWithLink(
-            //   ``, // Display text
-            //   linkX,
-            //   linkY, // Add spacing for multiple links
-            //   { url: fileUrl },
-            // );
-            doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
-
-            // Create a clickable link over the image area
-            doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+            const dummyPdfImage = 'https://storage.googleapis.com/digiqc_register/uploads/1736246021236_icons8-pdf-52.png';
+            if (fileUrl.endsWith('.pdf')) {
+              doc.addImage(dummyPdfImage, 'PNG', linkX, linkY, iconSize, iconSize);
+              doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+            } else {
+              // Display the actual image
+              doc.addImage(fileUrl, 'PNG', linkX, linkY, iconSize, iconSize);
+              doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
+            }
           });
 
           // Clear the default content in the cell
