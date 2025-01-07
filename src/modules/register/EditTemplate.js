@@ -35,6 +35,7 @@ import Header from './components/Header';
 import { CHANGE_TEMPLATE_STATUS, UPDATE_TEMPLATE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
+import NavigationGuard from './components/NavigationGuard';
 
 const { Title, Text } = Typography;
 
@@ -119,45 +120,6 @@ const TemplateView = () => {
     console.log(isNameChanged,templateName,initialTemplateName);
     setHasChanges(isPropertiesChanged || isFieldChanged||isNameChanged);
   }, [properties,fields,templateName]);
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (isEditing) {
-
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    const handlePopState = (event) => {
-
-      if(isEditing){
-      // eslint-disable-next-line no-alert
-      const confirmLeave = window.confirm("You have unsaved changes. Are you sure you want to go back?");
-      if (confirmLeave) {
-
-        window.history.back();  // Manually trigger the back navigation
-      } else {
-        // Prevent the navigation if user cancels
-        event.preventDefault();
-      }
-    }
-    else{
-      window.history.back();
-    }
-    };
-    window.history.pushState(null, document.title);
-    window.addEventListener('popstate', handlePopState);
-
-    // Add event listeners
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [isEditing]);
-
 
   if (error) return <p>Error: {error.message}</p>;
 
@@ -832,6 +794,12 @@ const TemplateView = () => {
   }
 
   return (
+
+<NavigationGuard
+    confirmationMessage="You have unsaved changes. Are you sure you want to leave this page?"
+    isAllRowsComplete={!hasChanges}
+  >
+
     <div >
        <Header name={templateName} editTemplate={isEditing}/>
 
@@ -1253,6 +1221,7 @@ const TemplateView = () => {
       </Modal>
 </div>
     </div>
+    </NavigationGuard>
   );
 };
 
