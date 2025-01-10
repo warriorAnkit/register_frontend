@@ -228,8 +228,8 @@ export const STORE_ROW_RESPONSE_IN_JSONB = gql`
   }
 `;
 export const UPDATE_FIELD_ROW_RESPONSES = gql`
-  mutation UpdateFieldResponses($setId: ID!, $templateId:ID!,$rowNumber: Int!, $responses: [TableEntryInput!]!) {
-    updateFieldResponses(setId: $setId, templateId:$templateId,rowNumber: $rowNumber, responses: $responses) {
+  mutation UpdateFieldResponses($setId: ID!, $templateId:ID!,$rowNumber: Int!, $responses: [TableEntryInput!]!,$isNewRow:Boolean) {
+    updateFieldResponses(setId: $setId, templateId:$templateId,rowNumber: $rowNumber, responses: $responses,isNewRow:$isNewRow) {
       id
       rowNumber
       success

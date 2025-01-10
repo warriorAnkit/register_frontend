@@ -172,7 +172,29 @@ const CreateRegisterPage = () => {
     }
   }
     if (fieldData.type === 'CALCULATION') {
+      console.log(fields);
+      console.log(fieldData);
+if(fieldData.required){
+      const referencedFields = fieldData.options
+    .match(/"([^"]+)"/g)
+    ?.map((field) => field.replace(/"/g, "")) || [];
 
+  const unrequiredFields = referencedFields.filter((fieldName) => {
+    const field = fields.find((f) => f.fieldName === fieldName);
+    return field && !field.isRequired;
+  });
+
+  if (unrequiredFields.length > 0) {
+    notification.error({
+      message: 'Invalid Formula',
+      description: `The calculation field includes non-required fields: ${unrequiredFields.join(
+        ", ",
+      )}. Please mark them as required or make this field not required.`,
+      duration: 3,
+    });
+    return;
+  }
+}
       const isValid = await validateFormula(fieldData.options);
       if (!isValid||fieldData.options.length===0) {
         notification.error({

@@ -24,18 +24,18 @@ import {
   Typography,
 } from 'antd';
 import Jexl from 'jexl';
-import ReactDragListView from "react-drag-listview";
 import React, { useEffect, useRef, useState } from 'react';
+import ReactDragListView from "react-drag-listview";
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { ROUTES } from '../../common/constants';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
 import FieldIcon from './components/FieldIcon';
 import Header from './components/Header';
+import NavigationGuard from './components/NavigationGuard';
 import { CHANGE_TEMPLATE_STATUS, UPDATE_TEMPLATE } from './graphql/Mutation';
 import { GET_TEMPLATE_BY_ID } from './graphql/Queries';
 import './register.less';
-import NavigationGuard from './components/NavigationGuard';
 
 const { Title, Text } = Typography;
 
@@ -244,7 +244,33 @@ const TemplateView = () => {
     }
   }
     if (fieldData.type === 'CALCULATION') {
+      console.log("field",fields);
+      console.log(typeof fieldData.options);
+      console.log(fieldData.options);
 
+  if(fieldData.required){
+  const formula = Array.isArray(fieldData.options)
+      ? fieldData.options[0]
+      : fieldData.options;
+
+  const references = formula.match(/\b[\w]+\b/g) || [];
+  const unrequiredFields = references.filter((ref) => {
+  const field = fields.find(
+      (f) => f.fieldName === ref || f.id === ref,
+    );
+    return field && !field.isRequired;
+  });
+
+  if (unrequiredFields.length > 0) {
+    notification.error({
+      message: 'Invalid Formula',
+      description: `The calculation field includes non-required fields.
+         Please mark them as required or make this field not required.`,
+      duration: 3,
+    });
+    return;
+  }
+    }
       const isValid = await validateFormula(fieldData.options);
       if (!isValid||fieldData.options.length===0) {
         notification.error({
@@ -670,10 +696,8 @@ const id=fieldData.id||fieldData.tempId;
       };
     }
 
-    // Extract field names from the converted formula
     const fieldNamesInFormula = convertedFormula.match(/"([^"]*)"/g)?.map((name) => name.replace(/"/g, '')) || [];
 
-    // Check if the extracted field names exist in numericFields
     const invalidFields = fieldNamesInFormula.filter(
       (fieldName) => !numericFields.some((field) => field.fieldName === fieldName),
     );
@@ -690,6 +714,7 @@ const id=fieldData.id||fieldData.tempId;
   const handlePropertyTypeChange = (type) => {
     setPropertyData({ ...propertyData, type });
   };
+
   const handlePropertyDelete = (propertyName) => {
     if (isConfirmModalOpen) {
       return;
@@ -717,8 +742,8 @@ setIsConfirmModalOpen(false);
     let updatedFormula = String(formula);
 
     numericFields.forEach((field) => {
-      const regex = new RegExp(`\\b${field.id}\\b`, 'g');  // Match exact field ID
-      updatedFormula = updatedFormula.replace(regex, `"${field.fieldName}"`);  // Replace ID with field name
+      const regex = new RegExp(`\\b${field.id}\\b`, 'g');
+      updatedFormula = updatedFormula.replace(regex, `"${field.fieldName}"`);
     });
 
     return updatedFormula;
@@ -861,7 +886,7 @@ setIsConfirmModalOpen(false);
       setFields(newFields);
 
     },
-    nodeSelector: "th", // Dragging happens on <th> elements
+    nodeSelector: "th",
   };
 
   if (loading) {

@@ -3,7 +3,7 @@
 /* eslint-disable react/no-array-index-key */
 import { DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/client';
-import { Button, Form, Input, Modal, Select, Table, notification } from 'antd';
+import { Button, Form, Input, Modal, Row, Select, Table, notification } from 'antd';
 import { evaluate } from 'mathjs'; // Ensure the mathjs library is installed
 import React, {
   forwardRef,
@@ -15,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../../common/constants';
 import {
   DELETE_FIELD_RESPONSE_ROW,
-  FIELD_RESPONSE_SUBMIT,
   STORE_ROW_RESPONSE_IN_JSONB,
   UPDATE_FIELD_ROW_RESPONSES,
 } from '../graphql/Mutation';
@@ -94,7 +93,7 @@ console.log("filling",filling);
           const value = row[field.id]?.value;
           return value !== null && value !== undefined && value !== '';
         });
-
+      console.log("fg",row.isNewRow);
       if (isRowComplete) {
         try {
           const tableEntriesiess = Object.entries(row)
@@ -132,9 +131,10 @@ console.log("filling",filling);
                 templateId,
                 rowNumber: row.rowNumber, // Use the existing rowNumber
                 responses: tableEntriesiess,
+                isNewRow:row.isNewRow,
               },
             });
-
+              console.log(rowResponse);
             if (rowResponse.data.updateRowResponseInJsonb.success) {
               console.log('Row updated successfully:', row.rowNumber);
             }
