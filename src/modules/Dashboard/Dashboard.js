@@ -114,10 +114,7 @@ const Dashboard = () => {
   }
   }, [searchText, activeFilter, pageSize, currentPage, refetch]);
 
-
-
   const paginatedTemplates = templateData?.getAllTemplates?.templates || [];
-
   // Filter dropdown menu
   useEffect(() => {
     if (isBrowser) {

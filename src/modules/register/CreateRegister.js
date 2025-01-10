@@ -487,12 +487,30 @@ setIsConfirmModalOpen(false);
     newOptions[index] = value;
     setFieldData({ ...fieldData, options: newOptions });
   };
-  const handleFieldDelete = (fieldName) => {
+  const handleFieldDelete = (fieldName,fieldtype) => {
     if (isConfirmModalOpen) {
       return; // Prevent multiple modals
     }
-
     setIsConfirmModalOpen(true);
+    console.log("type:",fieldName,fieldtype);
+    if (fieldtype === 'NUMERIC') {
+      // Check if any CALCULATION field references this numeric field in its options
+     const isReferencedInCalculation = fields.some((field) => {
+  console.log('field options:', field.options); // Log the options of the current field being checked
+  return field.fieldType === 'CALCULATION' && field.options && field.options.includes(fieldName);
+});
+      console.log(isReferencedInCalculation);
+
+      if (isReferencedInCalculation) {
+        // Show a message and prevent deletion
+        Modal.error({
+          title: 'Cannot delete this field',
+          content: `This field is being used in a calculation and cannot be deleted.`,
+        });
+        setIsConfirmModalOpen(false);
+        return;
+      }
+    }
     Modal.confirm({
       title: 'Are you sure you want to delete this field?',
       content: `This will permanently delete the field "${fieldName}".`,
@@ -662,7 +680,7 @@ setIsConfirmModalOpen(false);
               />
               <DeleteOutlined
                 style={{ marginLeft: '8px', cursor: 'pointer' }}
-                onClick={() => handleFieldDelete(field.fieldName)}
+                onClick={() => handleFieldDelete(field.fieldName,field.fieldType)}
               />
             </>
 

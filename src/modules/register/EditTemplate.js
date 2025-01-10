@@ -473,11 +473,52 @@ const id=fieldData.id||fieldData.tempId;
     newOptions[index] = value;
     setFieldData({ ...fieldData, options: newOptions });
   };
-  const handleFieldDelete = (fieldName) => {
+  const handleFieldDelete = (fieldName,fieldType,id) => {
     if (isConfirmModalOpen) {
       return;
     }
     setIsConfirmModalOpen(true);
+    if (fieldType === 'NUMERIC') {
+      // Check if any CALCULATION field references this numeric field in its options
+      const isReferencedInCalculation = fields.some((field) => {
+        console.log('field options:', field.options); // Log the options of the current field being checked
+
+        const {options} = field;
+  console.log(options);
+  console.log(typeof options);
+        if (typeof options === 'string') {
+          // If options is a string, split by arithmetic operators and check
+          const parsedOptions = options
+            .split(/[+\-*/]/) // Split on arithmetic operators
+            .map((item) => item.trim().replace(/"/g, '')); // Trim and remove quotes
+          return parsedOptions.includes(fieldName) || parsedOptions.includes(id);
+        }
+
+        if (Array.isArray(options)) {
+          // If options is an array, check each element
+          return options.some((option) => {
+            const parsedOptions = option
+              .split(/[+\-*/]/) // Split on arithmetic operators
+              .map((item) => item.trim().replace(/"/g, '')); // Trim and remove quotes
+            return parsedOptions.includes(fieldName) || parsedOptions.includes(id);
+          });
+        }
+
+        return false; // Default fallback if options is neither string nor array
+      });
+
+      console.log('isReferencedInCalculation:', isReferencedInCalculation);
+
+      if (isReferencedInCalculation) {
+        // Show a message and prevent deletion
+        Modal.error({
+          title: 'Cannot delete this field',
+          content: `This field is being used in a calculation and cannot be deleted.`,
+        });
+        setIsConfirmModalOpen(false);
+        return;
+      }
+    }
     Modal.confirm({
       title: 'Are you sure you want to delete this field?',
       content: `This will permanently delete the field "${fieldName}".`,
@@ -699,7 +740,7 @@ setIsConfirmModalOpen(false);
               />
               <DeleteOutlined
                 style={{ marginLeft: '8px', cursor: 'pointer' }}
-                onClick={() => handleFieldDelete(field.fieldName)}
+                onClick={() => handleFieldDelete(field.fieldName,field.fieldType,field.id)}
               />
             </>
           )}

@@ -26,6 +26,7 @@ import useFetchUserFullName from '../../hooks/useFetchUserNames';
 import Header from './components/Header';
 import {
   GET_ALL_RESPONSES_FOR_SET,
+  GET_FIELD_ROW_RESPONSES_BY_SET_ID,
   GET_TEMPLATE_BY_ID,
 } from './graphql/Queries';
 import './headerButton.less';
@@ -82,6 +83,11 @@ const FillTableResponse = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const { loading:rowResponseLoading, error:rowResponseError, data:rowResponseData } = useQuery(GET_FIELD_ROW_RESPONSES_BY_SET_ID, {
+    variables: { setId },
+    fetchPolicy: 'cache-and-network',
+  });
+
   const getPropertyById = (propertyId, properties) => {
     const property = properties.find((prop) => prop.id === propertyId);
     return property ? property.propertyName : null;
@@ -116,28 +122,21 @@ const FillTableResponse = () => {
         }
       };
       fetchCreatedByName();
-      const flattenedFieldResponses = responseData.getAllResponsesForSet.fieldResponses.flat();
-      const existingData = flattenedFieldResponses.reduce((acc, response) => {
-        const row = acc.find((r) => r.rowNumber === response.rowNumber);
-        if (row) {
-          row[response.fieldId] = {
-            value: response.value,
-            responseId: response.id,
-          };
-        } else {
-          acc.push({
-            rowNumber: response.rowNumber,
-            [response.fieldId]: {
-              value: response.value,
-              responseId: response.id,
-            },
-          });
-        }
-        return acc;
-      }, []);
-      existingData.push({isNewRow: true});
-      setTableData(existingData);
+    const flattenedRowResponses=rowResponseData.getFieldRowResponsesBySetId;
+    console.log("hii 1st",flattenedRowResponses);
+    const flattenedData = flattenedRowResponses.map(row => {
+      const rowObject = { rowNumber: row.rowNumber };
 
+      // Map over each response to add fieldID as the key and its value
+      row.responses.forEach(response => {
+        rowObject[response.fieldID] = { value: response.value };
+      });
+
+      return rowObject;
+    });
+
+    flattenedData.push({isNewRow: true});
+      setTableData(flattenedData);
       const existingProperties = {};
       responseData.getAllResponsesForSet.propertyResponses?.forEach(
         (propertyResponse) => {
@@ -159,6 +158,8 @@ const FillTableResponse = () => {
       setInitialPropertiesData(existingProperties);
     }
   }, [templateData, responseData]);
+
+console.log("data",tableData);
   const handleViewChangeLog = () => {
     const changeLogUrl = ROUTES.VIEW_SET_CHANGE_LOG.replace(':setId', setId);
     navigate(changeLogUrl, {
@@ -392,10 +393,6 @@ const FillTableResponse = () => {
             // Create a clickable link over the image area
             // doc.link(linkX, linkY, iconSize, iconSize, { url: fileUrl });
           });
-
-          // Clear the default content in the cell
-          // eslint-disable-next-line no-param-reassign
-
         }
       },
       didDrawPage: (data) => {
@@ -452,7 +449,7 @@ const FillTableResponse = () => {
         setData={setData}
         isAllRowsComplete={isAllRowsComplete}
       />
-      {(templateLoading||responseLoading)&&
+      {(templateLoading||responseLoading||rowResponseLoading)&&
       <CenteredSpin/>}
 {(!templateLoading || !responseLoading)&& ( <>
       <div className="header" style={{ padding: '16px',marginTop: '55px' }}>
@@ -478,7 +475,7 @@ const FillTableResponse = () => {
     <ShowPropertyComponent setPropertiesData={setPropertiesData}  propertiesData={propertiesData} templateData={templateData} responseData={responseData}  initialPropertiesData={initialPropertiesData} isEditing={isEditing} setIsEditing={setIsEditing} setId={setId}/>
 
         <div style={{ marginBottom: 16 }}>
-<TableFieldComponent ref={tableFieldRef} templateId={templateId} tableData={tableData} setTableData={setTableData} templateData={templateData} tableHeight={tableHeight} templateError={templateError} responseError={responseError} setId={setId} filling={filling} setIsAllRowsComplete={setIsAllRowsComplete}/>
+<TableFieldComponent ref={tableFieldRef} templateId={templateId} tableData={tableData} setTableData={setTableData} templateData={templateData} tableHeight={tableHeight} templateError={templateError} responseError={rowResponseError} setId={setId} filling={filling} setIsAllRowsComplete={setIsAllRowsComplete}/>
         </div>
 
       </div>

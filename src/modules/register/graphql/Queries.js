@@ -40,12 +40,6 @@ export const GET_ALL_RESPONSES_FOR_SET = gql`
       updatedBy
       updatedAt
     }
-      fieldResponses {
-        rowNumber
-        id
-        fieldId
-        value
-      }
       propertyResponses {
       id
       propertyId
@@ -106,28 +100,25 @@ export const GET_ALL_PROPERTY_RESPONSES_FOR_TEMPLATE = gql`
 `;
 
 export const GET_ALL_RESPONSES_FOR_TEMPLATE = gql`
-  query GetAllResponsesForTemplate($templateId: ID!) {
-    getAllResponsesForTemplate(templateId: $templateId) {
+  query GetAllResponsesForTemplate(
+    $templateId: ID!
+    $pagination: PaginationInput
+  ) {
+    getAllResponsesForTemplate(
+      templateId: $templateId
+      pagination: $pagination
+    ) {
       success
-      responses {
-        setId
-        propertyResponses {
-          createdAt
-          id
-          value
-          propertyId
-        }
-        fieldResponses {
-          id
-          rowNumber
-          value
-          fieldId
-        }
+      responses
+      pagination {
+        totalCount
+        totalPages
+        currentPage
+        pageSize
       }
     }
   }
 `;
-
 
 
 export const GET_ALL_SETS_FOR_ALL_TEMPLATES = gql`
@@ -148,19 +139,21 @@ export const GET_ALL_SETS_FOR_ALL_TEMPLATES = gql`
 `;
 
 export const GET_ACTIVITY_LOGS_BY_SET_ID = gql`
-  query GetActivityLogsBySetId($setId: ID!) {
-    getActivityLogsBySetId(setId: $setId) {
-      id
-      actionType
-      entityType
-      entityName
-      entityId
-      changes
-      rowNumber
-      templateName
-      editedBy
-      timestamp
-
+  query GetActivityLogsBySetId($setId: ID!, $page: Int, $pageSize: Int) {
+    getActivityLogsBySetId(setId: $setId, page: $page, pageSize: $pageSize) {
+      totalItems
+      logs {
+        id
+        actionType
+        entityType
+        entityName
+        entityId
+        changes
+        rowNumber
+        templateName
+        editedBy
+        timestamp
+      }
     }
   }
 `;
@@ -176,6 +169,17 @@ export const GET_TEMPLATE_ACTIVITY_LOGS_BY_TEMPLATE_ID = gql`
       templateName
       editedBy
       timestamp
+    }
+  }
+`;
+export const GET_FIELD_ROW_RESPONSES_BY_SET_ID = gql`
+  query getFieldRowResponsesBySetId($setId: ID!) {
+    getFieldRowResponsesBySetId(setId: $setId) {
+      rowNumber
+      responses {
+        fieldID
+        value
+      }
     }
   }
 `;

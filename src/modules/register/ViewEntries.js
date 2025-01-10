@@ -1,16 +1,13 @@
 /* eslint-disable no-console */
-
 /* eslint-disable new-cap */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Dropdown, Menu, Space, Tabs, DatePicker,Pagination, message } from 'antd';
-import { SearchOutlined, ExportOutlined, DownOutlined,UploadOutlined ,FileImageOutlined,FilePdfOutlined} from '@ant-design/icons';
+import { Table, Button, Dropdown, Menu, Space, Tabs, DatePicker,Pagination, message } from 'antd';
+import { ExportOutlined, DownOutlined,UploadOutlined ,FileImageOutlined,FilePdfOutlined} from '@ant-design/icons';
 import { useQuery, useApolloClient} from '@apollo/client';
 import './ViewEntry.less';
 import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment-timezone';
-
-
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { GET_ALL_PROPERTY_RESPONSES_FOR_TEMPLATE, GET_ALL_RESPONSES_FOR_TEMPLATE, GET_TEMPLATE_BY_ID } from './graphql/Queries';
@@ -34,6 +31,8 @@ const ViewEntries = () => {
   const [entriesCurrentPage, setEntriesCurrentPage] = useState(1);
   const [entriesPageSize, setEntriesPageSize] = useState(10);
   const [entriesFilteredDatabyDate, setEntriesFilterDataByDate] = useState([]);
+  const [entriesStartDate, setEntriesStartDate] = useState(null);
+const [entriesEndDate, setEntriesEndDate] = useState(null);
   // eslint-disable-next-line no-shadow
   const handlePageChange = (page,pageSize) => {
     setCurrentPage(page);
@@ -58,12 +57,29 @@ const ViewEntries = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const { loading: entryResponseLoading, data: entryResponseData } = useQuery(GET_ALL_RESPONSES_FOR_TEMPLATE, {
-    variables: { templateId },
+  const { loading: entryResponseLoading, data: entryResponseData,refetch } = useQuery(GET_ALL_RESPONSES_FOR_TEMPLATE, {
+    variables: { templateId ,
+      pagination: {
+        page: entriesCurrentPage,
+        pageSize: entriesPageSize,
+        startDate:entriesStartDate,
+        endDate:entriesEndDate,
+      },
+    },
     fetchPolicy: 'cache-and-network',
   });
-
-
+  useEffect(() => {
+    refetch({
+      templateId,
+      pagination: {
+        page: entriesCurrentPage,
+        pageSize: entriesPageSize,
+        startDate:entriesStartDate,
+        endDate:entriesEndDate,
+      },
+    });
+    console.log(entriesPageSize);
+  }, [entriesCurrentPage, entriesPageSize,entriesStartDate,entriesEndDate, refetch, templateId]);
 
   useEffect(() => {
     if (responseData && templateData) {
@@ -89,23 +105,24 @@ const ViewEntries = () => {
   }, [responseData, templateData]);
   useEffect(() => {
     if (entryResponseData && templateData) {
-      const rows = entryResponseData?.getAllResponsesForTemplate?.responses?.map((set) => set.fieldResponses.map((fieldRow) => {
+      const rows = entryResponseData?.getAllResponsesForTemplate?.responses?.map((response) => {
         const row = {
-          setId: set.setId,
-          createdAt: set.propertyResponses[0]?.createdAt,
+          setId: response.setId,
+          createdAt: response.createdAt,
         };
-        set.propertyResponses.forEach((response) => {
-          row[response.propertyId] = response.value;
+        Object.entries(response).forEach(([key, value]) => {
+          if (key !== "setId" && key !== "createdAt") {
+            row[key] = value.value;
+          }
         });
-        fieldRow.forEach((fieldResponse) => {
-          row[fieldResponse.fieldId] = fieldResponse.value;
-        });
+
         return row;
-      }));
-      setEntriesFilterData(rows.flat());
-      setEntriesFilterDataByDate(rows.flat());
+      });
+      setEntriesFilterData(rows);
+      setEntriesFilterDataByDate(rows);
     }
   }, [entryResponseData, templateData]);
+  console.log("data",entriesFilteredDatabyDate);
   const handleDateChange = (dates) => {
     setCurrentPage(1);
     if (dates) {
@@ -125,7 +142,8 @@ const ViewEntries = () => {
     }
   };
   const handleEntriesDateChange = (dates) => {
-    setEntriesCurrentPage(1);
+    setEntriesCurrentPage(1); // Reset to the first page when date changes
+
     if (dates) {
       const istDates = dates.map(dateString => {
         const date = new Date(dateString);
@@ -133,16 +151,11 @@ const ViewEntries = () => {
       });
       const startDate = istDates[0];
       const endDate = istDates[1];
-      const filteredEntries = entriesFilteredData.filter((row) => {
-
-        const createdAt =moment(parseInt(row.createdAt, 10));
-
-        return createdAt.isBetween(startDate, endDate, 'day', '[]');
-      });
-      setEntriesFilterDataByDate(filteredEntries);
+      setEntriesStartDate(startDate);
+      setEntriesEndDate(endDate);
     } else {
-      setEntriesFilterDataByDate(entriesFilteredData);
-
+      setEntriesStartDate(null);
+      setEntriesEndDate(null);
     }
   };
 
@@ -388,7 +401,7 @@ const getFullNameById = async (userId, client) => {
     if (data && data.getUserById) {
       return `${data.getUserById.firstName} ${data.getUserById.lastName}`;
     }
-      return 'Unknown User'; // Fallback in case of missing data
+      return 'Unknown User';
 
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -569,10 +582,7 @@ const exportPDF = async (column, data, fileName) => {
   );
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const entriesStartIndex = (entriesCurrentPage - 1) * entriesPageSize;
-  const entriesEndIndex = entriesStartIndex + entriesPageSize;
   const paginatedData = dateFilteredData.slice(startIndex, endIndex);
-  const entriesPaginatedData=entriesFilteredDatabyDate.slice(entriesStartIndex,entriesEndIndex);
   const [tableHeight, setTableHeight] = useState('100vh'); // Default height
 
 useEffect(() => {
@@ -606,18 +616,12 @@ return (
         onChange={setActiveTab}
         className="tabs-container"
       >
-
-
-
-
         <TabPane tab="Sets" key="set">
           <div className="table-section">
             <Space direction="horizontal" className="tab-actions">
               <RangePicker onChange={handleDateChange}  disabledDate={disabledDate}
                   // defaultValue={[moment().startOf('month'), moment()]}
                   />
-
-
               <Dropdown overlay={exportMenu}>
                 <Button icon={<UploadOutlined/>} onClick={(e) => e.preventDefault()}>
                   Export <DownOutlined />
@@ -677,7 +681,7 @@ return (
             <div className="table-container" style={{ overflowX: 'auto' }}>
               <Table
                 columns={EntriesColumns}
-                dataSource={entriesPaginatedData}
+                dataSource={entriesFilteredDatabyDate}
                 pagination={false}
                 onRow={(record) => ({
                   onClick: () =>
@@ -693,12 +697,10 @@ return (
 
             <div className="pagination-container">
               <Pagination
-
                 current={entriesCurrentPage}
                 pageSize={entriesPageSize}
-                total={entriesFilteredDatabyDate.length}
+                total={entryResponseData.getAllResponsesForTemplate.pagination.totalCount}
                 onChange={handleEntriesPageChange}
-
                 showSizeChanger
                 pageSizeOptions={[10, 15, 25, 50]}
               />

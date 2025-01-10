@@ -1,41 +1,48 @@
 /* eslint-disable no-undef */
-import React, { useState, useEffect } from 'react';
-import { Table, Typography,Empty,Pagination } from 'antd';
 import { useQuery } from '@apollo/client';
+import { Empty, Pagination, Table, Typography } from 'antd';
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { GET_ACTIVITY_LOGS_BY_SET_ID } from './graphql/Queries';
-import Header from './components/Header';
 import CenteredSpin from '../Dashboard/component/CentredSpin';
+import Header from './components/Header';
+import { GET_ACTIVITY_LOGS_BY_SET_ID } from './graphql/Queries';
 
 
 const { Title } = Typography;
-
-// GraphQL query
 
 
 const ChangeLogOfSetPage = () => {
 const {setId}=useParams();
 const location = useLocation();
+const [currentPage, setCurrentPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
 const { templateName, templateId } = location.state || {};
-  const { loading, error, data } = useQuery(GET_ACTIVITY_LOGS_BY_SET_ID, {
-    variables: { setId },
+  const { loading, error, data , refetch } = useQuery(GET_ACTIVITY_LOGS_BY_SET_ID, {
+    variables: { setId, page: currentPage,
+      pageSize },
     fetchPolicy: 'cache-and-network',
   });
 
+  useEffect(() => {
 
+    refetch({
+      page: currentPage,
+      pageSize,
+    });
+  }, [ pageSize, currentPage, refetch]);
 
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    if (data && data.getActivityLogsBySetId) {
-      setLogs(data.getActivityLogsBySetId);
+    if (data && data.getActivityLogsBySetId.logs) {
+      setLogs(data.getActivityLogsBySetId.logs);
     }
   }, [data]);
+// eslint-disable-next-line no-console
+console.log("logs",logs);
 
 
- const [currentPage, setCurrentPage] = useState(1);
- const [pageSize, setPageSize] = useState(10);
  const [tableHeight, setTableHeight] = useState('100vh'); // Default height
 
 useEffect(() => {
@@ -75,11 +82,11 @@ useEffect(() => {
       key: 'entityType',
       width: 150,
     },
-    // {
-    //   title: 'Entity ID',
-    //   dataIndex: 'entityId',
-    //   key: 'entityId',
-    // },
+    {
+    title:'Entity Name',
+    dataIndex:'entityName',
+    key:'entityName',
+    },
     {
       title: 'Previous Value',
       key: 'previousValue',
@@ -125,12 +132,7 @@ useEffect(() => {
     },
   ];
 
-  const paginatedLogs = logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  // if (loading) {
-  //   return (
-  //    <CenteredSpin/>
-  //   );
-  // }
+
   return (
     <div>
       <Header name={templateName} templateId={templateId} setId={setId} responseLogs/>
@@ -145,7 +147,7 @@ useEffect(() => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '70vh', // Adjust this for vertical centering
+        height: '70vh',
         textAlign: 'center',
       }}>
         <Empty description="No Change Logs" />
@@ -155,16 +157,16 @@ useEffect(() => {
          <div style={{ maxHeight: 'calc(100vh - 150px)', overflow: 'auto' }}>
         <Table
           columns={columns}
-          dataSource={paginatedLogs}
+          dataSource={logs}
           rowKey={(record) => record.id}
           pagination={false}
-          scroll={{y:tableHeight,x: 'max-content' }} // Enable horizontal scroll
+          scroll={{y:tableHeight,x: 'max-content' }}
         />
         </div>
         <Pagination
             current={currentPage}
             pageSize={pageSize}
-            total={logs.length}
+            total={data.getActivityLogsBySetId.totalItems}
             showSizeChanger
             pageSizeOptions={['10', '15', '25', '50']}
             onChange={(page, size) => {

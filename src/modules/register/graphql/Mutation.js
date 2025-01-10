@@ -216,3 +216,32 @@ mutation editSet($setId: ID!, $propertyValues: [UpdatePropertyValueInput]) {
   }
 }
 `;
+
+export const STORE_ROW_RESPONSE_IN_JSONB = gql`
+  mutation StoreRowResponseInJsonb($setId: ID!,$templateId:ID!, $tableEntries: [TableEntryInput]!,$filling: Boolean) {
+    storeRowResponseInJsonb(setId: $setId, templateId:$templateId,tableEntries: $tableEntries, filling:$filling) {
+      id
+      rowNumber
+      success
+      message
+    }
+  }
+`;
+export const UPDATE_FIELD_ROW_RESPONSES = gql`
+  mutation UpdateFieldResponses($setId: ID!, $templateId:ID!,$rowNumber: Int!, $responses: [TableEntryInput!]!) {
+    updateFieldResponses(setId: $setId, templateId:$templateId,rowNumber: $rowNumber, responses: $responses) {
+      id
+      rowNumber
+      success
+      message
+    }
+  }
+`;
+export const DELETE_FIELD_RESPONSE_ROW = gql`
+  mutation DeleteFieldResponseRow($setId: ID!, $rowNumber: Int!) {
+    deleteFieldResponseRow(setId: $setId, rowNumber: $rowNumber) {
+      success
+      message
+    }
+  }
+`;
